@@ -205,6 +205,93 @@ export function extraerRequisitos(entrada) {
 }
 
 /**
+ * Extrae catálogo canónico de habilidades descriptivas (F5.1).
+ * @param {any} entrada
+ * @return {{totalSkills: number, skillsCatalog: Array<Object>}|null}
+ */
+export function extraerHabilidades(entrada) {
+  if (!entrada || typeof entrada !== 'object') return null;
+  const lista = entrada.catalogoHabilidades || entrada.skillsCatalog || entrada.habilidadesRegistradas;
+  if (!Array.isArray(lista) || lista.length === 0) return null;
+
+  const skillsCatalog = [];
+  for (const item of lista) {
+    if (!item || typeof item !== 'object') continue;
+    const id = sanitizarTexto(item.id);
+    const name = sanitizarTexto(item.name || item.nombre);
+    const description = sanitizarTexto(item.description || item.descripcion);
+    const rulesetRef = sanitizarTexto(item.rulesetRef || item.referenciaReglas);
+
+    const agentsRaw = item.targetAgents || item.agentesObjetivo;
+    const targetAgents = Array.isArray(agentsRaw)
+      ? agentsRaw.map(a => sanitizarTexto(a)).filter(Boolean)
+      : [];
+
+    if (id || name || description) {
+      skillsCatalog.push({
+        id: id || null,
+        name: name || null,
+        description: description || null,
+        targetAgents,
+        rulesetRef: rulesetRef || null
+      });
+    }
+  }
+
+  if (skillsCatalog.length === 0) return null;
+  return {
+    totalSkills: skillsCatalog.length,
+    skillsCatalog
+  };
+}
+
+/**
+ * Extrae catálogo canónico de suites de prueba descriptivas (F5.1).
+ * @param {any} entrada
+ * @return {{testFramework: string, testStrategy: string, totalSuites: number, suites: Array<Object>}|null}
+ */
+export function extraerPruebas(entrada) {
+  if (!entrada || typeof entrada !== 'object') return null;
+  const raw = entrada.catalogoSuitesPrueba || entrada.testSuitesCatalog || entrada.pruebasRegistradas;
+  if (!raw || typeof raw !== 'object') return null;
+
+  const testFramework = sanitizarTexto(raw.framework || raw.testFramework);
+  const testStrategy = sanitizarTexto(raw.estrategia || raw.testStrategy);
+  const lista = raw.suites || raw.catalogoSuites;
+  if (!Array.isArray(lista) || lista.length === 0) return null;
+
+  const suites = [];
+  for (const item of lista) {
+    if (!item || typeof item !== 'object') continue;
+    const id = sanitizarTexto(item.id);
+    const name = sanitizarTexto(item.name || item.nombre);
+    const command = sanitizarTexto(item.command || item.comando);
+    const purpose = sanitizarTexto(item.purpose || item.proposito || item.description || item.descripcion);
+    const assertions = typeof item.assertions === 'number'
+      ? item.assertions
+      : (typeof item.aserciones === 'number' ? item.aserciones : 0);
+
+    if (id || name || command) {
+      suites.push({
+        id: id || null,
+        name: name || null,
+        command: command || null,
+        assertions,
+        purpose: purpose || null
+      });
+    }
+  }
+
+  if (suites.length === 0) return null;
+  return {
+    testFramework: testFramework || 'Node.js Pure Assertions Harness',
+    testStrategy: testStrategy || 'Aislamiento determinista, no-mutación, pruebas adversariales de linaje y verificación de staging (RSC-2 a RSC-6)',
+    totalSuites: suites.length,
+    suites
+  };
+}
+
+/**
  * Normaliza estadoProyecto al esquema ContextoCanonicoArchitex.
  * Función pura y determinista.
  *
@@ -357,8 +444,9 @@ export function normalizarContextoArchitex(estadoProyecto, opciones = {}) {
     }))
   }) : noImplementado();
 
-  // 18. SKILLS (No implementado en estadoProyecto)
-  const skills = noImplementado();
+  // 18. SKILLS ← F5.1 catalogoHabilidades
+  const skillsData = extraerHabilidades(entrada);
+  const skills = skillsData ? implementado(skillsData) : noImplementado();
 
   // 19. TRACEABILITY
   const hasTraceability = Array.isArray(entrada.elementosTrazabilidad) && entrada.elementosTrazabilidad.length > 0;
@@ -371,8 +459,9 @@ export function normalizarContextoArchitex(estadoProyecto, opciones = {}) {
     }))
   }) : noImplementado();
 
-  // 20. TESTS (No implementado como suite formal)
-  const tests = noImplementado();
+  // 20. TESTS ← F5.1 catalogoSuitesPrueba
+  const testsData = extraerPruebas(entrada);
+  const tests = testsData ? implementado(testsData) : noImplementado();
 
   // 21. PRODUCTION (CI/CD no implementado en estadoProyecto)
   const production = noImplementado();
@@ -459,6 +548,8 @@ export default {
   sanitizarTexto,
   extraerUsuarios,
   extraerRequisitos,
+  extraerHabilidades,
+  extraerPruebas,
   LIFECYCLES_F3: Array.from(LIFECYCLES_F3),
   SOURCE_TYPES_F3: Array.from(SOURCE_TYPES_F3)
 };

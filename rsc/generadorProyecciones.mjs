@@ -181,7 +181,9 @@ export function generarProyeccionesRsc3(contexto, opciones = {}) {
       : `*Estado:* \`NO_IMPLEMENTADO\``,
     ``,
     `## 18. Habilidades Requeridas (\`skills\`)`,
-    `*Estado:* \`NO_IMPLEMENTADO\` (Sin habilidades requeridas persistidas en estadoProyecto)`,
+    dimensiones.skills.status === 'IMPLEMENTADO' && dimensiones.skills.value && Array.isArray(dimensiones.skills.value.skillsCatalog)
+      ? `- **Total Habilidades:** ${dimensiones.skills.value.totalSkills || dimensiones.skills.value.skillsCatalog.length}\n- **Catálogo de Habilidades:**\n${dimensiones.skills.value.skillsCatalog.map(s => `  - **${s.id || 'SKL'} — ${s.name || s.nombre || 'N/A'}**:\n    - *Descripción:* ${s.description || s.descripcion || 'N/A'}\n    - *Agentes Objetivo:* ${Array.isArray(s.targetAgents || s.agentesObjetivo) ? (s.targetAgents || s.agentesObjetivo).join(', ') : 'N/A'}\n    - *Reglas / Referencia:* \`${s.rulesetRef || s.referenciaReglas || 'N/A'}\``).join('\n')}`
+      : `*Estado:* \`NO_IMPLEMENTADO\` (Sin habilidades requeridas persistidas en estadoProyecto)`,
     ``,
     `## 19. Matriz de Trazabilidad (\`traceability\`)`,
     dimensiones.traceability.status === 'IMPLEMENTADO' && dimensiones.traceability.value && Array.isArray(dimensiones.traceability.value.matrix)
@@ -189,7 +191,9 @@ export function generarProyeccionesRsc3(contexto, opciones = {}) {
       : `*Estado:* \`NO_IMPLEMENTADO\``,
     ``,
     `## 20. Pruebas y Validación (\`tests\`)`,
-    `*Estado:* \`NO_IMPLEMENTADO\` (Sin suite formal persistida en estadoProyecto)`,
+    dimensiones.tests.status === 'IMPLEMENTADO' && dimensiones.tests.value
+      ? `- **Framework:** ${dimensiones.tests.value.testFramework || dimensiones.tests.value.framework || 'N/A'}\n- **Estrategia:** ${dimensiones.tests.value.testStrategy || dimensiones.tests.value.estrategia || 'N/A'}\n- **Total Suites:** ${dimensiones.tests.value.totalSuites || (Array.isArray(dimensiones.tests.value.suites) ? dimensiones.tests.value.suites.length : 'N/A')}\n- **Catálogo de Suites:**\n${Array.isArray(dimensiones.tests.value.suites) ? dimensiones.tests.value.suites.map(st => `  - **${st.id || 'T'} — ${st.name || st.nombre || 'N/A'}**:\n    - *Comando:* \`${st.command || st.comando || 'N/A'}\`\n    - *Aserciones:* ${st.assertions || st.aserciones || 0}\n    - *Propósito:* ${st.purpose || st.proposito || 'N/A'}`).join('\n') : '  *(Sin suites registradas)*'}`
+      : `*Estado:* \`NO_IMPLEMENTADO\` (Sin suite formal persistida en estadoProyecto)`,
     ``,
     `## 21. Configuración de Producción (\`production\`)`,
     `*Estado:* \`NO_IMPLEMENTADO\` (Sin configuración de producción persistida)`,

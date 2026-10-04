@@ -4,7 +4,7 @@ description: Pautas de concurrencia obligatoria con LockService según ADR-001 d
 ---
 
 # Skill: lockservice-concurrency
-# Context Hash: fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01
+# Context Hash: 99acfdf8952c05a0d91ded67e220e01ea8b45b14bc8671eef164f541abf42727
 
 ## Propósito
 Establece el patrón obligatorio de sincronización y escritura concurrente en Google Sheets para desarrolladores y agentes en ARCHITEX OS V-36.

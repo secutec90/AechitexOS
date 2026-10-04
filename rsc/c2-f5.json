@@ -1,13 +1,302 @@
 {
-  "schemaVersion": "1.0.0",
-  "contextVersion": "1.2.0",
-  "projectVersion": "V-36",
-  "generatedAt": "2026-10-04T23:23:35.749Z",
-  "projectId": "proy_1790980470320",
-  "tenantId": "no",
-  "source": "ARCHITEX_OS_V36",
-  "contentHash": "99acfdf8952c05a0d91ded67e220e01ea8b45b14bc8671eef164f541abf42727",
-  "dimensions": {
+  "etiqueta": "SEGUNDO NODO EVOLUTIVO F5.1 DE ARCHITEX OS V-36",
+  "nota": "C2 deriva causalmente de C1 incorporando las dimensiones canónicas 18 (skills) y 20 (tests) vía ADR-002.",
+  "parentContentHash": "fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01",
+  "datosProyectoCandidato": {
+    "idProyecto": "proy_1790980470320",
+    "campoFuturo": "- Evaluación automática de fluidez y dicción oral mediante IA y reconocimiento de voz (Speech-to-Text).\n- Notificaciones automáticas por WhatsApp a tutores ante faltas acumuladas.\n- Biblioteca digital comunitaria con descarga de audiolibros.\n- Migración a backend dedicado en Laravel 11 cuando se superen 500 alumnos concurrentes.",
+    "campoManejoOffline": "Si se interrumpe la conexión durante una lectura, el cronómetro local en JavaScript no se interrumpe. Las respuestas del cuestionario se guardan temporalmente en localStorage y se sincronizan automáticamente en segundo plano cuando el navegador detecta evento 'online'.",
+    "campoDispositivos": "Computadoras de aula de medios, laptops de docentes, teléfonos móviles inteligentes (Android / iOS) vía navegador y tabletas.",
+    "campoObjetivo": "Proveer una plataforma web de gobernanza y auditoría de arquitectura técnica que centralice el ciclo de vida de proyectos (problema, objetivo, público, entorno, MVP, restricciones, roles), versione cada cambio en un historial inmutable y orqueste agentes IA de desarrollo y refutación mediante comandos SDD, todo sobre infraestructura Google Workspace sin servidores propios.",
+    "nombreProyecto": "ARCHITEX-OS",
+    "campoNavegacion": "Barra superior minimalista con indicador de conexión y usuario activo. Pestañas de navegación directa entre módulos. Botón visible y accesible de 'Cerrar Sesión'. Atajos de teclado universales (Alt+1 Lectura, Alt+2 Asistencia, Alt+3 Accesibilidad).",
+    "elementosTrazabilidad": [
+      {
+        "actor": "Alumno",
+        "prueba": "Cronómetro no se reinicia y calcula PPM = (palabras/seg)*60",
+        "destino": "ServicioLectura.gs",
+        "requisito": "Calcular PPM en lecturas"
+      },
+      {
+        "actor": "Docente",
+        "prueba": "Escritura concurrente concurre bajo LockService sin sobreescritura",
+        "destino": "RepositorioAsistencia.gs",
+        "requisito": "Pase de lista sin colisiones"
+      },
+      {
+        "actor": "AlumnoInvidente",
+        "prueba": "Barra espaciadora alterna reproducción de audio con WCAG 2.1 AA",
+        "destino": "ModuloAccesibilidad.js",
+        "requisito": "Lectura auditiva accesible"
+      },
+      {
+        "actor": "Alumno",
+        "prueba": "Envía respuestas al reconectar sin perder datos",
+        "destino": "AlmacenamientoLocalCache.js",
+        "requisito": "Sincronización offline de quizzes"
+      }
+    ],
+    "campoMultitenant": "no",
+    "campoEntorno": "Google Apps Script (runtime V8) como backend serverless, Google Sheets como base de datos estructurada (pestañas _ARCHITEX_PROYECTOS y _ARCHITEX_HISTORIAL), Google Drive para artefactos de auditoría, HTML5/CSS3/JS vanilla como SPA cliente servida vía HtmlService, y despliegue gestionado con clasp. Zona horaria America/Mexico_City. Acceso web público (ANYONE) con ejecución como USER_DEPLOYING.",
+    "decisionesRegistradas": [
+      {
+        "fecha": "02/10/2026",
+        "problema": "¿Cómo almacenar datos sin costo de servidor garantizando integridad?",
+        "titulo": "ADR-001: Persistencia en Google Sheets con LockService",
+        "motivo": "Sheets con LockService permite costo cero y previene corrupción de datos en concurrencia.",
+        "opciones": "Firebase, Sheets nativo sin bloqueo, Sheets con LockService"
+      },
+      {
+        "fecha": "02/10/2026",
+        "titulo": "ADR-002: Separación en Capas Agnóstica de Framework",
+        "problema": "¿Cómo facilitar la migración futura a Laravel sin reescribir la lógica escolar?",
+        "motivo": "Los servicios de dominio quedan puros y en español, listos para portarse a cualquier backend.",
+        "opciones": "Código espagueti en doGet(), Capas separadas (Vistas->Controladores->Servicios->Repositorios)"
+      },
+      {
+        "fecha": "02/10/2026",
+        "titulo": "ADR-003: Accesibilidad Nativa sin Plugins Externos",
+        "problema": "¿Cómo garantizar soporte inmediato para el alumno invidente?",
+        "motivo": "Web Speech API funciona sin internet y no añade peso a la aplicación web.",
+        "opciones": "Librerías pesadas de audio, Web Speech API nativa del navegador"
+      }
+    ],
+    "campoFlujos": "1. Docente ingresa -> Selecciona grupo -> Marca lista de asistencia -> Guarda con LockService en Sheets.\n2. Alumno ingresa -> Gira ruleta de materias -> Lee fragmento -> Cronómetro calcula PPM -> Responde cuestionario -> Guarda calificación.\n3. Alumno Invidente ingresa -> Presiona Barra Espaciadora -> Sistema sintetiza clase/lectura en voz alta -> Responde preguntas por voz o teclado.",
+    "campoMvp": "Web App funcional que: (1) sirve una SPA de gobernanza desde Apps Script, (2) permite crear/leer/actualizar proyectos con los 8 campos canónicos (problema, objetivo, público, entorno, MVP, restricciones, roles, nombre), (3) persiste cada cambio en _ARCHITEX_PROYECTOS y versiona snapshots en _ARCHITEX_HISTORIAL, (4) expone un harness de 17 comandos SDD y 2 agentes IA (developer, refuter-correctness) en .cursor/, y (5) despliega vía clasp con appsscript.json configurado.",
+    "selectorTipoProyecto": "web_laravel",
+    "campoRestricciones": "1. Dependencia total de Google Workspace (lock-in costo $0 USD).\n2. Cuotas de Apps Script (6 min ejecución, triggers limitados).\n3. Sheets protegido con LockService (timeout 15s) para transaccionalidad.\n4. index.html monolítico.\n5. Sin autenticación granular (acceso ANYONE con ejecución USER_DEPLOYING).\n6. Nomenclatura obligatoria en ESPAÑOL.",
+    "campoEntidades": "Proyectos (id, nombre, version, tipo_arquitectura, autor, fecha_creacion)\n_ARCHITEX_PROYECTOS (ID_PROYECTO, NOMBRE_PROYECTO, FECHA_ACTUALIZACION, RESUMEN_PROBLEMA, DATOS_JSON_COMPLETOS)\n_ARCHITEX_HISTORIAL (ID_HISTORIAL, ID_PROYECTO, NOMBRE_PROYECTO, FECHA_VERSION, RESUMEN, DATOS_JSON)\n_ARCHITEX_RESPALDOS_JSON (carpeta drive para payloads > 45KB)\nDecisiones_ADR (id, codigo_adr, titulo, problema, decision_tomada, justificacion)\nDirectricesRSC (agentes_objetivo, ruta_reglas, skills_instaladas)",
+    "campoPublico": "Arquitectos de software, ingenieros principales, tech leads y equipos de plataforma que operan bajo metodologías SDD (Spec-Driven Development) y requieren gobernanza auditable; también agentes IA (Cursor, Antigravity) que consumen el harness de comandos y agentes para asistir el ciclo de desarrollo.",
+    "campoPantallas": "1. Pantalla de Bienvenida y Selección de Rol\n2. Panel Docente: Pase de lista y selector de grupos\n3. Panel Alumno: Ruleta interactiva, visor de lectura con cronómetro y evaluación\n4. Panel Accesible: Interfaz de audio simplificada de alto contraste con comandos por voz y atajos\n5. Reporte de Desempeño: Gráficos de comprensión y porcentaje de asistencia escolar",
+    "entidadesRegistradas": [
+      {
+        "campos": "id, nombre_completo, grupo_id, matricula, es_invidente, fecha_registro",
+        "nombre": "Alumnos"
+      },
+      {
+        "campos": "id, nombre_completo, correo_electronico, asignatura_principal",
+        "nombre": "Docentes"
+      },
+      {
+        "campos": "id, titulo, materia, total_palabras, contenido_texto",
+        "nombre": "Lecturas"
+      },
+      {
+        "campos": "id, alumno_id, lectura_id, segundos_totales, palabras_por_minuto, calificacion_quiz, fecha_hora",
+        "nombre": "SesionesLectura"
+      },
+      {
+        "campos": "id, alumno_id, docente_id, fecha, estado, justificacion",
+        "nombre": "Asistencias"
+      },
+      {
+        "campos": "id, titulo, contenido_voz, duracion_estimada, docente_id, fecha_publicacion",
+        "nombre": "ClasesAudio"
+      }
+    ],
+    "campoProblema": "Los equipos de arquitectura técnica carecen de un sistema unificado de gobernanza que conecte la especificación de proyectos (SDD), la auditoría de decisiones y la orquestación de agentes IA, provocando pérdida de trazabilidad, decisiones sin historial versionado y fricción entre documentación, código y despliegue.",
+    "campoRoles": "Arquitecto Principal (diseño de capas, modelo de datos, decisiones estructurales)\nIngeniero de Software (implementación en Codigo.gs e index.html)\nAgente IA Developer (.cursor/agents/developer.md — generación de código)\nAgente IA Refuter-Correctness (.cursor/agents/refuter-correctness.md — validación adversarial)\nAuditor de Gobernanza (revisión de _ARCHITEX_HISTORIAL y decisiones.md)\nUsuario Final (arquitecto/tech lead que consume la SPA)\nDeployer (cuenta Google que ejecuta clasp y posee permisos sobre Sheet/Drive)",
+    "componentesClaveEstado": {},
+    "perfilesUsuarios": [
+      {
+        "id": "USR-01",
+        "rol": "Arquitecto Humano",
+        "descripcion": "Responsable de diseño de alto nivel, validación de SDD, aprobación de ADRs y autorización de evoluciones canónicas.",
+        "nivelAcceso": "ADMIN_ARCHITECT",
+        "capacidades": [
+          "AUTHORIZE_MUTATIONS",
+          "DECIDE_ADRS",
+          "APPROVE_REGENERATION"
+        ]
+      },
+      {
+        "id": "USR-02",
+        "rol": "Agente IA Gobernado",
+        "descripcion": "Agentes automatizados (Cursor, Antigravity, Claude) que asisten en generación, verificación adversarial y refutación bajo arnés RSC.",
+        "nivelAcceso": "READ_ONLY_EXECUTION",
+        "capacidades": [
+          "VERIFY_CONTEXT",
+          "AUDIT_CONSTRAINTS",
+          "REFUTE_CORRECTNESS"
+        ]
+      },
+      {
+        "id": "USR-03",
+        "rol": "Ingeniero de Software",
+        "descripcion": "Implementador de módulos de software en código fuente bajo los contratos canónicos definidos.",
+        "nivelAcceso": "CONTRIBUTOR",
+        "capacidades": [
+          "CODE_IMPLEMENTATION",
+          "RUN_TESTS"
+        ]
+      }
+    ],
+    "catalogoRequisitos": [
+      {
+        "id": "REQ-F01",
+        "tipo": "FUNCTIONAL",
+        "titulo": "Normalización y proyección determinista de contexto",
+        "declaracion": "El sistema debe transformar el estado del proyecto en un contexto canónico con hash SHA-256 sin depender de timestamps volátiles ni red.",
+        "prioridad": "HIGH",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "rsc/normalizadorContexto.mjs"
+      },
+      {
+        "id": "REQ-F02",
+        "tipo": "FUNCTIONAL",
+        "titulo": "Verificación y certificación cooperativa de agentes",
+        "declaracion": "El arnés RSC-4/RSC-6 debe certificar que las proyecciones portan el hash canónico y rechazar contextos incompletos, manipulados o con fugas de gobernanza.",
+        "prioridad": "HIGH",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "rsc/verificadorContexto.mjs"
+      },
+      {
+        "id": "REQ-F03",
+        "tipo": "FUNCTIONAL",
+        "titulo": "Regeneración atómica en staging gobernada",
+        "declaracion": "RSC-5 debe requerir autorización explícita para sincronizar proyecciones, verificando el staging antes de realizar reemplazo físico.",
+        "prioridad": "HIGH",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "rsc/regeneradorProyecciones.mjs"
+      },
+      {
+        "id": "REQ-NF01",
+        "tipo": "NON_FUNCTIONAL",
+        "titulo": "Costo de servidor $0 USD y runtime serverless",
+        "declaracion": "Operar sobre infraestructura Google Workspace (Apps Script runtime V8 + Sheets) sin servidores dedicados.",
+        "prioridad": "MANDATORY",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "ConfiguracionBase.gs"
+      },
+      {
+        "id": "REQ-NF02",
+        "tipo": "NON_FUNCTIONAL",
+        "titulo": "Concurrencia protegida mediante LockService",
+        "declaracion": "Toda mutación en Google Sheets debe ejecutarse bajo LockService con timeout de 15 segundos para evitar sobreescritura concurrente.",
+        "prioridad": "MANDATORY",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "Codigo.gs"
+      }
+    ],
+    "estadoCicloVida": {
+      "lifecycle": "CANONICAL"
+    },
+    "registroProcedencia": {
+      "sourceType": "HUMAN_UI",
+      "author": "ARQUITECTO_HUMANO",
+      "triggerDecisionId": "ADR-002-F5-CALIDAD-PLATAFORMA",
+      "timestamp": "2026-10-04T18:00:00.000Z"
+    },
+    "linajeCausal": {
+      "parentContentHash": "fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01",
+      "lineageDepth": 2
+    },
+    "contextVersion": "1.2.0",
+    "catalogoHabilidades": [
+      {
+        "id": "SKL-01",
+        "nombre": "Contexto Canónico y Proyecciones",
+        "descripcion": "Interpretación y consumo de ARCHITEX_STATE.json y Markdown canónico",
+        "agentesObjetivo": [
+          "Cursor",
+          "Antigravity",
+          "Claude"
+        ],
+        "referenciaReglas": "skills/architex-context/SKILL.md"
+      },
+      {
+        "id": "SKL-02",
+        "nombre": "Concurrencia Atómica con LockService",
+        "descripcion": "Patrón tryLock(10000)/finally releaseLock para escrituras concurrentes en Google Sheets (ADR-001)",
+        "agentesObjetivo": [
+          "Developer",
+          "Human Architect"
+        ],
+        "referenciaReglas": "skills/lockservice-concurrency/SKILL.md"
+      },
+      {
+        "id": "SKL-03",
+        "nombre": "Accesibilidad Nativa Web Speech API",
+        "descripcion": "Locución por voz client-side y navegación accesible WCAG 2.1 AA",
+        "agentesObjetivo": [
+          "Frontend Agent"
+        ],
+        "referenciaReglas": "ADR-003"
+      }
+    ],
+    "catalogoSuitesPrueba": {
+      "framework": "Node.js Pure Assertions Harness",
+      "estrategia": "Aislamiento determinista, no-mutación, pruebas adversariales de linaje y verificación de staging (RSC-2 a RSC-6)",
+      "totalSuites": 8,
+      "suites": [
+        {
+          "id": "T-RSC2",
+          "nombre": "Normalizador Canónico",
+          "comando": "node rsc/pruebasRsc2Normalizador.mjs",
+          "aserciones": 51,
+          "proposito": "Normalización determinista, saneamiento de secretos y no-invención"
+        },
+        {
+          "id": "T-RSC3",
+          "nombre": "Generador de Proyecciones Físicas",
+          "comando": "node rsc/pruebasRsc3Proyecciones.mjs",
+          "aserciones": 19,
+          "proposito": "Generación pura de JSON, Markdown y skills"
+        },
+        {
+          "id": "T-RSC4",
+          "nombre": "Verificador Canónico",
+          "comando": "node rsc/pruebasRsc4Verificacion.mjs",
+          "aserciones": 39,
+          "proposito": "Certificación de integridad, detección de tampering y validación de linaje"
+        },
+        {
+          "id": "T-RSC5",
+          "nombre": "Regenerador Staging",
+          "comando": "node rsc/pruebasRsc5Regeneracion.mjs",
+          "aserciones": 22,
+          "proposito": "Autorización explícita, generación en staging y reemplazo atómico"
+        },
+        {
+          "id": "T-RSC6",
+          "nombre": "CLI Harness",
+          "comando": "node rsc/pruebasRsc6Harness.mjs",
+          "aserciones": 40,
+          "proposito": "Consumo cooperativo y diagnóstico CLI"
+        },
+        {
+          "id": "T-F3",
+          "nombre": "Evolución y Linaje C0",
+          "comando": "node rsc/pruebasF3Evolucion.mjs",
+          "aserciones": 34,
+          "proposito": "Génesis y Floor Guard F3"
+        },
+        {
+          "id": "T-F4",
+          "nombre": "Evolución C0 -> C1",
+          "comando": "node rsc/pruebasF4Evolucion.mjs",
+          "aserciones": 35,
+          "proposito": "Linaje C0->C1 y activación de users y requirements"
+        },
+        {
+          "id": "T-F51",
+          "nombre": "Evolución C1 -> C2",
+          "comando": "node rsc/pruebasF51Evolucion.mjs",
+          "aserciones": 48,
+          "proposito": "Linaje C1->C2 y activación de skills y tests"
+        }
+      ]
+    }
+  },
+  "contextoCanonico": {
+    "schemaVersion": "1.0.0",
+    "contextVersion": "1.2.0",
+    "projectVersion": "V-36",
+    "generatedAt": "2026-10-04T23:23:35.749Z",
+    "projectId": "proy_1790980470320",
+    "tenantId": "no",
+    "source": "ARCHITEX_OS_V36",
+    "contentHash": "99acfdf8952c05a0d91ded67e220e01ea8b45b14bc8671eef164f541abf42727",
     "identity": {
       "status": "IMPLEMENTADO",
       "value": {
@@ -416,5 +705,18 @@
         "lineageDepth": 2
       }
     }
-  }
+  },
+  "verificacion": {
+    "estado": "VALIDO",
+    "valido": true,
+    "parentStatus": "PARENT_VERIFIED",
+    "lineageDepth": 2,
+    "parentContentHash": "fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01",
+    "detalles": [
+      "Proyección verificada exitosamente: íntegra, canónica y coherente.",
+      "Padre confiable verificado (PARENT_VERIFIED)."
+    ]
+  },
+  "dimensionesImplementadas": 23,
+  "dimensionesNoImplementadas": 2
 }

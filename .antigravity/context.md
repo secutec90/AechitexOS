@@ -1,9 +1,9 @@
 # ARCHITEX OS V-36 — CONTEXTO CANÓNICO DE ARQUITECTURA
 
-> **Context Hash:** `fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01`
-> **Schema Version:** `1.0.0` | **Context Version:** `1.1.0` | **Project Version:** `V-36`
+> **Context Hash:** `99acfdf8952c05a0d91ded67e220e01ea8b45b14bc8671eef164f541abf42727`
+> **Schema Version:** `1.0.0` | **Context Version:** `1.2.0` | **Project Version:** `V-36`
 > **Project ID:** `proy_1790980470320` | **Tenant ID:** `no` | **Source:** `ARCHITEX_OS_V36`
-> **Generated At:** `2026-10-04T22:51:29.764Z`
+> **Generated At:** `2026-10-04T23:23:35.749Z`
 
 ---
 
@@ -146,7 +146,20 @@ DirectricesRSC (agentes_objetivo, ruta_reglas, skills_instaladas)
 - **Fecha:** 02/10/2026
 
 ## 18. Habilidades Requeridas (`skills`)
-*Estado:* `NO_IMPLEMENTADO` (Sin habilidades requeridas persistidas en estadoProyecto)
+- **Total Habilidades:** 3
+- **Catálogo de Habilidades:**
+  - **SKL-01 — Contexto Canónico y Proyecciones**:
+    - *Descripción:* Interpretación y consumo de ARCHITEX_STATE.json y Markdown canónico
+    - *Agentes Objetivo:* Cursor, Antigravity, Claude
+    - *Reglas / Referencia:* `skills/architex-context/SKILL.md`
+  - **SKL-02 — Concurrencia Atómica con LockService**:
+    - *Descripción:* Patrón tryLock(10000)/finally releaseLock para escrituras concurrentes en Google Sheets (ADR-001)
+    - *Agentes Objetivo:* Developer, Human Architect
+    - *Reglas / Referencia:* `skills/lockservice-concurrency/SKILL.md`
+  - **SKL-03 — Accesibilidad Nativa Web Speech API**:
+    - *Descripción:* Locución por voz client-side y navegación accesible WCAG 2.1 AA
+    - *Agentes Objetivo:* Frontend Agent
+    - *Reglas / Referencia:* `ADR-003`
 
 ## 19. Matriz de Trazabilidad (`traceability`)
 - **Requisito:** Calcular PPM en lecturas | **Actor:** Alumno | **Destino:** ServicioLectura.gs | **Prueba:** Cronómetro no se reinicia y calcula PPM = (palabras/seg)*60
@@ -155,7 +168,42 @@ DirectricesRSC (agentes_objetivo, ruta_reglas, skills_instaladas)
 - **Requisito:** Sincronización offline de quizzes | **Actor:** Alumno | **Destino:** AlmacenamientoLocalCache.js | **Prueba:** Envía respuestas al reconectar sin perder datos
 
 ## 20. Pruebas y Validación (`tests`)
-*Estado:* `NO_IMPLEMENTADO` (Sin suite formal persistida en estadoProyecto)
+- **Framework:** Node.js Pure Assertions Harness
+- **Estrategia:** Aislamiento determinista, no-mutación, pruebas adversariales de linaje y verificación de staging (RSC-2 a RSC-6)
+- **Total Suites:** 8
+- **Catálogo de Suites:**
+  - **T-RSC2 — Normalizador Canónico**:
+    - *Comando:* `node rsc/pruebasRsc2Normalizador.mjs`
+    - *Aserciones:* 51
+    - *Propósito:* Normalización determinista, saneamiento de secretos y no-invención
+  - **T-RSC3 — Generador de Proyecciones Físicas**:
+    - *Comando:* `node rsc/pruebasRsc3Proyecciones.mjs`
+    - *Aserciones:* 19
+    - *Propósito:* Generación pura de JSON, Markdown y skills
+  - **T-RSC4 — Verificador Canónico**:
+    - *Comando:* `node rsc/pruebasRsc4Verificacion.mjs`
+    - *Aserciones:* 39
+    - *Propósito:* Certificación de integridad, detección de tampering y validación de linaje
+  - **T-RSC5 — Regenerador Staging**:
+    - *Comando:* `node rsc/pruebasRsc5Regeneracion.mjs`
+    - *Aserciones:* 22
+    - *Propósito:* Autorización explícita, generación en staging y reemplazo atómico
+  - **T-RSC6 — CLI Harness**:
+    - *Comando:* `node rsc/pruebasRsc6Harness.mjs`
+    - *Aserciones:* 40
+    - *Propósito:* Consumo cooperativo y diagnóstico CLI
+  - **T-F3 — Evolución y Linaje C0**:
+    - *Comando:* `node rsc/pruebasF3Evolucion.mjs`
+    - *Aserciones:* 34
+    - *Propósito:* Génesis y Floor Guard F3
+  - **T-F4 — Evolución C0 -> C1**:
+    - *Comando:* `node rsc/pruebasF4Evolucion.mjs`
+    - *Aserciones:* 35
+    - *Propósito:* Linaje C0->C1 y activación de users y requirements
+  - **T-F51 — Evolución C1 -> C2**:
+    - *Comando:* `node rsc/pruebasF51Evolucion.mjs`
+    - *Aserciones:* 48
+    - *Propósito:* Linaje C1->C2 y activación de skills y tests
 
 ## 21. Configuración de Producción (`production`)
 *Estado:* `NO_IMPLEMENTADO` (Sin configuración de producción persistida)

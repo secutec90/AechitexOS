@@ -25,3 +25,10 @@ Status: constitution draft written; awaiting explicit user ratification.
 La fase pidió cambiar el estado a `ratified` solo si el contrato ya estaba aprobado.
 Este registro seguía en «awaiting explicit user ratification» y el archivo en `pending_ratification`.
 No se inventó la aprobación. Sigue pendiente una frase humana que ratifique la v1.0.0 y las opciones 1A, 2A, 3A y 4A.
+
+## 2026-10-04 — ADR-002-F5-CALIDAD-PLATAFORMA
+
+- **Alcance:** Activación exclusiva de Dimensión 18 (`skills`) y Dimensión 20 (`tests`) para transición evolutiva C1 → C2 (SemVer 1.2.0, depth 2).
+- **Exclusiones:** Dimensión 21 (`production`) y Dimensión 22 (`maintenance`) diferidas a F5.2; UI excluida.
+- **Detalle completo:** `02-DOCS/wiki/sdd/ADR-002-F5-CALIDAD-PLATAFORMA.md`.
+
