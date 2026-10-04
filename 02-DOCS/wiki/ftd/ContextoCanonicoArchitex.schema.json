@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://architex-os.dev/schemas/v1/ContextoCanonicoArchitex.schema.json",
+  "title": "ContextoCanonicoArchitex",
+  "description": "Esquema canónico de contexto normalizado para ARCHITEX OS V-36 (RSC-2).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "contextVersion",
+    "projectVersion",
+    "generatedAt",
+    "projectId",
+    "tenantId",
+    "source",
+    "contentHash",
+    "identity",
+    "problem",
+    "objectives",
+    "audience",
+    "environment",
+    "mvp",
+    "future",
+    "constraints",
+    "roles",
+    "users",
+    "entities",
+    "requirements",
+    "data",
+    "design",
+    "architecture",
+    "technology",
+    "decisions",
+    "skills",
+    "traceability",
+    "tests",
+    "production",
+    "maintenance",
+    "state",
+    "provenance",
+    "integrity"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "contextVersion": {
+      "type": "string"
+    },
+    "projectVersion": {
+      "type": "string",
+      "const": "V-36"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "projectId": {
+      "type": ["string", "null"]
+    },
+    "tenantId": {
+      "type": ["string", "null"]
+    },
+    "source": {
+      "type": "string",
+      "const": "ARCHITEX_OS_V36"
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "identity": { "$ref": "#/$defs/dimension" },
+    "problem": { "$ref": "#/$defs/dimension" },
+    "objectives": { "$ref": "#/$defs/dimension" },
+    "audience": { "$ref": "#/$defs/dimension" },
+    "environment": { "$ref": "#/$defs/dimension" },
+    "mvp": { "$ref": "#/$defs/dimension" },
+    "future": { "$ref": "#/$defs/dimension" },
+    "constraints": { "$ref": "#/$defs/dimension" },
+    "roles": { "$ref": "#/$defs/dimension" },
+    "users": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "entities": { "$ref": "#/$defs/dimension" },
+    "requirements": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "data": { "$ref": "#/$defs/dimension" },
+    "design": { "$ref": "#/$defs/dimension" },
+    "architecture": { "$ref": "#/$defs/dimension" },
+    "technology": { "$ref": "#/$defs/dimension" },
+    "decisions": { "$ref": "#/$defs/dimension" },
+    "skills": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "traceability": { "$ref": "#/$defs/dimension" },
+    "tests": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "production": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "maintenance": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "state": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "provenance": { "$ref": "#/$defs/dimensionNoImplementada" },
+    "integrity": { "$ref": "#/$defs/dimensionNoImplementada" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "required": ["status", "value"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["IMPLEMENTADO", "NO_IMPLEMENTADO"]
+        },
+        "value": {
+          "type": ["object", "null"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "dimensionNoImplementada": {
+      "type": "object",
+      "required": ["status", "value"],
+      "properties": {
+        "status": {
+          "type": "string",
+          "const": "NO_IMPLEMENTADO"
+        },
+        "value": {
+          "type": "null"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

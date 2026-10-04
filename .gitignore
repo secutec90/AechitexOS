@@ -1,0 +1,18 @@
+# Entornos y sesiones de herramientas
+.rsc/
+.tempmediaStorage/
+chrome-user-data/
+*.log
+
+# Carpetas y copias de recuperación histórica
+_recuperacion_*/
+*.recuperado*
+*.pre-v49-backup
+*.backup
+
+# Accesos directos de Google Drive
+*.gsheet
+
+# Sistema operativo
+Thumbs.db
+.DS_Store

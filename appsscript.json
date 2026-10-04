@@ -1,0 +1,50 @@
+{
+  "timeZone": "America/Mexico_City",
+  "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Drive",
+        "serviceId": "drive",
+        "version": "v3"
+      }
+    ],
+    "libraries": []
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.scriptapp",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/script.container.ui"
+  ],
+  "urlFetchWhitelist": [
+    "https://api.deepseek.com/"
+  ],
+  "webapp": {
+    "executeAs": "USER_DEPLOYING",
+    "access": "ANYONE"
+  },
+  "executionApi": {
+    "access": "ANYONE"
+  },
+  "addOns": {
+    "common": {
+      "name": "ARCHITEX-OS",
+      "logoUrl": "https://ssl.gstatic.com/docs/script/images/logo.png",
+      "homepageTrigger": {
+        "runFunction": "servirInterfazPrincipal",
+        "enabled": true
+      }
+    },
+    "sheets": {
+      "homepageTrigger": {
+        "runFunction": "servirInterfazPrincipal",
+        "enabled": true
+      }
+    }
+  }
+}

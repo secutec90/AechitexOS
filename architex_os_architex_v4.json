@@ -1,0 +1,123 @@
+{
+  "sistema": "ARCHITEX OS",
+  "version": "4.0",
+  "fechaGeneracion": "2026-10-03T03:26:04.412Z",
+  "datosProyecto": {
+    "idProyecto": "proy_1790980470320",
+    "campoFuturo": "- Evaluación automática de fluidez y dicción oral mediante IA y reconocimiento de voz (Speech-to-Text).\n- Notificaciones automáticas por WhatsApp a tutores ante faltas acumuladas.\n- Biblioteca digital comunitaria con descarga de audiolibros.\n- Migración a backend dedicado en Laravel 11 cuando se superen 500 alumnos concurrentes.",
+    "campoManejoOffline": "Si se interrumpe la conexión durante una lectura, el cronómetro local en JavaScript no se interrumpe. Las respuestas del cuestionario se guardan temporalmente en localStorage y se sincronizan automáticamente en segundo plano cuando el navegador detecta evento 'online'.",
+    "campoDispositivos": "Computadoras de aula de medios, laptops de docentes, teléfonos móviles inteligentes (Android / iOS) vía navegador y tabletas.",
+    "campoObjetivo": "Proveer una plataforma web de gobernanza y auditoría de arquitectura técnica que centralice el ciclo de vida de proyectos (problema, objetivo, público, entorno, MVP, restricciones, roles), versione cada cambio en un historial inmutable y orqueste agentes IA de desarrollo y refutación mediante comandos SDD, todo sobre infraestructura Google Workspace sin servidores propios.",
+    "nombreProyecto": "ARCHITEX-OS",
+    "campoNavegacion": "Barra superior minimalista con indicador de conexión y usuario activo. Pestañas de navegación directa entre módulos. Botón visible y accesible de 'Cerrar Sesión'. Atajos de teclado universales (Alt+1 Lectura, Alt+2 Asistencia, Alt+3 Accesibilidad).",
+    "elementosTrazabilidad": [
+      {
+        "actor": "Alumno",
+        "prueba": "Cronómetro no se reinicia y calcula PPM = (palabras/seg)*60",
+        "destino": "ServicioLectura.gs",
+        "requisito": "Calcular PPM en lecturas"
+      },
+      {
+        "actor": "Docente",
+        "prueba": "Escritura concurrente concurre bajo LockService sin sobreescritura",
+        "destino": "RepositorioAsistencia.gs",
+        "requisito": "Pase de lista sin colisiones"
+      },
+      {
+        "actor": "AlumnoInvidente",
+        "prueba": "Barra espaciadora alterna reproducción de audio con WCAG 2.1 AA",
+        "destino": "ModuloAccesibilidad.js",
+        "requisito": "Lectura auditiva accesible"
+      },
+      {
+        "actor": "Alumno",
+        "prueba": "Envía respuestas al reconectar sin perder datos",
+        "destino": "AlmacenamientoLocalCache.js",
+        "requisito": "Sincronización offline de quizzes"
+      }
+    ],
+    "campoMultitenant": "no",
+    "campoEntorno": "Google Apps Script (runtime V8) como backend serverless, Google Sheets como base de datos estructurada (pestañas _ARCHITEX_PROYECTOS y _ARCHITEX_HISTORIAL), Google Drive para artefactos de auditoría, HTML5/CSS3/JS vanilla como SPA cliente servida vía HtmlService, y despliegue gestionado con clasp. Zona horaria America/Mexico_City. Acceso web público (ANYONE) con ejecución como USER_DEPLOYING.",
+    "decisionesRegistradas": [
+      {
+        "fecha": "02/10/2026",
+        "problema": "¿Cómo almacenar datos sin costo de servidor garantizando integridad?",
+        "titulo": "ADR-001: Persistencia en Google Sheets con LockService",
+        "motivo": "Sheets con LockService permite costo cero y previene corrupción de datos en concurrencia.",
+        "opciones": "Firebase, Sheets nativo sin bloqueo, Sheets con LockService"
+      },
+      {
+        "fecha": "02/10/2026",
+        "titulo": "ADR-002: Separación en Capas Agnóstica de Framework",
+        "problema": "¿Cómo facilitar la migración futura a Laravel sin reescribir la lógica escolar?",
+        "motivo": "Los servicios de dominio quedan puros y en español, listos para portarse a cualquier backend.",
+        "opciones": "Código espagueti en doGet(), Capas separadas (Vistas->Controladores->Servicios->Repositorios)"
+      },
+      {
+        "fecha": "02/10/2026",
+        "titulo": "ADR-003: Accesibilidad Nativa sin Plugins Externos",
+        "problema": "¿Cómo garantizar soporte inmediato para el alumno invidente?",
+        "motivo": "Web Speech API funciona sin internet y no añade peso a la aplicación web.",
+        "opciones": "Librerías pesadas de audio, Web Speech API nativa del navegador"
+      }
+    ],
+    "campoFlujos": "1. Docente ingresa -> Selecciona grupo -> Marca lista de asistencia -> Guarda con LockService en Sheets.\n2. Alumno ingresa -> Gira ruleta de materias -> Lee fragmento -> Cronómetro calcula PPM -> Responde cuestionario -> Guarda calificación.\n3. Alumno Invidente ingresa -> Presiona Barra Espaciadora -> Sistema sintetiza clase/lectura en voz alta -> Responde preguntas por voz o teclado.",
+    "campoMvp": "Web App funcional que: (1) sirve una SPA de gobernanza desde Apps Script, (2) permite crear/leer/actualizar proyectos con los 8 campos canónicos (problema, objetivo, público, entorno, MVP, restricciones, roles, nombre), (3) persiste cada cambio en _ARCHITEX_PROYECTOS y versiona snapshots en _ARCHITEX_HISTORIAL, (4) expone un harness de 17 comandos SDD y 2 agentes IA (developer, refuter-correctness) en .cursor/, y (5) despliega vía clasp con appsscript.json configurado.",
+    "selectorTipoProyecto": "web_laravel",
+    "campoRestricciones": "1. Dependencia total de Google Workspace (lock-in costo $0 USD).\n2. Cuotas de Apps Script (6 min ejecución, triggers limitados).\n3. Sheets protegido con LockService (timeout 15s) para transaccionalidad.\n4. index.html monolítico.\n5. Sin autenticación granular (acceso ANYONE con ejecución USER_DEPLOYING).\n6. Nomenclatura obligatoria en ESPAÑOL.",
+    "campoEntidades": "Proyectos (id, nombre, version, tipo_arquitectura, autor, fecha_creacion)\n_ARCHITEX_PROYECTOS (ID_PROYECTO, NOMBRE_PROYECTO, FECHA_ACTUALIZACION, RESUMEN_PROBLEMA, DATOS_JSON_COMPLETOS)\n_ARCHITEX_HISTORIAL (ID_HISTORIAL, ID_PROYECTO, NOMBRE_PROYECTO, FECHA_VERSION, RESUMEN, DATOS_JSON)\n_ARCHITEX_RESPALDOS_JSON (carpeta drive para payloads > 45KB)\nDecisiones_ADR (id, codigo_adr, titulo, problema, decision_tomada, justificacion)\nDirectricesRSC (agentes_objetivo, ruta_reglas, skills_instaladas)",
+    "campoPublico": "Arquitectos de software, ingenieros principales, tech leads y equipos de plataforma que operan bajo metodologías SDD (Spec-Driven Development) y requieren gobernanza auditable; también agentes IA (Cursor, Antigravity) que consumen el harness de comandos y agentes para asistir el ciclo de desarrollo.",
+    "campoPantallas": "1. Pantalla de Bienvenida y Selección de Rol\n2. Panel Docente: Pase de lista y selector de grupos\n3. Panel Alumno: Ruleta interactiva, visor de lectura con cronómetro y evaluación\n4. Panel Accesible: Interfaz de audio simplificada de alto contraste con comandos por voz y atajos\n5. Reporte de Desempeño: Gráficos de comprensión y porcentaje de asistencia escolar",
+    "entidadesRegistradas": [
+      {
+        "campos": "id, nombre_completo, grupo_id, matricula, es_invidente, fecha_registro",
+        "nombre": "Alumnos"
+      },
+      {
+        "campos": "id, nombre_completo, correo_electronico, asignatura_principal",
+        "nombre": "Docentes"
+      },
+      {
+        "campos": "id, titulo, materia, total_palabras, contenido_texto",
+        "nombre": "Lecturas"
+      },
+      {
+        "campos": "id, alumno_id, lectura_id, segundos_totales, palabras_por_minuto, calificacion_quiz, fecha_hora",
+        "nombre": "SesionesLectura"
+      },
+      {
+        "campos": "id, alumno_id, docente_id, fecha, estado, justificacion",
+        "nombre": "Asistencias"
+      },
+      {
+        "campos": "id, titulo, contenido_voz, duracion_estimada, docente_id, fecha_publicacion",
+        "nombre": "ClasesAudio"
+      }
+    ],
+    "campoProblema": "Los equipos de arquitectura técnica carecen de un sistema unificado de gobernanza que conecte la especificación de proyectos (SDD), la auditoría de decisiones y la orquestación de agentes IA, provocando pérdida de trazabilidad, decisiones sin historial versionado y fricción entre documentación, código y despliegue.",
+    "campoRoles": "Arquitecto Principal (diseño de capas, modelo de datos, decisiones estructurales)\nIngeniero de Software (implementación en Codigo.gs e index.html)\nAgente IA Developer (.cursor/agents/developer.md — generación de código)\nAgente IA Refuter-Correctness (.cursor/agents/refuter-correctness.md — validación adversarial)\nAuditor de Gobernanza (revisión de _ARCHITEX_HISTORIAL y decisiones.md)\nUsuario Final (arquitecto/tech lead que consume la SPA)\nDeployer (cuenta Google que ejecuta clasp y posee permisos sobre Sheet/Drive)",
+    "componentesClaveEstado": {}
+  },
+  "historialArquitecto": [
+    {
+      "content": "Eres el Arquitecto de Software y Sistemas Principal de ARCHITEX OS.\n\nEntrevista socráticamente al usuario para concebir cualquier solución técnica (Web SaaS, Apps Móviles APK, IoT con ESP32 y MQTT, APIs).\n\nREGLAS:\n\n1. No programes código fuente preliminar.\n\n2. Identifica el dominio (Web, APK o IoT/MQTT) y formula solo 1 o 2 preguntas por turno.\n\n3. NOMENCLATURA EN ESPAÑOL: Todos los nombres de variables, funciones, métodos y modelos deben concebirse en español y comentados.\n\n4. Al concluir la entrevista, confirma el anteproyecto y finaliza con un JSON estructurado con las propiedades: { \"problema\": \"...\", \"objetivo\": \"...\", \"publico\": \"...\", \"roles\": \"...\", \"entidades\": \"...\", \"mvp\": \"...\", \"restricciones\": \"...\" } para su volcado automático.",
+      "role": "system"
+    },
+    {
+      "content": "Hola Arquitecto. Quiero desarrollar una plataforma web educativa responsiva para una escuela secundaria, operando sobre Google Apps Script con persistencia en Google Sheets a costo cero.\n\nRequerimientos clave ya definidos:\n1. Módulo de Comprensión Lectora: Lectura en pantalla con cronómetro digital. Al pulsar \"Finalizar lectura\", calcula las palabras por minuto (PPM = total palabras / minutos transcurridos) y aplica un cuestionario breve de 3 preguntas de opción múltiple para medir la retención. Sin micrófono ni librerías pesadas de audio.\n2. Módulo de Pase de Lista: Registro diario de asistencia por grupo para los docentes, guardado en Google Sheets con bloqueo de concurrencia mediante LockService para evitar pérdida de datos.\n3. Accesibilidad Inclusiva (WCAG 2.1 AA): Un alumno con discapacidad visual severa podrá escuchar las lecturas y preguntas leídas en voz alta mediante la Web Speech API nativa del navegador, controlando la reproducción con la Barra Espaciadora y respondiendo el cuestionario con los números 1, 2 o 3.\n4. Arquitectura Limpia: Separación estricta en capas (Vistas -> Controladores -> Servicios -> Repositorios) con nombres de funciones y variables en español, de modo que en el futuro se pueda migrar a MySQL/Laravel sin reescribir la lógica escolar.\n\nCon estos parámetros, por favor valida la arquitectura y genera el JSON estructurado final ({ \"problema\": \"...\", \"objetivo\": \"...\", \"publico\": \"...\", \"roles\": \"...\", \"entidades\": \"...\", \"mvp\": \"...\", \"restricciones\": \"...\" }) para sincronizarlo automáticamente con los campos de ARCHITEX OS.",
+      "role": "user"
+    },
+    {
+      "content": "# Validación de Arquitectura — ARCHITEX OS\n\nExcelente nivel de definición, colega. Antes de emitir el JSON, necesito **cerrar dos brechas críticas** que, si las asumo por ti, comprometerían el anteproyecto. Son solo dos preguntas:\n\n---\n\n### 🔍 Pregunta 1 — Modelo de identidad y acceso\nHas definido roles (alumno, docente) pero no el **mecanismo de autenticación**. En Google Apps Script esto es determinante porque condiciona toda la capa de Repositorios y el LockService:\n\n- **Opción A:** Login propio con `Session.getActiveUser().getEmail()` (solo funciona dentro del dominio Workspace de la escuela).\n- **Opción B:** Login propio con usuario/contraseña almacenado en Sheets (funciona con cuentas Gmail personales, pero exige hashing y control de sesión manual).\n- **Opción C:** Híbrido (docentes por Workspace, alumnos por credencial propia).\n\n**¿Cuál eliges?** Y derivado de esto: **¿un alumno pertenece a un solo grupo o puede estar en varios?** (esto define si `Inscripcion` es entidad propia o atributo del alumno).\n\n---\n\n### 🔍 Pregunta 2 — Granularidad del cronómetro y la métrica PPM\nEl requerimiento dice *\"PPM = total palabras / minutos transcurridos\"*, pero hay una decisión pedagógica y técnica oculta:\n\n- **¿El cronómetro inicia al abrir la lectura o al pulsar \"Comenzar\"?** (afecta si medimos tiempo de lectura real o tiempo de pantalla).\n- **¿El cuestionario de 3 preguntas se cronometra aparte o se suma al tiempo de lectura?** (si se suma, contamina la PPM y la métrica pierde validez psicométrica).\n- **¿Se permite pausa?** Si sí, ¿el tiempo pausado se descuenta?\n\nMi recomendación técnica (sujeta a tu validación): **cronómetro independiente para lectura, detenido al pulsar \"Finalizar lectura\"; el cuestionario corre en reloj separado y NO afecta la PPM.** Esto preserva la validez de la métrica y simplifica el modelo de datos.\n\n**¿Confirmas este enfoque o prefieres otro?**\n\n---\n\nUna vez me respondas estas dos, emito el JSON final. Mientras tanto, te adelanto la **validación arquitectónica** de lo ya definido:\n\n| Capa | Validación | Observación |\n|---|---|---|\n| **Vistas** | ✅ Correcto | HTML Service + `HtmlService.createTemplateFromFile`. La accesibilidad WCAG 2.1 AA exige `aria-live` en el cronómetro y foco gestionado por teclado. |\n| **Controladores** | ✅ Correcto | Funciones `google.script.run` expuestas. Deben ser **delgadas**: solo orquestan, nunca contienen reglas. |\n| **Servicios** | ✅ Correcto | Aquí vive `ServicioComprensionLectora`, `ServicioAsistencia`, `ServicioAccesibilidad`. Es la capa que migra intacta a Laravel. |\n| **Repositorios** | ✅ Correcto | `RepositorioHojaCalculo` implementa interfaces (`IRepositorioLecturas`, `IRepositorioAsistencia`). Al migrar a MySQL solo se reescribe esta capa. |\n| **LockService** | ✅ Correcto | Debe envolverse en un **patrón decorador** (`conBloqueo(fn)`) para no repetir `try/finally` en cada servicio. |\n| **Web Speech API** | ⚠️ Atención | Es **client-side**, no Apps Script. Debe vivir en la capa Vista con un `ControladorVoz` en JS puro. No contamina la arquitectura limpia porque es infraestructura de presentación. |\n\n**Riesgo identificado:** Google Apps Script tiene cuota de 6 min por ejecución y 20k llamadas/día en cuentas gratuitas. Con LockService bajo concurrencia de 30 alumnos simultáneos puede haber contención. **Sugerencia:** agrupar escrituras de asistencia en lote (batch) al final de la clase, no por alumno.\n\n---\n\nQuedo a la espera de tus respuestas a las **dos preguntas** para emitir el JSON definitivo. 🏛️",
+      "role": "assistant"
+    },
+    {
+      "content": "Para la Pregunta 1 (Modelo de Identidad y Acceso):\n- Elijo la Opción B: Credenciales simples gestionadas y almacenadas en Google Sheets (permite usar cualquier correo sin exigir dominio Workspace institucional). Los docentes usan correo y contraseña, y los alumnos seleccionan su Grupo y Nombre con un PIN de 4 dígitos.\n- Sobre el grupo: En este MVP, un alumno pertenece a UN SOLO grupo escolar a la vez (por lo tanto, grupo_id es un atributo directo en la entidad Alumno; descartamos la entidad Inscripcion para no sobrecargar el modelo).\n\nPara la Pregunta 2 (Granularidad del Cronómetro y PPM):\n- Confirmo al 100% tu recomendación técnica:\n  1. El cronómetro arranca únicamente al pulsar el botón \"Comenzar lectura\" (no al abrir la pantalla).\n  2. Al pulsar \"Finalizar lectura\", el cronómetro se detiene de inmediato y congela el cálculo de PPM.\n  3. El cuestionario de 3 preguntas corre en un reloj independiente y NO afecta la métrica PPM, preservando la validez psicométrica.\n  4. No se permite pausa durante la lectura; si el alumno se interrumpe, reinicia la prueba.\n- Acepto también tu sugerencia de agrupar el pase de lista de asistencia en un solo lote (batch) por grupo con LockService para optimizar las cuotas de Apps Script.\n\nCon estas dos decisiones resueltas, por favor emite el JSON estructurado final para que pueda volcarlo a los campos de ARCHITEX OS.",
+      "role": "user"
+    },
+    {
+      "content": "# Anteproyecto Confirmado — ARCHITEX OS\n\nDecisiones validadas y arquitectura cerrada. Antes del JSON, dejo constancia del **diseño técnico consolidado** para trazabilidad:\n\n---\n\n## 📐 Resumen Arquitectónico Final\n\n**Dominio:** Web SaaS (Google Apps Script + Google Sheets, costo cero)\n\n**Capas (nomenclatura en español):**\n```\nVistas (HTML Service + JS cliente)\n   └── Controladores (google.script.run)\n         └── Servicios (lógica escolar pura)\n               └── Repositorios (interfaces → implementación Sheets)\n```\n\n**Entidades núcleo (en español):**\n- `Alumno` (id, nombre, grupo_id, pin_hash, activo)\n- `Docente` (id, correo, contrasena_hash, nombre, activo)\n- `Grupo` (id, nombre, grado, turno)\n- `Lectura` (id, titulo, texto, total_palabras, nivel)\n- `Pregunta` (id, lectura_id, enunciado, opcion_1, opcion_2, opcion_3, respuesta_correcta)\n- `IntentoLectura` (id, alumno_id, lectura_id, fecha_inicio, fecha_fin, segundos_lectura, ppm_calculado, respuestas_correctas, respuestas_totales)\n- `RegistroAsistencia` (id, alumno_id, grupo_id, fecha, estado, docente_id, observacion)\n\n**Patrones clave:**\n- `conBloqueo(fn)` → decorador sobre `LockService` para escrituras concurrentes.\n- `guardarAsistenciaPorLote(grupo_id, listaEstados)` → una sola transacción por clase.\n- `ControladorVoz` (JS cliente) → Web Speech API, atajos: `Espacio` (play/pausa), `1/2/3` (respuestas).\n\n**Métrica PPM:** `ppm = total_palabras / (segundos_lectura / 60)`, congelada al pulsar \"Finalizar lectura\". Cuestionario en reloj independiente.\n\n---\n\n## 🧩 JSON Estructurado para ARCHITEX OS\n\n```json\n{\n  \"problema\": \"La escuela secundaria carece de una herramienta digital de bajo costo para (1) medir y dar seguimiento a la comprensión lectora de sus alumnos mediante velocidad (PPM) y retención, (2) registrar la asistencia diaria por grupo sin pérdida de datos bajo concurrencia docente, y (3) garantizar inclusión real de estudiantes con discapacidad visual severa. Las soluciones comerciales implican licencias costosas y no se adaptan al contexto escolar ni a la accesibilidad requerida.\",\n  \"objetivo\": \"Desarrollar una plataforma web educativa responsiva sobre Google Apps Script con persistencia en Google Sheets (costo cero), que permita: medir comprensión lectora mediante cronómetro digital y cuestionario de retención con cálculo automático de PPM; registrar asistencia diaria por grupo con bloqueo de concurrencia vía LockService y escritura por lote; y ofrecer accesibilidad WCAG 2.1 AA mediante Web Speech API nativa con control por teclado (Espacio, 1/2/3). Todo bajo arquitectura limpia en capas (Vistas → Controladores → Servicios → Repositorios) con nomenclatura en español, preparada para migración futura a MySQL/Laravel sin reescribir la lógica escolar.\",\n  \"publico\": \"Comunidad educativa de una escuela secundaria: alumnos de todos los grados (incluyendo estudiantes con discapacidad visual severa), docentes de aula responsables del pase de lista y aplicación de pruebas de comprensión lectora, y coordinación académica que consume reportes de progreso. Acceso desde navegadores modernos en equipos de escritorio, laptops y tablets del plantel, sin requerir instalación ni dominio Google Workspace institucional.\",\n  \"roles\": \"1) ALUMNO: se identifica seleccionando su Grupo y Nombre e ingresando un PIN de 4 dígitos; realiza lecturas cronometradas, responde cuestionarios y puede activar modo de lectura por voz. 2) DOCENTE: inicia sesión con correo y contraseña; registra asistencia diaria por grupo (guardado por lote), asigna lecturas y consulta resultados de sus alumnos. 3) ADMINISTRADOR/COORDINADOR: gestiona grupos, alumnos, docentes, lecturas y preguntas; consulta reportes agregados de PPM y asistencia. 4) SISTEMA: valida credenciales, aplica LockService en escrituras concurrentes y calcula métricas automáticamente.\",\n  \"entidades\": \"Alumno (id, nombre, grupo_id, pin_hash, activo) | Docente (id, correo, contrasena_hash, nombre, activo) | Grupo (id, nombre, grado, turno) | Lectura (id, titulo, texto, total_palabras, nivel) | Pregunta (id, lectura_id, enunciado, opcion_1, opcion_2, opcion_3, respuesta_correcta) | IntentoLectura (id, alumno_id, lectura_id, fecha_inicio, fecha_fin, segundos_lectura, ppm_calculado, respuestas_correctas, respuestas_totales) | RegistroAsistencia (id, alumno_id, grupo_id, fecha, estado, docente_id, observacion). Relaciones: Grupo 1—N Alumno; Alumno 1—N IntentoLectura; Lectura 1—N Pregunta; Alumno 1—N RegistroAsistencia; Docente 1—N RegistroAsistencia.\",\n  \"mvp\": \"FASE 1 (núcleo): (a) Autenticación — docentes por correo/contraseña, alumnos por Grupo + Nombre + PIN de 4 dígitos. (b) Módulo Comprensión Lectora — pantalla de lectura con botón 'Comenzar lectura' que arranca cronómetro, botón 'Finalizar lectura' que congela PPM (ppm = total_palabras / (segundos/60)), sin pausa, y cuestionario posterior de 3 preguntas de opción múltiple en reloj independiente. (c) Módulo Pase de Lista — registro diario por grupo con guardado por lote y LockService. (d) Accesibilidad WCAG 2.1 AA — Web Speech API para leer texto y preguntas en voz alta, control con Barra Espaciadora (play/pausa) y respuestas con teclas 1/2/3, con aria-live en cronómetro y foco gestionado. (e) Arquitectura limpia en 4 capas con nomenclatura en español y repositorios tras interfaces. FASE 2 (post-MVP): reportes agregados, panel de coordinación, exportación CSV, migración a MySQL/Laravel reutilizando Servicios.\",\n  \"restricciones\": \"TÉCNICAS: Google Apps Script como runtime (cuota 6 min/ejecución, ~20k llamadas/día en cuenta gratuita); persistencia exclusiva en Google Sheets; sin micrófono ni librerías pesadas de audio; Web Speech API es client-side y vive en la capa Vista; LockService obligatorio en toda escritura concurrente; escritura de asistencia por lote (no por alumno) para mitigar contención. ARQUITECTÓNICAS: separación estricta Vistas → Controladores → Servicios → Repositorios; controladores delgados (solo orquestan); reglas escolares exclusivamente en Servicios; repositorios implementan interfaces (IRepositorioLecturas, IRepositorioAsistencia, etc.) para permitir migración a MySQL/Laravel sin reescribir lógica; nomenclatura de variables, funciones, métodos y modelos 100% en español y comentada. PEDAGÓGICAS: cronómetro inicia solo al pulsar 'Comenzar lectura'; sin pausa (interrupción = reinicio); cuestionario en reloj separado que NO contamina la PPM; un alumno pertenece a un solo grupo (grupo_id como atributo directo, sin entidad Inscripcion). ACCESIBILIDAD: cumplimiento WCAG 2.1 AA obligatorio (contraste, foco visible, navegación por teclado, aria-live, compatibilidad con lectores de pantalla). ECONÓMICAS: costo cero de infraestructura y licencias.\"\n}\n```\n\n---\n\n✅ **Anteproyecto cerrado y listo para volcado automático en ARCHITEX OS.**\n\nCuando quieras avanzar a la **Fase de Diseño Detallado** (contratos de interfaces de repositorios, esquema exacto de hojas en Sheets, wireframes de las vistas accesibles), dímelo y lo desglosamos capa por capa. 🏛️",
+      "role": "assistant"
+    }
+  ]
+}

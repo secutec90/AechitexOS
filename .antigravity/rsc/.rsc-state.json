@@ -1,0 +1,216 @@
+{
+  "skills": {
+    "analyze": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\analyze"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\analyze"
+    },
+    "automation-strategy": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\automation-strategy"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\automation-strategy"
+    },
+    "bro": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\bro"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\bro"
+    },
+    "clarify": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\clarify"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\clarify"
+    },
+    "constitution": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\constitution"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\constitution"
+    },
+    "debug": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\debug"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\debug"
+    },
+    "decision-challenge": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\decision-challenge"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\decision-challenge"
+    },
+    "deprecation": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\deprecation"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\deprecation"
+    },
+    "eli5": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\eli5"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\eli5"
+    },
+    "fable-operator": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\fable-operator"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\fable-operator"
+    },
+    "ftd": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\ftd"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\ftd"
+    },
+    "harness": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\harness"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\harness"
+    },
+    "idea-refinement": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\idea-refinement"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\idea-refinement"
+    },
+    "implement": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\implement"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\implement"
+    },
+    "init": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\init"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\init"
+    },
+    "orient": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\orient"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\orient"
+    },
+    "parallel": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\parallel"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\parallel"
+    },
+    "plan": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\plan"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\plan"
+    },
+    "review": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\review"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\review"
+    },
+    "sdd": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\sdd"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\sdd"
+    },
+    "sdd-init": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\sdd-init"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\sdd-init"
+    },
+    "ship": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\ship"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\ship"
+    },
+    "show-me": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\show-me"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\show-me"
+    },
+    "simplify-code": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\simplify-code"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\simplify-code"
+    },
+    "source-grounded-development": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\source-grounded-development"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\source-grounded-development"
+    },
+    "specify": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\specify"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\specify"
+    },
+    "suggest": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\suggest"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\suggest"
+    },
+    "tasks": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\tasks"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\tasks"
+    },
+    "ui-engineering": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\ui-engineering"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\ui-engineering"
+    },
+    "unslop": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\unslop"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\unslop"
+    },
+    "verify": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\verify"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\verify"
+    },
+    "worktrees": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.antigravity\\rsc\\worktrees"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\worktrees"
+    }
+  },
+  "agents": [],
+  "agentCollisions": [],
+  "explicitAgents": [],
+  "memory": {
+    "mode": "unsupported",
+    "reason": "no-local-lifecycle",
+    "paths": []
+  },
+  "policy": {
+    "baseAgents": true,
+    "alwaysOn": true,
+    "codeHooks": true,
+    "dangerGuard": true,
+    "gitmojiGuard": false,
+    "memory": true,
+    "context7": false
+  },
+  "commands": [],
+  "commandCollisions": [],
+  "version": "2.0.20"
+}

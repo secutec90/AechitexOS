@@ -1,0 +1,244 @@
+{
+  "skills": {
+    "analyze": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\analyze.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\analyze"
+    },
+    "automation-strategy": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\automation-strategy.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\automation-strategy"
+    },
+    "bro": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\bro.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\bro"
+    },
+    "clarify": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\clarify.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\clarify"
+    },
+    "constitution": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\constitution.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\constitution"
+    },
+    "debug": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\debug.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\debug"
+    },
+    "decision-challenge": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\decision-challenge.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\decision-challenge"
+    },
+    "deprecation": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\deprecation.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\deprecation"
+    },
+    "eli5": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\eli5.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\eli5"
+    },
+    "fable-operator": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\fable-operator.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\fable-operator"
+    },
+    "ftd": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\ftd.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\ftd"
+    },
+    "harness": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\harness.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\harness"
+    },
+    "idea-refinement": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\idea-refinement.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\idea-refinement"
+    },
+    "implement": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\implement.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\implement"
+    },
+    "init": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\init.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\init"
+    },
+    "orient": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\orient.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\orient"
+    },
+    "parallel": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\parallel.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\parallel"
+    },
+    "plan": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\plan.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\plan"
+    },
+    "review": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\review.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\review"
+    },
+    "sdd": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\sdd.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\sdd"
+    },
+    "sdd-init": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\sdd-init.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\sdd-init"
+    },
+    "ship": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\ship.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\ship"
+    },
+    "show-me": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\show-me.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\show-me"
+    },
+    "simplify-code": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\simplify-code.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\simplify-code"
+    },
+    "source-grounded-development": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\source-grounded-development.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\source-grounded-development"
+    },
+    "specify": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\specify.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\specify"
+    },
+    "suggest": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\suggest.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\suggest"
+    },
+    "tasks": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\tasks.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\tasks"
+    },
+    "ui-engineering": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\ui-engineering.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\ui-engineering"
+    },
+    "unslop": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\unslop.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\unslop"
+    },
+    "verify": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\verify.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\verify"
+    },
+    "worktrees": {
+      "files": [
+        "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\worktrees.mdc"
+      ],
+      "base": "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\skills\\worktrees"
+    }
+  },
+  "agents": [
+    "developer",
+    "refuter-correctness",
+    "refuter-security",
+    "refuter-tests"
+  ],
+  "agentCollisions": [],
+  "explicitAgents": [],
+  "memory": {
+    "mode": "assisted",
+    "reason": "start-hook-fire-and-forget",
+    "paths": [
+      "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\session-memory-core.mjs",
+      "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\session-memory-adapter.mjs",
+      "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.rsc\\session-memory.mjs",
+      "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\hooks.json",
+      "g:\\Mi unidad\\PROYECTOS\\ARCHITEX-OS\\.cursor\\rules\\rsc-memory.mdc"
+    ]
+  },
+  "policy": {
+    "baseAgents": true,
+    "alwaysOn": true,
+    "codeHooks": true,
+    "dangerGuard": true,
+    "gitmojiGuard": false,
+    "memory": true,
+    "context7": false
+  },
+  "commands": [
+    "analyze",
+    "checkpoint",
+    "clarify",
+    "debug",
+    "harness-audit",
+    "implement",
+    "learn",
+    "plan",
+    "refactor-clean",
+    "resume-session",
+    "review",
+    "save-session",
+    "ship",
+    "specify",
+    "tasks",
+    "verify"
+  ],
+  "commandCollisions": [],
+  "version": "2.0.20"
+}

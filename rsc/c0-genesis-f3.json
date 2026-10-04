@@ -1,0 +1,256 @@
+{
+  "etiqueta": "GÉNESIS DE LA CADENA DE LINAJE CAUSAL F3 DE ARCHITEX OS V-36",
+  "nota": "C0 es el primer nodo criptográficamente encadenado de F3. La preexistencia F0–F2.2-F queda reconocida. No es el nacimiento histórico de ARCHITEX.",
+  "hashPreF3": "111790fff85e83c1a7bdd79310456dbfd3430eb6c06528df7db65c9c4692fdb8",
+  "contextoCanonico": {
+    "schemaVersion": "1.0.0",
+    "contextVersion": "1.0.0",
+    "projectVersion": "V-36",
+    "generatedAt": "2026-10-04T00:00:00.000Z",
+    "projectId": "proy_1790980470320",
+    "tenantId": "no",
+    "source": "ARCHITEX_OS_V36",
+    "contentHash": "f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e",
+    "identity": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "projectId": "proy_1790980470320",
+        "projectName": "ARCHITEX-OS",
+        "projectType": "web_laravel"
+      }
+    },
+    "problem": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "centralProblem": "Los equipos de arquitectura técnica carecen de un sistema unificado de gobernanza que conecte la especificación de proyectos (SDD), la auditoría de decisiones y la orquestación de agentes IA, provocando pérdida de trazabilidad, decisiones sin historial versionado y fricción entre documentación, código y despliegue."
+      }
+    },
+    "objectives": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "primaryObjective": "Proveer una plataforma web de gobernanza y auditoría de arquitectura técnica que centralice el ciclo de vida de proyectos (problema, objetivo, público, entorno, MVP, restricciones, roles), versione cada cambio en un historial inmutable y orqueste agentes IA de desarrollo y refutación mediante comandos SDD, todo sobre infraestructura Google Workspace sin servidores propios."
+      }
+    },
+    "audience": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "targetAudience": "Arquitectos de software, ingenieros principales, tech leads y equipos de plataforma que operan bajo metodologías SDD (Spec-Driven Development) y requieren gobernanza auditable; también agentes IA (Cursor, Antigravity) que consumen el harness de comandos y agentes para asistir el ciclo de desarrollo."
+      }
+    },
+    "environment": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "targetPlatform": "Google Apps Script (runtime V8) como backend serverless, Google Sheets como base de datos estructurada (pestañas _ARCHITEX_PROYECTOS y _ARCHITEX_HISTORIAL), Google Drive para artefactos de auditoría, HTML5/CSS3/JS vanilla como SPA cliente servida vía HtmlService, y despliegue gestionado con clasp. Zona horaria America/Mexico_City. Acceso web público (ANYONE) con ejecución como USER_DEPLOYING.",
+        "supportedDevices": "Computadoras de aula de medios, laptops de docentes, teléfonos móviles inteligentes (Android / iOS) vía navegador y tabletas.",
+        "offlineStrategy": "Si se interrumpe la conexión durante una lectura, el cronómetro local en JavaScript no se interrumpe. Las respuestas del cuestionario se guardan temporalmente en localStorage y se sincronizan automáticamente en segundo plano cuando el navegador detecta evento 'online'."
+      }
+    },
+    "mvp": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "scopeDefinition": "Web App funcional que: (1) sirve una SPA de gobernanza desde Apps Script, (2) permite crear/leer/actualizar proyectos con los 8 campos canónicos (problema, objetivo, público, entorno, MVP, restricciones, roles, nombre), (3) persiste cada cambio en _ARCHITEX_PROYECTOS y versiona snapshots en _ARCHITEX_HISTORIAL, (4) expone un harness de 17 comandos SDD y 2 agentes IA (developer, refuter-correctness) en .cursor/, y (5) despliega vía clasp con appsscript.json configurado."
+      }
+    },
+    "future": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "roadmapDescription": "- Evaluación automática de fluidez y dicción oral mediante IA y reconocimiento de voz (Speech-to-Text).\n- Notificaciones automáticas por WhatsApp a tutores ante faltas acumuladas.\n- Biblioteca digital comunitaria con descarga de audiolibros.\n- Migración a backend dedicado en Laravel 11 cuando se superen 500 alumnos concurrentes."
+      }
+    },
+    "constraints": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "mandatoryRules": "1. Dependencia total de Google Workspace (lock-in costo $0 USD).\n2. Cuotas de Apps Script (6 min ejecución, triggers limitados).\n3. Sheets protegido con LockService (timeout 15s) para transaccionalidad.\n4. index.html monolítico.\n5. Sin autenticación granular (acceso ANYONE con ejecución USER_DEPLOYING).\n6. Nomenclatura obligatoria en ESPAÑOL.",
+        "zeroCostPolicy": true,
+        "namingLanguage": "ES_MX",
+        "concurrencyControl": "LOCK_SERVICE",
+        "terminalTarget": "WINDOWS_POWERSHELL_CMD"
+      }
+    },
+    "roles": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "rolesDefinition": "Arquitecto Principal (diseño de capas, modelo de datos, decisiones estructurales)\nIngeniero de Software (implementación en Codigo.gs e index.html)\nAgente IA Developer (.cursor/agents/developer.md — generación de código)\nAgente IA Refuter-Correctness (.cursor/agents/refuter-correctness.md — validación adversarial)\nAuditor de Gobernanza (revisión de _ARCHITEX_HISTORIAL y decisiones.md)\nUsuario Final (arquitecto/tech lead que consume la SPA)\nDeployer (cuenta Google que ejecuta clasp y posee permisos sobre Sheet/Drive)"
+      }
+    },
+    "users": {
+      "status": "NO_IMPLEMENTADO",
+      "value": null
+    },
+    "entities": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "summary": "Proyectos (id, nombre, version, tipo_arquitectura, autor, fecha_creacion)\n_ARCHITEX_PROYECTOS (ID_PROYECTO, NOMBRE_PROYECTO, FECHA_ACTUALIZACION, RESUMEN_PROBLEMA, DATOS_JSON_COMPLETOS)\n_ARCHITEX_HISTORIAL (ID_HISTORIAL, ID_PROYECTO, NOMBRE_PROYECTO, FECHA_VERSION, RESUMEN, DATOS_JSON)\n_ARCHITEX_RESPALDOS_JSON (carpeta drive para payloads > 45KB)\nDecisiones_ADR (id, codigo_adr, titulo, problema, decision_tomada, justificacion)\nDirectricesRSC (agentes_objetivo, ruta_reglas, skills_instaladas)",
+        "registeredEntities": [
+          {
+            "nombre": "Alumnos",
+            "campos": "id, nombre_completo, grupo_id, matricula, es_invidente, fecha_registro"
+          },
+          {
+            "nombre": "Docentes",
+            "campos": "id, nombre_completo, correo_electronico, asignatura_principal"
+          },
+          {
+            "nombre": "Lecturas",
+            "campos": "id, titulo, materia, total_palabras, contenido_texto"
+          },
+          {
+            "nombre": "SesionesLectura",
+            "campos": "id, alumno_id, lectura_id, segundos_totales, palabras_por_minuto, calificacion_quiz, fecha_hora"
+          },
+          {
+            "nombre": "Asistencias",
+            "campos": "id, alumno_id, docente_id, fecha, estado, justificacion"
+          },
+          {
+            "nombre": "ClasesAudio",
+            "campos": "id, titulo, contenido_voz, duracion_estimada, docente_id, fecha_publicacion"
+          }
+        ]
+      }
+    },
+    "requirements": {
+      "status": "NO_IMPLEMENTADO",
+      "value": null
+    },
+    "data": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "storageEngine": "MYSQL",
+        "entitiesSummary": "Proyectos (id, nombre, version, tipo_arquitectura, autor, fecha_creacion)\n_ARCHITEX_PROYECTOS (ID_PROYECTO, NOMBRE_PROYECTO, FECHA_ACTUALIZACION, RESUMEN_PROBLEMA, DATOS_JSON_COMPLETOS)\n_ARCHITEX_HISTORIAL (ID_HISTORIAL, ID_PROYECTO, NOMBRE_PROYECTO, FECHA_VERSION, RESUMEN, DATOS_JSON)\n_ARCHITEX_RESPALDOS_JSON (carpeta drive para payloads > 45KB)\nDecisiones_ADR (id, codigo_adr, titulo, problema, decision_tomada, justificacion)\nDirectricesRSC (agentes_objetivo, ruta_reglas, skills_instaladas)"
+      }
+    },
+    "design": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "screensStructure": "1. Pantalla de Bienvenida y Selección de Rol\n2. Panel Docente: Pase de lista y selector de grupos\n3. Panel Alumno: Ruleta interactiva, visor de lectura con cronómetro y evaluación\n4. Panel Accesible: Interfaz de audio simplificada de alto contraste con comandos por voz y atajos\n5. Reporte de Desempeño: Gráficos de comprensión y porcentaje de asistencia escolar",
+        "navigationStrategy": "Barra superior minimalista con indicador de conexión y usuario activo. Pestañas de navegación directa entre módulos. Botón visible y accesible de 'Cerrar Sesión'. Atajos de teclado universales (Alt+1 Lectura, Alt+2 Asistencia, Alt+3 Accesibilidad)."
+      }
+    },
+    "architecture": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "topologyType": "web_laravel",
+        "keyComponentsStatus": {}
+      }
+    },
+    "technology": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "selectedEcosystem": "web_laravel",
+        "runtime": "PHP"
+      }
+    },
+    "decisions": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "registeredAdrs": [
+          {
+            "titulo": "ADR-001: Persistencia en Google Sheets con LockService",
+            "problema": "¿Cómo almacenar datos sin costo de servidor garantizando integridad?",
+            "opciones": "Firebase, Sheets nativo sin bloqueo, Sheets con LockService",
+            "motivo": "Sheets con LockService permite costo cero y previene corrupción de datos en concurrencia.",
+            "fecha": "02/10/2026"
+          },
+          {
+            "titulo": "ADR-002: Separación en Capas Agnóstica de Framework",
+            "problema": "¿Cómo facilitar la migración futura a Laravel sin reescribir la lógica escolar?",
+            "opciones": "Código espagueti en doGet(), Capas separadas (Vistas->Controladores->Servicios->Repositorios)",
+            "motivo": "Los servicios de dominio quedan puros y en español, listos para portarse a cualquier backend.",
+            "fecha": "02/10/2026"
+          },
+          {
+            "titulo": "ADR-003: Accesibilidad Nativa sin Plugins Externos",
+            "problema": "¿Cómo garantizar soporte inmediato para el alumno invidente?",
+            "opciones": "Librerías pesadas de audio, Web Speech API nativa del navegador",
+            "motivo": "Web Speech API funciona sin internet y no añade peso a la aplicación web.",
+            "fecha": "02/10/2026"
+          }
+        ]
+      }
+    },
+    "skills": {
+      "status": "NO_IMPLEMENTADO",
+      "value": null
+    },
+    "traceability": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "matrix": [
+          {
+            "requisito": "Calcular PPM en lecturas",
+            "actor": "Alumno",
+            "destino": "ServicioLectura.gs",
+            "prueba": "Cronómetro no se reinicia y calcula PPM = (palabras/seg)*60"
+          },
+          {
+            "requisito": "Pase de lista sin colisiones",
+            "actor": "Docente",
+            "destino": "RepositorioAsistencia.gs",
+            "prueba": "Escritura concurrente concurre bajo LockService sin sobreescritura"
+          },
+          {
+            "requisito": "Lectura auditiva accesible",
+            "actor": "AlumnoInvidente",
+            "destino": "ModuloAccesibilidad.js",
+            "prueba": "Barra espaciadora alterna reproducción de audio con WCAG 2.1 AA"
+          },
+          {
+            "requisito": "Sincronización offline de quizzes",
+            "actor": "Alumno",
+            "destino": "AlmacenamientoLocalCache.js",
+            "prueba": "Envía respuestas al reconectar sin perder datos"
+          }
+        ]
+      }
+    },
+    "tests": {
+      "status": "NO_IMPLEMENTADO",
+      "value": null
+    },
+    "production": {
+      "status": "NO_IMPLEMENTADO",
+      "value": null
+    },
+    "maintenance": {
+      "status": "NO_IMPLEMENTADO",
+      "value": null
+    },
+    "state": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "lifecycle": "CANONICAL"
+      }
+    },
+    "provenance": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "sourceType": "SYSTEM_GENESIS",
+        "author": "ARQUITECTO_HUMANO",
+        "triggerDecisionId": "ADR-000-BASE-V36",
+        "timestamp": "2026-10-04T00:00:00.000Z"
+      }
+    },
+    "integrity": {
+      "status": "IMPLEMENTADO",
+      "value": {
+        "parentContentHash": null,
+        "lineageDepth": 0
+      }
+    }
+  },
+  "verificacion": {
+    "estado": "VALIDO",
+    "parentStatus": "GENESIS",
+    "lineageDepth": 0,
+    "parentContentHash": null
+  },
+  "dimensionesNoImplementadas": [
+    "users",
+    "requirements",
+    "skills",
+    "tests",
+    "production",
+    "maintenance"
+  ]
+}

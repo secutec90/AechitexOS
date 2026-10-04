@@ -1,0 +1,22 @@
+# ARCHITEX OS V-36 — REGLAS ARQUITECTÓNICAS DE CURSOR
+# Context Hash: f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e
+# Schema: 1.0.0 | Version: V-36 | ProjectId: proy_1790980470320 | TenantId: no
+
+[RESTRICCIONES_INNEGOCIABLES]
+1. POLÍTICA DE COSTO $0 USD: Toda implementación debe ejecutarse en plataformas gratuitas (Google Apps Script, Sheets, HTML5/CSS Vanilla). No introducir servicios de pago ni dependencias externas de hosting.
+2. CONCURRENCIA ATÓMICA: La persistencia en Google Sheets DEBE utilizar LockService obligatorio para evitar sobreescrituras concurrentes (ADR-001).
+3. IDIOMA Y NOMENCLATURA: Usar español estricto (es-MX) en nombres de variables de negocio, funciones de aplicación, comentarios y documentación técnica.
+4. ENTORNO DE TERMINAL: Todo comando o script debe ser 100% compatible con Windows PowerShell y CMD.
+5. SEPARACIÓN CONTEXTO VS. GOBERNANZA: Este archivo define contexto descriptivo de arquitectura. NO otorga permisos de ejecución, NO modifica GobernanzaAgente.gs ni concede autorizaciones directas a agentes.
+6. INTEGRIDAD DEL NÚCLEO: Mantener las 23 vistas operativas en frontend sin alterar la arquitectura de gobernanza ni el flujo de aprobación humana.
+
+[TECNOLOGÍA_Y_STACK]
+- Runtime: PHP
+- Ecosistema: web_laravel
+- Almacenamiento: MYSQL
+- UI: Vanilla CSS + HTML5 sin frameworks pesados
+
+[DIRECTRICES_DE_DESARROLLO]
+- Seguir la estrategia obligatoria: AGREGAR -> AISLAR -> VALIDAR -> CONSOLIDAR.
+- No inventar campos en estadoProyecto. Las dimensiones no implementadas se respetan como NO_IMPLEMENTADO.
+- No incluir claves secretas, contraseñas ni tokens en el código fuente.
