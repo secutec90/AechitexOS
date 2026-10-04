@@ -22,7 +22,7 @@
  */
 
 import { existsSync, readFileSync, copyFileSync, mkdirSync, rmSync, mkdtempSync } from 'fs';
-import { join, resolve } from 'path';
+import { join, resolve, dirname } from 'path';
 import { tmpdir } from 'os';
 import { generarProyeccionesRsc3, escribirProyeccionesFisicas } from './generadorProyecciones.mjs';
 import {
@@ -406,8 +406,8 @@ export function reemplazarControlado(directorioStaging, directorioDestino) {
     const destino = join(directorioDestino, relPath);
 
     if (existsSync(origen)) {
-      const dirDestino = destino.substring(0, destino.lastIndexOf('\\') !== -1 ? destino.lastIndexOf('\\') : destino.lastIndexOf('/'));
-      if (!existsSync(dirDestino)) {
+      const dirDestino = dirname(destino);
+      if (dirDestino && dirDestino !== '.' && !existsSync(dirDestino)) {
         mkdirSync(dirDestino, { recursive: true });
       }
       copyFileSync(origen, destino);

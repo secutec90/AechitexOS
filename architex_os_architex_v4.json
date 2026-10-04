@@ -96,7 +96,102 @@
     ],
     "campoProblema": "Los equipos de arquitectura técnica carecen de un sistema unificado de gobernanza que conecte la especificación de proyectos (SDD), la auditoría de decisiones y la orquestación de agentes IA, provocando pérdida de trazabilidad, decisiones sin historial versionado y fricción entre documentación, código y despliegue.",
     "campoRoles": "Arquitecto Principal (diseño de capas, modelo de datos, decisiones estructurales)\nIngeniero de Software (implementación en Codigo.gs e index.html)\nAgente IA Developer (.cursor/agents/developer.md — generación de código)\nAgente IA Refuter-Correctness (.cursor/agents/refuter-correctness.md — validación adversarial)\nAuditor de Gobernanza (revisión de _ARCHITEX_HISTORIAL y decisiones.md)\nUsuario Final (arquitecto/tech lead que consume la SPA)\nDeployer (cuenta Google que ejecuta clasp y posee permisos sobre Sheet/Drive)",
-    "componentesClaveEstado": {}
+    "componentesClaveEstado": {},
+    "perfilesUsuarios": [
+      {
+        "id": "USR-01",
+        "rol": "Arquitecto Humano",
+        "descripcion": "Responsable de diseño de alto nivel, validación de SDD, aprobación de ADRs y autorización de evoluciones canónicas.",
+        "nivelAcceso": "ADMIN_ARCHITECT",
+        "capacidades": [
+          "AUTHORIZE_MUTATIONS",
+          "DECIDE_ADRS",
+          "APPROVE_REGENERATION"
+        ]
+      },
+      {
+        "id": "USR-02",
+        "rol": "Agente IA Gobernado",
+        "descripcion": "Agentes automatizados (Cursor, Antigravity, Claude) que asisten en generación, verificación adversarial y refutación bajo arnés RSC.",
+        "nivelAcceso": "READ_ONLY_EXECUTION",
+        "capacidades": [
+          "VERIFY_CONTEXT",
+          "AUDIT_CONSTRAINTS",
+          "REFUTE_CORRECTNESS"
+        ]
+      },
+      {
+        "id": "USR-03",
+        "rol": "Ingeniero de Software",
+        "descripcion": "Implementador de módulos de software en código fuente bajo los contratos canónicos definidos.",
+        "nivelAcceso": "CONTRIBUTOR",
+        "capacidades": [
+          "CODE_IMPLEMENTATION",
+          "RUN_TESTS"
+        ]
+      }
+    ],
+    "catalogoRequisitos": [
+      {
+        "id": "REQ-F01",
+        "tipo": "FUNCTIONAL",
+        "titulo": "Normalización y proyección determinista de contexto",
+        "declaracion": "El sistema debe transformar el estado del proyecto en un contexto canónico con hash SHA-256 sin depender de timestamps volátiles ni red.",
+        "prioridad": "HIGH",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "rsc/normalizadorContexto.mjs"
+      },
+      {
+        "id": "REQ-F02",
+        "tipo": "FUNCTIONAL",
+        "titulo": "Verificación y certificación cooperativa de agentes",
+        "declaracion": "El arnés RSC-4/RSC-6 debe certificar que las proyecciones portan el hash canónico y rechazar contextos incompletos, manipulados o con fugas de gobernanza.",
+        "prioridad": "HIGH",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "rsc/verificadorContexto.mjs"
+      },
+      {
+        "id": "REQ-F03",
+        "tipo": "FUNCTIONAL",
+        "titulo": "Regeneración atómica en staging gobernada",
+        "declaracion": "RSC-5 debe requerir autorización explícita para sincronizar proyecciones, verificando el staging antes de realizar reemplazo físico.",
+        "prioridad": "HIGH",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "rsc/regeneradorProyecciones.mjs"
+      },
+      {
+        "id": "REQ-NF01",
+        "tipo": "NON_FUNCTIONAL",
+        "titulo": "Costo de servidor $0 USD y runtime serverless",
+        "declaracion": "Operar sobre infraestructura Google Workspace (Apps Script runtime V8 + Sheets) sin servidores dedicados.",
+        "prioridad": "MANDATORY",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "ConfiguracionBase.gs"
+      },
+      {
+        "id": "REQ-NF02",
+        "tipo": "NON_FUNCTIONAL",
+        "titulo": "Concurrencia protegida mediante LockService",
+        "declaracion": "Toda mutación en Google Sheets debe ejecutarse bajo LockService con timeout de 15 segundos para evitar sobreescritura concurrente.",
+        "prioridad": "MANDATORY",
+        "estado": "APPROVED",
+        "destinoTrazabilidad": "Codigo.gs"
+      }
+    ],
+    "estadoCicloVida": {
+      "lifecycle": "CANONICAL"
+    },
+    "registroProcedencia": {
+      "sourceType": "HUMAN_UI",
+      "author": "ARQUITECTO_HUMANO",
+      "triggerDecisionId": "ADR-001-F4-DIMENSIONES-SDD",
+      "timestamp": "2026-10-04T17:00:00.000Z"
+    },
+    "linajeCausal": {
+      "parentContentHash": "f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e",
+      "lineageDepth": 1
+    },
+    "contextVersion": "1.1.0"
   },
   "historialArquitecto": [
     {

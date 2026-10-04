@@ -141,7 +141,9 @@ export function generarProyeccionesRsc3(contexto, opciones = {}) {
       : `*Estado:* \`NO_IMPLEMENTADO\``,
     ``,
     `## 10. Usuarios del Sistema (\`users\`)`,
-    `*Estado:* \`NO_IMPLEMENTADO\` (Sin perfiles de usuario detallados persistidos)`,
+    dimensiones.users.status === 'IMPLEMENTADO' && dimensiones.users.value && Array.isArray(dimensiones.users.value.targetProfiles)
+      ? `- **Total Perfiles:** ${dimensiones.users.value.totalProfiles || dimensiones.users.value.targetProfiles.length}\n- **Perfiles Registrados:**\n${dimensiones.users.value.targetProfiles.map(u => `  - **${u.id || 'N/A'} — ${u.role || 'N/A'}** (${u.accessLevel || 'N/A'}):\n    - *Descripción:* ${u.description || 'N/A'}\n    - *Capacidades:* ${Array.isArray(u.capabilities) ? u.capabilities.join(', ') : 'N/A'}`).join('\n')}`
+      : `*Estado:* \`NO_IMPLEMENTADO\` (Sin perfiles de usuario detallados persistidos)`,
     ``,
     `## 11. Entidades y Modelado de Datos (\`entities\`)`,
     dimensiones.entities.status === 'IMPLEMENTADO' && dimensiones.entities.value
@@ -149,7 +151,9 @@ export function generarProyeccionesRsc3(contexto, opciones = {}) {
       : `*Estado:* \`NO_IMPLEMENTADO\``,
     ``,
     `## 12. Requisitos Formales (\`requirements\`)`,
-    `*Estado:* \`NO_IMPLEMENTADO\` (Sin colección formal persistida en estadoProyecto)`,
+    dimensiones.requirements.status === 'IMPLEMENTADO' && dimensiones.requirements.value && Array.isArray(dimensiones.requirements.value.catalog)
+      ? `- **Total Requisitos:** ${dimensiones.requirements.value.totalRequirements || dimensiones.requirements.value.catalog.length}\n- **Catálogo de Requisitos:**\n${dimensiones.requirements.value.catalog.map(r => `  - **${r.id || 'REQ'}** [${r.type || 'FUNCTIONAL'}] (${r.priority || 'MEDIUM'} | ${r.status || 'PROPOSED'}): ${r.title || ''}\n    - *Declaración:* ${r.statement || 'N/A'}\n    - *Trazabilidad:* \`${r.traceabilityTarget || 'N/A'}\``).join('\n')}`
+      : `*Estado:* \`NO_IMPLEMENTADO\` (Sin colección formal persistida en estadoProyecto)`,
     ``,
     `## 13. Datos y Persistencia (\`data\`)`,
     dimensiones.data.status === 'IMPLEMENTADO' && dimensiones.data.value
@@ -270,8 +274,13 @@ export function generarProyeccionesRsc3(contexto, opciones = {}) {
     `| Contexto Detallado Agentes | \`.antigravity/context.md\` |`,
     ``,
     `## Estado de Dimensiones Arquitectónicas (25)`,
-    `- **Implementadas (16):** identity, problem, objectives, audience, environment, mvp, future, constraints, roles, entities, data, design, architecture, technology, decisions, traceability.`,
-    `- **No Implementadas (9):** users, requirements, skills, tests, production, maintenance, state, provenance, integrity (todas marcadas explícitamente como \`NO_IMPLEMENTADO\`).`
+    dimensiones.users.status === 'IMPLEMENTADO' || dimensiones.requirements.status === 'IMPLEMENTADO'
+      ? (() => {
+          const dimsImpl = dimensionesClaves.filter(d => dimensiones[d].status === 'IMPLEMENTADO');
+          const dimsNoImpl = dimensionesClaves.filter(d => dimensiones[d].status !== 'IMPLEMENTADO');
+          return `- **Implementadas (${dimsImpl.length}):** ${dimsImpl.join(', ')}.\n- **No Implementadas (${dimsNoImpl.length}):** ${dimsNoImpl.join(', ')} (todas marcadas explícitamente como \`NO_IMPLEMENTADO\`).`;
+        })()
+      : `- **Implementadas (16):** identity, problem, objectives, audience, environment, mvp, future, constraints, roles, entities, data, design, architecture, technology, decisions, traceability.\n- **No Implementadas (9):** users, requirements, skills, tests, production, maintenance, state, provenance, integrity (todas marcadas explícitamente como \`NO_IMPLEMENTADO\`).`
   ];
   const claudeMd = lineasClaude.join('\n') + '\n';
 

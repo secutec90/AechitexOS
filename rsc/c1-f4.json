@@ -1,13 +1,16 @@
 {
-  "schemaVersion": "1.0.0",
-  "contextVersion": "1.1.0",
-  "projectVersion": "V-36",
-  "generatedAt": "2026-10-04T22:51:29.764Z",
-  "projectId": "proy_1790980470320",
-  "tenantId": "no",
-  "source": "ARCHITEX_OS_V36",
-  "contentHash": "fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01",
-  "dimensions": {
+  "etiqueta": "PRIMER NODO EVOLUTIVO F4 DE ARCHITEX OS V-36",
+  "nota": "C1 deriva causalmente de C0 incorporando las dimensiones canónicas 10 (users) y 12 (requirements) vía ADR-001.",
+  "parentContentHash": "f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e",
+  "contextoCanonico": {
+    "schemaVersion": "1.0.0",
+    "contextVersion": "1.1.0",
+    "projectVersion": "V-36",
+    "generatedAt": "2026-10-04T22:51:29.764Z",
+    "projectId": "proy_1790980470320",
+    "tenantId": "no",
+    "source": "ARCHITEX_OS_V36",
+    "contentHash": "fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01",
     "identity": {
       "status": "IMPLEMENTADO",
       "value": {
@@ -320,5 +323,40 @@
         "lineageDepth": 1
       }
     }
-  }
+  },
+  "verificacion": {
+    "estado": "VALIDO",
+    "parentStatus": "PARENT_VERIFIED",
+    "lineageDepth": 1,
+    "parentContentHash": "f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e"
+  },
+  "dimensionesImplementadas": [
+    "identity",
+    "problem",
+    "objectives",
+    "audience",
+    "environment",
+    "mvp",
+    "future",
+    "constraints",
+    "roles",
+    "users",
+    "entities",
+    "requirements",
+    "data",
+    "design",
+    "architecture",
+    "technology",
+    "decisions",
+    "traceability",
+    "state",
+    "provenance",
+    "integrity"
+  ],
+  "dimensionesNoImplementadas": [
+    "skills",
+    "tests",
+    "production",
+    "maintenance"
+  ]
 }

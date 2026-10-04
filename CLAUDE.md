@@ -1,9 +1,9 @@
 # ARCHITEX OS V-36 — CONTEXTO ARQUITECTÓNICO PARA CLAUDE
 
-> **Context Hash:** `f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e`
-> **Schema Version:** `1.0.0` | **Context Version:** `1.0.0` | **Project Version:** `V-36`
+> **Context Hash:** `fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01`
+> **Schema Version:** `1.0.0` | **Context Version:** `1.1.0` | **Project Version:** `V-36`
 > **Project ID:** `proy_1790980470320` | **Tenant ID:** `no` | **Source:** `ARCHITEX_OS_V36`
-> **Generated At:** `2026-10-04T00:00:00.000Z`
+> **Generated At:** `2026-10-04T22:51:29.764Z`
 
 Sistema modular de automatización, gobernanza y arquitectura sobre Google Apps Script y Google Sheets.
 
@@ -31,5 +31,5 @@ Sistema modular de automatización, gobernanza y arquitectura sobre Google Apps 
 | Contexto Detallado Agentes | `.antigravity/context.md` |
 
 ## Estado de Dimensiones Arquitectónicas (25)
-- **Implementadas (16):** identity, problem, objectives, audience, environment, mvp, future, constraints, roles, entities, data, design, architecture, technology, decisions, traceability.
-- **No Implementadas (9):** users, requirements, skills, tests, production, maintenance, state, provenance, integrity (todas marcadas explícitamente como `NO_IMPLEMENTADO`).
+- **Implementadas (21):** identity, problem, objectives, audience, environment, mvp, future, constraints, roles, users, entities, requirements, data, design, architecture, technology, decisions, traceability, state, provenance, integrity.
+- **No Implementadas (4):** skills, tests, production, maintenance (todas marcadas explícitamente como `NO_IMPLEMENTADO`).

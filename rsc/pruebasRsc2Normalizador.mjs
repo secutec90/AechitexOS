@@ -255,6 +255,80 @@ probar('TEST F3-3a: lifecycle fuera de catálogo → NO_IMPLEMENTADO', 'NO_IMPLE
 probar('TEST F3-3b: timestamp inválido → provenance NO_IMPLEMENTADO', 'NO_IMPLEMENTADO', ctxF3Bad.provenance.status);
 probar('TEST F3-3c: depth inconsistente con parent null → integrity NO_IMPLEMENTADO', 'NO_IMPLEMENTADO', ctxF3Bad.integrity.status);
 
+// =========================================================================
+// TEST F4 — Soporte para dimensiones 10 (users) y 12 (requirements)
+// =========================================================================
+const estadoF4Soporte = {
+  idProyecto: 'proy_f4_test',
+  nombreProyecto: 'F4 Test Suite',
+  perfilesUsuarios: [
+    {
+      id: 'USR-01',
+      rol: 'Arquitecto Humano',
+      descripcion: 'Responsable de diseño de alto nivel y gobierno canónico.',
+      nivelAcceso: 'ADMIN_ARCHITECT',
+      capacidades: ['AUTHORIZE_MUTATIONS', 'DECIDE_ADRS']
+    },
+    {
+      id: 'USR-02',
+      rol: 'Agente IA Gobernado sk-ant-api03-secretkey1234567890',
+      descripcion: 'Agente asistido con password = "SecretPassword123!" en texto',
+      nivelAcceso: 'READ_ONLY_EXECUTION',
+      capacidades: ['VERIFY_CONTEXT', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9']
+    }
+  ],
+  catalogoRequisitos: [
+    {
+      id: 'REQ-F01',
+      tipo: 'FUNCTIONAL',
+      titulo: 'Normalización canónica determinista',
+      declaracion: 'El sistema debe normalizar estadoProyecto sin fugas de secretos sk-ant-api03-leak999999999',
+      prioridad: 'HIGH',
+      estado: 'APPROVED',
+      destinoTrazabilidad: 'rsc/normalizadorContexto.mjs'
+    },
+    {
+      id: 'REQ-NF01',
+      tipo: 'NON_FUNCTIONAL',
+      titulo: 'Política de Costo $0 USD',
+      declaracion: 'Operación en Google Workspace sin costos adicionales',
+      prioridad: 'MANDATORY',
+      estado: 'APPROVED',
+      destinoTrazabilidad: 'ConfiguracionBase.gs'
+    }
+  ]
+};
+
+const snapF4Antes = JSON.stringify(estadoF4Soporte);
+const ctxF4A = normalizarContextoArchitex(estadoF4Soporte, { contextVersion: '1.1.0' });
+await new Promise(r => setTimeout(r, 20));
+const ctxF4B = normalizarContextoArchitex(estadoF4Soporte, { contextVersion: '1.1.0' });
+const snapF4Despues = JSON.stringify(estadoF4Soporte);
+
+probar('TEST F4-1a: perfilesUsuarios produce users IMPLEMENTADO', 'IMPLEMENTADO', ctxF4A.users.status);
+probar('TEST F4-1b: users.value contiene totalProfiles y targetProfiles', 2, ctxF4A.users.value.totalProfiles);
+probar('TEST F4-1c: saneamiento de secretos en perfilesUsuarios (sk-*)', false, JSON.stringify(ctxF4A.users).includes('sk-ant-api03-secretkey1234567890'));
+probar('TEST F4-1d: saneamiento de secretos en perfilesUsuarios (password)', false, JSON.stringify(ctxF4A.users).includes('SecretPassword123!'));
+probar('TEST F4-1e: saneamiento de secretos en perfilesUsuarios (Bearer)', false, JSON.stringify(ctxF4A.users).includes('Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'));
+probar('TEST F4-1f: catalogoRequisitos produce requirements IMPLEMENTADO', 'IMPLEMENTADO', ctxF4A.requirements.status);
+probar('TEST F4-1g: requirements.value contiene totalRequirements y catalog', 2, ctxF4A.requirements.value.totalRequirements);
+probar('TEST F4-1h: saneamiento de secretos en catalogoRequisitos (sk-*)', false, JSON.stringify(ctxF4A.requirements).includes('sk-ant-api03-leak999999999'));
+probar('TEST F4-1i: inmutabilidad de estadoProyecto ante normalización F4', snapF4Antes, snapF4Despues);
+probar('TEST F4-1j: contentHash determinista con dimensiones F4 activas', true, ctxF4A.contentHash === ctxF4B.contentHash);
+
+// Test retrocompatibilidad con arrays vacíos
+const estadoF4Vacio = {
+  idProyecto: 'proy_f4_empty',
+  nombreProyecto: 'F4 Listas Vacías',
+  perfilesUsuarios: [],
+  catalogoRequisitos: []
+};
+const ctxF4Vacio = normalizarContextoArchitex(estadoF4Vacio);
+probar('TEST F4-2a: perfilesUsuarios vacío produce users NO_IMPLEMENTADO', 'NO_IMPLEMENTADO', ctxF4Vacio.users.status);
+probar('TEST F4-2b: users.value es null con lista vacía', null, ctxF4Vacio.users.value);
+probar('TEST F4-2c: catalogoRequisitos vacío produce requirements NO_IMPLEMENTADO', 'NO_IMPLEMENTADO', ctxF4Vacio.requirements.status);
+probar('TEST F4-2d: requirements.value es null con lista vacía', null, ctxF4Vacio.requirements.value);
+
 console.log('\n--- RESUMEN FINAL RSC-2 ---');
 const fallos = resultados.filter(r => !r.ok);
 if (fallos.length === 0) {

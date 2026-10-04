@@ -1,9 +1,9 @@
 # ARCHITEX OS V-36 — CONTEXTO CANÓNICO DE ARQUITECTURA
 
-> **Context Hash:** `f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e`
-> **Schema Version:** `1.0.0` | **Context Version:** `1.0.0` | **Project Version:** `V-36`
+> **Context Hash:** `fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01`
+> **Schema Version:** `1.0.0` | **Context Version:** `1.1.0` | **Project Version:** `V-36`
 > **Project ID:** `proy_1790980470320` | **Tenant ID:** `no` | **Source:** `ARCHITEX_OS_V36`
-> **Generated At:** `2026-10-04T00:00:00.000Z`
+> **Generated At:** `2026-10-04T22:51:29.764Z`
 
 ---
 
@@ -57,7 +57,17 @@ Usuario Final (arquitecto/tech lead que consume la SPA)
 Deployer (cuenta Google que ejecuta clasp y posee permisos sobre Sheet/Drive)
 
 ## 10. Usuarios del Sistema (`users`)
-*Estado:* `NO_IMPLEMENTADO` (Sin perfiles de usuario detallados persistidos)
+- **Total Perfiles:** 3
+- **Perfiles Registrados:**
+  - **USR-01 — Arquitecto Humano** (ADMIN_ARCHITECT):
+    - *Descripción:* Responsable de diseño de alto nivel, validación de SDD, aprobación de ADRs y autorización de evoluciones canónicas.
+    - *Capacidades:* AUTHORIZE_MUTATIONS, DECIDE_ADRS, APPROVE_REGENERATION
+  - **USR-02 — Agente IA Gobernado** (READ_ONLY_EXECUTION):
+    - *Descripción:* Agentes automatizados (Cursor, Antigravity, Claude) que asisten en generación, verificación adversarial y refutación bajo arnés RSC.
+    - *Capacidades:* VERIFY_CONTEXT, AUDIT_CONSTRAINTS, REFUTE_CORRECTNESS
+  - **USR-03 — Ingeniero de Software** (CONTRIBUTOR):
+    - *Descripción:* Implementador de módulos de software en código fuente bajo los contratos canónicos definidos.
+    - *Capacidades:* CODE_IMPLEMENTATION, RUN_TESTS
 
 ## 11. Entidades y Modelado de Datos (`entities`)
 - **Resumen:** Proyectos (id, nombre, version, tipo_arquitectura, autor, fecha_creacion)
@@ -75,7 +85,23 @@ DirectricesRSC (agentes_objetivo, ruta_reglas, skills_instaladas)
   - **ClasesAudio:** `id, titulo, contenido_voz, duracion_estimada, docente_id, fecha_publicacion`
 
 ## 12. Requisitos Formales (`requirements`)
-*Estado:* `NO_IMPLEMENTADO` (Sin colección formal persistida en estadoProyecto)
+- **Total Requisitos:** 5
+- **Catálogo de Requisitos:**
+  - **REQ-F01** [FUNCTIONAL] (HIGH | APPROVED): Normalización y proyección determinista de contexto
+    - *Declaración:* El sistema debe transformar el estado del proyecto en un contexto canónico con hash SHA-256 sin depender de timestamps volátiles ni red.
+    - *Trazabilidad:* `rsc/normalizadorContexto.mjs`
+  - **REQ-F02** [FUNCTIONAL] (HIGH | APPROVED): Verificación y certificación cooperativa de agentes
+    - *Declaración:* El arnés RSC-4/RSC-6 debe certificar que las proyecciones portan el hash canónico y rechazar contextos incompletos, manipulados o con fugas de gobernanza.
+    - *Trazabilidad:* `rsc/verificadorContexto.mjs`
+  - **REQ-F03** [FUNCTIONAL] (HIGH | APPROVED): Regeneración atómica en staging gobernada
+    - *Declaración:* RSC-5 debe requerir autorización explícita para sincronizar proyecciones, verificando el staging antes de realizar reemplazo físico.
+    - *Trazabilidad:* `rsc/regeneradorProyecciones.mjs`
+  - **REQ-NF01** [NON_FUNCTIONAL] (MANDATORY | APPROVED): Costo de servidor $0 USD y runtime serverless
+    - *Declaración:* Operar sobre infraestructura Google Workspace (Apps Script runtime V8 + Sheets) sin servidores dedicados.
+    - *Trazabilidad:* `ConfiguracionBase.gs`
+  - **REQ-NF02** [NON_FUNCTIONAL] (MANDATORY | APPROVED): Concurrencia protegida mediante LockService
+    - *Declaración:* Toda mutación en Google Sheets debe ejecutarse bajo LockService con timeout de 15 segundos para evitar sobreescritura concurrente.
+    - *Trazabilidad:* `Codigo.gs`
 
 ## 13. Datos y Persistencia (`data`)
 - **Motor de Almacenamiento:** `MYSQL`

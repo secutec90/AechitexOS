@@ -123,6 +123,88 @@ function extraerLinajeCausal(bruto) {
 }
 
 /**
+ * Extrae perfiles de usuarios si están estructurados en la entrada (F4).
+ * @param {any} entrada
+ * @return {{totalProfiles: number, targetProfiles: Array<Object>}|null}
+ */
+export function extraerUsuarios(entrada) {
+  if (!entrada || typeof entrada !== 'object') return null;
+  const lista = entrada.perfilesUsuarios || entrada.usuariosRegistrados || entrada.targetProfiles;
+  if (!Array.isArray(lista) || lista.length === 0) return null;
+
+  const targetProfiles = [];
+  for (const item of lista) {
+    if (!item || typeof item !== 'object') continue;
+    const id = sanitizarTexto(item.id);
+    const role = sanitizarTexto(item.role || item.rol);
+    const description = sanitizarTexto(item.description || item.descripcion);
+    const accessLevel = sanitizarTexto(item.accessLevel || item.nivelAcceso);
+
+    const capsRaw = item.capabilities || item.capacidades;
+    const capabilities = Array.isArray(capsRaw)
+      ? capsRaw.map(c => sanitizarTexto(c)).filter(Boolean)
+      : [];
+
+    if (id || role || description) {
+      targetProfiles.push({
+        id: id || null,
+        role: role || null,
+        description: description || null,
+        accessLevel: accessLevel || null,
+        capabilities
+      });
+    }
+  }
+
+  if (targetProfiles.length === 0) return null;
+  return {
+    totalProfiles: targetProfiles.length,
+    targetProfiles
+  };
+}
+
+/**
+ * Extrae catálogo de requisitos formales si están estructurados en la entrada (F4).
+ * @param {any} entrada
+ * @return {{totalRequirements: number, catalog: Array<Object>}|null}
+ */
+export function extraerRequisitos(entrada) {
+  if (!entrada || typeof entrada !== 'object') return null;
+  const lista = entrada.catalogoRequisitos || entrada.requisitosRegistrados || entrada.catalog;
+  if (!Array.isArray(lista) || lista.length === 0) return null;
+
+  const catalog = [];
+  for (const item of lista) {
+    if (!item || typeof item !== 'object') continue;
+    const id = sanitizarTexto(item.id);
+    const type = sanitizarTexto(item.type || item.tipo);
+    const title = sanitizarTexto(item.title || item.titulo);
+    const statement = sanitizarTexto(item.statement || item.declaracion || item.description || item.descripcion);
+    const priority = sanitizarTexto(item.priority || item.prioridad);
+    const status = sanitizarTexto(item.status || item.estado);
+    const traceabilityTarget = sanitizarTexto(item.traceabilityTarget || item.destinoTrazabilidad);
+
+    if (id || title || statement) {
+      catalog.push({
+        id: id || null,
+        type: type || 'FUNCTIONAL',
+        title: title || null,
+        statement: statement || null,
+        priority: priority || 'MEDIUM',
+        status: status || 'PROPOSED',
+        traceabilityTarget: traceabilityTarget || null
+      });
+    }
+  }
+
+  if (catalog.length === 0) return null;
+  return {
+    totalRequirements: catalog.length,
+    catalog
+  };
+}
+
+/**
  * Normaliza estadoProyecto al esquema ContextoCanonicoArchitex.
  * Función pura y determinista.
  *
@@ -207,8 +289,9 @@ export function normalizarContextoArchitex(estadoProyecto, opciones = {}) {
     rolesDefinition: sanitizarTexto(entrada.campoRoles)
   }) : noImplementado();
 
-  // 10. USERS (No implementado en estadoProyecto)
-  const users = noImplementado();
+  // 10. USERS (Soporte F4 / Retrocompatible con NO_IMPLEMENTADO si ausente)
+  const usersVal = extraerUsuarios(entrada);
+  const users = usersVal ? implementado(usersVal) : noImplementado();
 
   // 11. ENTITIES
   const hasEntitiesArray = Array.isArray(entrada.entidadesRegistradas) && entrada.entidadesRegistradas.length > 0;
@@ -221,8 +304,9 @@ export function normalizarContextoArchitex(estadoProyecto, opciones = {}) {
     })) : null
   }) : noImplementado();
 
-  // 12. REQUIREMENTS (No implementado como colección formal)
-  const requirements = noImplementado();
+  // 12. REQUIREMENTS (Soporte F4 / Retrocompatible con NO_IMPLEMENTADO si ausente)
+  const reqsVal = extraerRequisitos(entrada);
+  const requirements = reqsVal ? implementado(reqsVal) : noImplementado();
 
   // 13. DATA
   const hasData = hasEntitiesArray || hasEntitiesSummary || !!(entrada.selectorTipoProyecto && String(entrada.selectorTipoProyecto).trim());
@@ -336,7 +420,7 @@ export function normalizarContextoArchitex(estadoProyecto, opciones = {}) {
 
   const schemaVersion = '1.0.0';
   const projectVersion = 'V-36';
-  const contextVersion = opts.contextVersion || '1.0.0';
+  const contextVersion = opts.contextVersion || (entrada.contextVersion ? String(entrada.contextVersion).trim() : '1.0.0');
   const projectId = sanitizarTexto(entrada.idProyecto) || null;
   const tenantId = (entrada.campoMultitenant && String(entrada.campoMultitenant).trim()) || (opts.tenantId ? String(opts.tenantId).trim() : null);
   const source = 'ARCHITEX_OS_V36';
@@ -373,6 +457,8 @@ export function normalizarContextoArchitex(estadoProyecto, opciones = {}) {
 export default {
   normalizarContextoArchitex,
   sanitizarTexto,
+  extraerUsuarios,
+  extraerRequisitos,
   LIFECYCLES_F3: Array.from(LIFECYCLES_F3),
   SOURCE_TYPES_F3: Array.from(SOURCE_TYPES_F3)
 };

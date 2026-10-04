@@ -4,7 +4,7 @@ description: Guía canónica para consultar e interpretar ARCHITEX_STATE.json y 
 ---
 
 # Skill: architex-context
-# Context Hash: f1ac370dcaf885050882b2a2ddd6da142c93567f8e054b4534a36a76db33d70e
+# Context Hash: fe48761c3a9ace1ad55a401a3a9fcd0289339aa12e40c30ca4d8382c5c0b1b01
 
 ## Propósito
 Permite a los agentes de IA comprender la estructura de las 25 dimensiones canónicas de ARCHITEX OS V-36 generadas mediante normalizarContextoArchitex().

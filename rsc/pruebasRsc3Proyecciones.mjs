@@ -286,6 +286,61 @@ probar('TEST FÍSICO: Escritura aislada de proyecciones en estructura de disco',
 // Limpiar directorio temporal
 rmSync(dirTemp, { recursive: true, force: true });
 
+// =========================================================================
+// TEST F4 — Proyecciones de dimensiones 10 (users) y 12 (requirements)
+// =========================================================================
+const estadoF4ParaProy = {
+  ...estadoProyectoReal,
+  perfilesUsuarios: [
+    {
+      id: 'USR-01',
+      rol: 'Arquitecto Humano',
+      descripcion: 'Responsable de diseño de alto nivel y gobierno canónico.',
+      nivelAcceso: 'ADMIN_ARCHITECT',
+      capacidades: ['AUTHORIZE_MUTATIONS', 'DECIDE_ADRS']
+    }
+  ],
+  catalogoRequisitos: [
+    {
+      id: 'REQ-F01',
+      tipo: 'FUNCTIONAL',
+      titulo: 'Normalización canónica determinista',
+      declaracion: 'El sistema debe normalizar estadoProyecto sin fugas de secretos',
+      prioridad: 'HIGH',
+      estado: 'APPROVED',
+      destinoTrazabilidad: 'rsc/normalizadorContexto.mjs'
+    }
+  ]
+};
+
+const ctxF4Proy = normalizarContextoArchitex(estadoF4ParaProy, { contextVersion: '1.1.0' });
+const proyF4 = generarProyeccionesRsc3(ctxF4Proy);
+
+// 1. Validar renderizado en .antigravity/context.md
+const renderizaUsersF4 = proyF4.antigravityContextMd.includes('USR-01 — Arquitecto Humano') &&
+                         proyF4.antigravityContextMd.includes('AUTHORIZE_MUTATIONS');
+const renderizaReqsF4 = proyF4.antigravityContextMd.includes('REQ-F01') &&
+                        proyF4.antigravityContextMd.includes('Normalización canónica determinista');
+
+probar('TEST F4-P1a: .antigravity/context.md renderiza perfiles de usuario cuando users está IMPLEMENTADO', true, renderizaUsersF4);
+probar('TEST F4-P1b: .antigravity/context.md renderiza catálogo de requisitos cuando requirements está IMPLEMENTADO', true, renderizaReqsF4);
+
+// 2. Validar ARCHITEX_STATE.json
+const stateJsonF4 = JSON.parse(proyF4.architexStateJson);
+const stateJsonUsersOk = stateJsonF4.dimensions.users.status === 'IMPLEMENTADO' &&
+                         stateJsonF4.dimensions.users.value.totalProfiles === 1;
+const stateJsonReqsOk = stateJsonF4.dimensions.requirements.status === 'IMPLEMENTADO' &&
+                        stateJsonF4.dimensions.requirements.value.totalRequirements === 1;
+
+probar('TEST F4-P2a: ARCHITEX_STATE.json incluye users IMPLEMENTADO', true, stateJsonUsersOk);
+probar('TEST F4-P2b: ARCHITEX_STATE.json incluye requirements IMPLEMENTADO', true, stateJsonReqsOk);
+
+// 3. Validar conteo dinámico en CLAUDE.md
+const claudeF4Ok = proyF4.claudeMd.includes('Implementadas (18)') &&
+                   proyF4.claudeMd.includes('users') &&
+                   proyF4.claudeMd.includes('requirements');
+probar('TEST F4-P3: CLAUDE.md actualiza lista dinámica de dimensiones implementadas ante F4', true, claudeF4Ok);
+
 console.log('\n--- RESUMEN FINAL RSC-3 ---');
 const fallos = resultados.filter(r => !r.ok);
 if (fallos.length === 0) {
