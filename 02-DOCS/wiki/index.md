@@ -3,7 +3,7 @@ type: index
 title: ARCHITEX OS — Knowledge map
 description: Full index of wiki articles for the harness and SDD chain.
 tags: [wiki, index]
-timestamp: 2026-10-03T18:15:00Z
+timestamp: 2026-10-29T02:13:00Z
 topic: wiki
 ---
 
@@ -29,3 +29,10 @@ topic: wiki
 | Article | Path |
 | --- | --- |
 | Apps Script | `02-DOCS/wiki/stack/apps-script.md` |
+
+## ftd/
+
+| Article | Path |
+| --- | --- |
+| Radiografía Lectura v417 | `02-DOCS/wiki/ftd/Lectura_RADIOGRAFIA_v417.md` |
+| Seguimiento de esa actualización | `02-DOCS/wiki/ftd/radiografia-lectura-v417.md` |
