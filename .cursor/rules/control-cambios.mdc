@@ -1,0 +1,17 @@
+---
+description: Al cerrar un cambio, entregar el bloque listo para CONTROL_CAMBIOS.md.
+alwaysApply: true
+---
+
+# Control de cambios
+
+Al cerrar una actualización funcional, una mejora o una corrección de código o de documentación del producto, incluye este bloque listo para pegarse en `CONTROL_CAMBIOS.md`. No lo generes en preguntas, revisiones ni explicaciones sin cambio. No inventes archivos ni cambios que no hayan ocurrido. Un bloque por cambio cerrado. La fecha es la de America/Monterrey, formato AAAA-MM-DD. El commit sugerido va en español, en minúsculas, al estilo Conventional Commits. La respuesta va primero, este bloque después y la brújula del chat al final.
+
+```markdown
+### 🛠️ [AAAA-MM-DD] - [Módulo o función]
+- **Mensaje de Commit sugerido (Conventional Commits):** `tipo(alcance): descripción breve en minúsculas`
+- **Cambios Realizados:**
+  - [cambio técnico]
+- **Archivos Afectados:** `ruta/archivo1.ext`, `ruta/archivo2.ext`
+- **Contexto y Decisiones Técnicas (Resumen para Contexto AI):** [por qué quedó así, qué decisión no hay que reabrir y cómo retomar el hilo en otro chat]
+```
