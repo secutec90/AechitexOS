@@ -1,0 +1,3522 @@
+<style id="estilosHorarioOficialST90">
+        /* Ocultar input date nativo de manera invisible y accesible */
+        .filtro-date-hidden {
+          position: absolute !important;
+          opacity: 0 !important;
+          width: 0 !important;
+          height: 0 !important;
+          pointer-events: none !important;
+          clip: rect(0, 0, 0, 0) !important;
+          border: 0 !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        /* Contenedor principal de la barra de controles de horario (Una sola fila estilo Ribbon ST90) */
+        .horario-toolbar-shell {
+          background: transparent;
+          border: none;
+          border-radius: 0;
+          padding: 4px 0 8px;
+          margin: 0 auto 14px;
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          box-shadow: none;
+          width: 100%;
+        }
+
+        .horario-toolbar-bloque,
+        .nav-semana-box {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-wrap: nowrap;
+          gap: 4px;
+          flex: 0 0 auto;
+        }
+
+        .horario-sep-v {
+          display: inline-block;
+          width: 1px;
+          height: 26px;
+          background: #e2e8f0;
+          margin: 0 2px;
+          flex-shrink: 0;
+        }
+
+        .filtro-select-overlay {
+          position: absolute;
+          inset: 0;
+          width: 100%;
+          height: 100%;
+          opacity: 0;
+          cursor: pointer;
+          z-index: 2;
+        }
+
+        .badge-rango-semana {
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
+          padding: 4px 10px;
+          height: 34px;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #1e293b;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          letter-spacing: 0.1px;
+          white-space: nowrap;
+          cursor: pointer;
+          box-sizing: border-box;
+          transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .badge-rango-semana:hover {
+          background: #f8fafc;
+          border-color: #94a3b8;
+        }
+
+        .badge-rango-semana svg {
+          color: #0284c7;
+          stroke: #0284c7;
+          flex-shrink: 0;
+        }
+
+        /* =========================================================
+           CUADRÍCULA DE CLASES: BOTONES EXACTAMENTE DEL MISMO TAMAÑO
+           ========================================================= */
+        .cal-tabla.cal-concentrado { min-width: 720px; font-size: 11px; }
+        .cal-tabla.cal-concentrado .cal-celda { min-width: 78px; padding: 4px; }
+
+        .hojas-asc { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; justify-content: center; }
+        .hoja-asc { background: #fff; color: #000; border: 1px solid #000; padding: 8px 10px 6px; max-width: 100%; overflow-x: auto; }
+        .hoja-asc .asc-turno { margin: 0; text-align: center; font-size: 12px; font-weight: 600; }
+        .hoja-asc .asc-titulo { margin: 0 0 8px; text-align: center; font-size: 28px; line-height: 1.1; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: #000; }
+        .hoja-asc .asc-tabla { border-collapse: collapse; width: auto; min-width: 640px; background: #fff; color: #000; }
+        .hoja-asc .asc-tabla th, .hoja-asc .asc-tabla td { border: 1px solid #000; text-align: center; vertical-align: middle; padding: 2px; background: #fff; color: #000; }
+        .hoja-asc .asc-dia { width: 28px; min-width: 28px; padding: 8px 2px; }
+        .hoja-asc .asc-dia span { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; font-weight: 700; font-size: 14px; letter-spacing: 0.06em; }
+        .hoja-asc .asc-num { font-weight: 700; font-size: 14px; }
+        .hoja-asc .asc-hora { font-size: 11px; font-weight: 500; white-space: nowrap; }
+        .hoja-asc button.asc-celda { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; min-height: 64px; border: 0; background: transparent; color: #000; cursor: pointer; padding: 4px 2px; font: inherit; box-shadow: none; border-radius: 0; }
+        .hoja-asc button.asc-celda.sel { background: #e0f2fe; }
+        .hoja-asc .asc-grande { font-size: 20px; font-weight: 700; line-height: 1.1; }
+        .hoja-asc .asc-media { font-size: 14px; font-weight: 700; }
+        .hoja-asc .asc-chica { font-size: 13px; font-weight: 600; }
+        .hoja-asc .asc-salon { font-size: 12px; font-weight: 700; }
+        .hoja-asc .asc-vacia { min-height: 64px; min-width: 72px; cursor: pointer; }
+        .hoja-asc .asc-pie { display: flex; justify-content: space-between; gap: 16px; font-size: 10px; margin-top: 4px; color: #000; }
+        .hoja-asc-concentrado .asc-tabla { min-width: 880px; }
+        .cal-tabla {
+          width: 100% !important;
+          table-layout: fixed !important;
+          border-collapse: separate !important;
+          border-spacing: 6px !important;
+          margin-top: 8px;
+        }
+
+        .cal-tabla th {
+          background: #f1f5f9;
+          color: #334155;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 8px 4px;
+          text-align: center;
+          border-radius: 6px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .cal-tabla th.hoy-col {
+          background: #e0f2fe;
+          color: #0369a1;
+          border-color: #bae6fd;
+        }
+
+        .cal-tabla th.th-hora {
+          width: 68px !important;
+          max-width: 68px !important;
+        }
+
+        .cal-tabla td.hora {
+          width: 68px !important;
+          max-width: 68px !important;
+          font-size: 11px;
+          font-weight: 700;
+          color: #64748b;
+          text-align: center;
+          vertical-align: middle;
+          background: #f8fafc;
+          border-radius: 6px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .cal-tabla td {
+          padding: 0 !important;
+          vertical-align: middle !important;
+        }
+
+        /* Botón de la celda de clase con tamaño completamente uniforme */
+        .cal-celda {
+          width: 100% !important;
+          height: 58px !important;
+          min-height: 58px !important;
+          max-height: 58px !important;
+          box-sizing: border-box !important;
+          margin: 0 !important;
+          padding: 4px 6px !important;
+          display: flex !important;
+          flex-direction: column !important;
+          justify-content: center !important;
+          align-items: center !important;
+          text-align: center !important;
+          background: #0284c7 !important;
+          color: #ffffff !important;
+          border: 1px solid #0369a1 !important;
+          border-radius: 8px !important;
+          cursor: pointer !important;
+          transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+          overflow: hidden !important;
+        }
+
+        .cal-celda:hover {
+          transform: translateY(-1px) !important;
+          box-shadow: 0 3px 6px rgba(2, 132, 199, 0.3) !important;
+          background: #0369a1 !important;
+        }
+
+        .cal-celda strong {
+          display: block !important;
+          font-size: 11px !important;
+          font-weight: 700 !important;
+          line-height: 1.2 !important;
+          width: 100% !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
+        }
+
+        .cal-celda span {
+          display: block !important;
+          font-size: 10px !important;
+          font-weight: 400 !important;
+          line-height: 1.2 !important;
+          opacity: 0.92 !important;
+          width: 100% !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          white-space: nowrap !important;
+          margin-top: 2px !important;
+        }
+
+        .cal-celda.en-curso {
+          background: #0d9488 !important;
+          border-color: #0f766e !important;
+        }
+
+        .cal-celda.con-texto {
+          background: #047857 !important;
+          border-color: #065f46 !important;
+        }
+
+        .cal-celda.ajena {
+          background: #64748b !important;
+          border-color: #475569 !important;
+          opacity: 0.85 !important;
+        }
+
+        .cal-celda.sel {
+          outline: 2px solid #f59e0b !important;
+          outline-offset: 1px !important;
+          box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35) !important;
+        }
+
+        /* Celda vacía con el mismo tamaño uniforme */
+        .cal-vacia {
+          width: 100% !important;
+          height: 58px !important;
+          min-height: 58px !important;
+          max-height: 58px !important;
+          box-sizing: border-box !important;
+          border: 1px dashed #cbd5e1 !important;
+          border-radius: 8px !important;
+          background: #f8fafc !important;
+          cursor: pointer !important;
+          transition: background 0.15s ease, border-color 0.15s ease !important;
+        }
+
+        .cal-vacia:hover {
+          background: #f1f5f9 !important;
+          border-color: #94a3b8 !important;
+        }
+
+        /* ======================================================== */
+        /* ESTILOS DE ALTA GAMA: SUITE PLANEACIÓN DIDÁCTICA NEM */
+        /* ======================================================== */
+        .nem-shell-tarjeta {
+          background: #ffffff;
+          border: 1px solid var(--st90-borde);
+          border-radius: 14px;
+          padding: 24px;
+          box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+          box-sizing: border-box;
+        }
+
+        .nem-header-box {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 18px;
+          border-bottom: 1px solid #e2e8f0;
+          padding-bottom: 14px;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .nem-header-title {
+          font-size: 20px;
+          font-weight: 800;
+          color: var(--st90-azul);
+          margin: 0 0 4px;
+          letter-spacing: -0.01em;
+        }
+
+        .nem-header-sub {
+          font-size: 13px;
+          color: #64748b;
+          margin: 0;
+          line-height: 1.4;
+        }
+
+        /* Banner de Clase Seleccionada */
+        .nem-banner {
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          border: 1px solid #bae6fd;
+          border-radius: 12px;
+          padding: 14px 18px;
+          margin-bottom: 20px;
+          box-shadow: 0 2px 6px rgba(2, 132, 199, 0.06);
+        }
+
+        .nem-banner-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: nowrap;
+          gap: 12px;
+        }
+
+        .nem-banner-fila {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: nowrap;
+          gap: 12px;
+          margin-top: 10px;
+        }
+
+        .nem-banner-main {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex: 1 1 auto;
+          min-width: 0;
+        }
+
+        .nem-banner-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: .05em;
+          color: #0369a1;
+          background: #ffffff;
+          border: 1px solid #7dd3fc;
+          padding: 2px 9px;
+          border-radius: 999px;
+          width: fit-content;
+        }
+
+        .nem-banner-title {
+          font-size: 20px;
+          font-weight: 800;
+          color: #0c4a6e;
+          margin: 2px 0 6px;
+        }
+
+        .nem-banner-meta {
+          display: flex;
+          align-items: center;
+          flex-wrap: nowrap;
+          gap: 8px;
+          min-width: 0;
+          overflow-x: auto;
+        }
+
+        .nem-banner-meta span {
+          display: inline-flex;
+          align-items: center;
+          white-space: nowrap;
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 4px 10px;
+          font-size: 12px;
+          font-weight: 600;
+          color: #334155;
+        }
+
+        .nem-banner-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          flex: 0 0 auto;
+          white-space: nowrap;
+          padding: 8px 14px;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #0284c7;
+          background: #ffffff;
+          border: 1.5px solid #0284c7;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all .2s ease;
+          box-shadow: 0 2px 4px rgba(2, 132, 199, 0.08);
+        }
+
+        .nem-banner-btn:hover {
+          background: #0284c7;
+          color: #ffffff;
+        }
+
+        /* Banner compacto: etiqueta, titulo, chips y boton en UNA sola fila */
+        .nem-banner {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          flex-wrap: nowrap;
+          padding: 10px 16px;
+        }
+
+        .nem-banner .nem-banner-header,
+        .nem-banner .nem-banner-main,
+        .nem-banner .nem-banner-fila {
+          display: contents;
+        }
+
+        .nem-banner .nem-banner-tag,
+        .nem-banner .nem-banner-btn {
+          flex: 0 0 auto;
+        }
+
+        .nem-banner .nem-banner-title {
+          flex: 0 0 auto;
+          margin: 0;
+          font-size: 18px;
+          white-space: nowrap;
+        }
+
+        .nem-banner .nem-banner-meta {
+          flex: 1 1 auto;
+          justify-content: space-evenly;
+          overflow: hidden;
+        }
+
+        /* Stepper UX Interactivo en 4 Pasos */
+        .nem-stepper-header {
+          display: flex;
+          align-items: stretch;
+          gap: 8px;
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 6px;
+          margin: 18px 0 24px;
+          box-sizing: border-box;
+        }
+
+        .nem-step-tab {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px 14px;
+          border: none;
+          border-radius: 8px;
+          background: transparent;
+          cursor: pointer;
+          transition: all .2s ease;
+          font-family: inherit;
+          user-select: none;
+        }
+
+        .nem-step-tab:hover {
+          background: #e2e8f0;
+        }
+
+        .nem-step-tab .step-num {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #cbd5e1;
+          color: #334155;
+          font-size: 12px;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all .2s ease;
+        }
+
+        .nem-step-tab .step-txt {
+          font-size: 13px;
+          font-weight: 700;
+          color: #64748b;
+          white-space: nowrap;
+          transition: all .2s ease;
+        }
+
+        .nem-step-tab.activo {
+          background: #ffffff;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+          border: 1px solid #cbd5e1;
+        }
+
+        .nem-step-tab.activo .step-num {
+          background: #0284c7;
+          color: #ffffff;
+        }
+
+        .nem-step-tab.activo .step-txt {
+          color: #0284c7;
+          font-weight: 800;
+        }
+
+        .nem-step-tab.completado .step-num {
+          background: #10b981;
+          color: #ffffff;
+        }
+
+        .nem-step-tab.completado .step-txt {
+          color: #047857;
+        }
+
+        /* Campos y Grid del Formulario */
+        .nem-fila-una {
+          display: grid;
+          grid-template-columns: minmax(260px, 2.5fr) minmax(180px, 1.8fr) minmax(180px, 1.8fr) 110px;
+          gap: 16px;
+          align-items: flex-end;
+          margin-bottom: 22px;
+        }
+
+        @media (max-width: 900px) {
+          .nem-fila-una {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .nem-campo-inline {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          width: 100%;
+        }
+
+        .nem-campo-inline label {
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #1e293b;
+          margin: 0;
+        }
+
+        .nem-campo-inline input,
+        .nem-campo-inline select,
+        .nem-campo-inline textarea {
+          border: 1.5px solid #cbd5e1;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 13.5px;
+          color: #0f172a;
+          background: #ffffff;
+          box-sizing: border-box;
+          font-family: inherit;
+          transition: border-color .2s ease, box-shadow .2s ease;
+          height: 42px;
+          width: 100%;
+        }
+
+        .nem-campo-inline textarea {
+          height: auto;
+          min-height: 80px;
+          line-height: 1.45;
+        }
+
+        .nem-campo-inline input:focus,
+        .nem-campo-inline select:focus,
+        .nem-campo-inline textarea:focus {
+          outline: none;
+          border-color: #0284c7;
+          box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        /* Ejes Articuladores Chips */
+        .nem-ejes-fila {
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin-bottom: 22px;
+        }
+
+        .nem-ejes-fila > label {
+          display: block;
+          font-size: 13px;
+          font-weight: 700;
+          color: #0f172a;
+          margin-bottom: 12px;
+        }
+
+        .nem-ejes-wrap {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 9px;
+        }
+
+        .nem-eje-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          background: #ffffff;
+          border: 1.5px solid #cbd5e1;
+          border-radius: 999px;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: #334155;
+          cursor: pointer;
+          user-select: none;
+          transition: all .15s ease;
+        }
+
+        .nem-eje-chip:hover {
+          border-color: #94a3b8;
+          background: #f1f5f9;
+        }
+
+        .nem-eje-chip input[type="checkbox"] {
+          accent-color: #0284c7;
+          width: 15px;
+          height: 15px;
+          margin: 0;
+          cursor: pointer;
+        }
+
+        .nem-eje-chip.seleccionado {
+          background: #eff6ff;
+          border-color: #0284c7;
+          color: #0284c7;
+          font-weight: 700;
+          box-shadow: 0 1px 3px rgba(2, 132, 199, 0.12);
+        }
+
+        /* Footer de Navegación de Pasos */
+        .nem-step-nav-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 12px;
+          padding-top: 18px;
+          margin-top: 24px;
+          border-top: 1px solid #e2e8f0;
+        }
+
+        .nem-btn-accion {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 9px 18px;
+          font-size: 13px;
+          font-weight: 700;
+          border-radius: 8px;
+          border: 1.5px solid #cbd5e1;
+          background: #ffffff;
+          color: #334155;
+          cursor: pointer;
+          transition: all .2s ease;
+        }
+
+        .nem-btn-accion:hover {
+          background: #f1f5f9;
+          border-color: #94a3b8;
+          color: #0f172a;
+        }
+
+        .nem-btn-accion.nem-btn-primario {
+          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+          color: #ffffff;
+          border-color: #0284c7;
+          box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        }
+
+        .nem-btn-accion.nem-btn-primario:hover {
+          background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+          box-shadow: 0 4px 10px rgba(2, 132, 199, 0.35);
+          transform: translateY(-1px);
+        }
+
+        /* Catálogo y Dos Columnas */
+        .nem-catalogo-box {
+          background: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 20px;
+        }
+
+        .nem-catalogo-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+
+        .nem-catalogo-dos-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        @media (max-width: 800px) {
+          .nem-catalogo-dos-col {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .nem-fila-dos-col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        @media (max-width: 800px) {
+          .nem-fila-dos-col {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .nem-select-sintetico {
+          width: 100%;
+          border: 1.5px solid #86efac;
+          border-radius: 8px;
+          padding: 8px 12px;
+          font-size: 13px;
+          background: #ffffff;
+          color: #14532d;
+          box-sizing: border-box;
+          font-family: inherit;
+        }
+
+        .nem-lista-pda-scroll {
+          max-height: 220px;
+          overflow-y: auto;
+          border: 1.5px solid #86efac;
+          border-radius: 8px;
+          padding: 10px;
+          background: #ffffff;
+          box-sizing: border-box;
+        }
+
+        .nem-inclusion-box {
+          background: #fffbeb;
+          border: 1px solid #fde68a;
+          border-radius: 12px;
+          padding: 16px;
+          margin-bottom: 20px;
+        }
+
+        .nem-badge-official {
+          background: #15803d;
+          color: #ffffff;
+          font-size: 10.5px;
+          font-weight: 800;
+          padding: 2px 8px;
+          border-radius: 999px;
+          text-transform: uppercase;
+        }
+
+        .nem-badge-pill {
+          background: #e0f2fe;
+          color: #0369a1;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 9px;
+          border-radius: 999px;
+        }
+      
+  /* Barra contextual del horario — ST90 §2 (N3 centrado) y §7 (cinta transparente) */
+  .horario-toolbar-shell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 10px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0 auto 14px;
+    width: 100%;
+  }
+  .horario-toolbar-shell > .horario-toolbar-bloque,
+  .horario-toolbar-shell > .nav-semana-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .horario-toolbar-shell > .horario-sep-v {
+    width: 1px;
+    align-self: stretch;
+    background: #e2e8f0;
+    margin: 4px 6px;
+  }
+
+  /* Iconos de ayuda y asistente en el stepper: compactos y en una fila */
+  .nem-stepper-header { flex-wrap: nowrap; }
+  .nem-step-tab { white-space: nowrap; overflow: hidden; }
+  .nem-step-tab .step-txt { overflow: hidden; text-overflow: ellipsis; }
+  .nem-ayuda-paso { display: inline-block; vertical-align: middle; line-height: 1; flex: 0 0 auto; }
+
+  /* ============================================================
+     FASE 3 — Catálogo SEP a dos columnas
+     ============================================================ */
+  .nem-catalogo-dos-col {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .nem-catalogo-dos-col > div > label,
+  .nem-catalogo-dos-col > div > .nem-catalogo-col-titulo {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    min-height: 24px;
+    margin: 0 0 4px;
+  }
+
+  /* Contenedor del selector de PDA: sin borde ni relleno extra para igualar ambas listas */
+  #listaPDAsCheckboxNEM {
+    max-height: none;
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+    box-sizing: border-box;
+    margin: 0;
+  }
+
+  /* Buscador y selectores del catálogo con el mismo formato e idéntica altura */
+  #buscarPDANEM,
+  .nem-select-sintetico,
+  #listaPDAsCheckboxNEM .nem-select-sintetico {
+    width: 100%;
+    height: 38px;
+    min-height: 38px;
+    border: 1.5px solid #86efac;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    background: #ffffff;
+    color: #14532d;
+    box-sizing: border-box;
+    font-family: inherit;
+    margin: 0;
+  }
+
+  /* ============================================================
+     FASE 3 — Módulo de inclusión UDEI / DUA (faltaba en Admin)
+     ============================================================ */
+  .nem-inclusion-box {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+
+  .nem-inclusion-header-single {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .nem-badge-udei {
+    background: #d97706;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .nem-badge-bapyc-alert {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    color: #92400e;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* Chips de BAPyC detectadas */
+  #wrapChipsBAPyCGrupo {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  #wrapChipsBAPyCGrupo > span,
+  .nem-chip-bapyc {
+    display: inline-block;
+    background: #ffffff;
+    border: 1px solid #fcd34d;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #92400e;
+    line-height: 1.4;
+  }
+
+  /* Campo de ajustes razonables */
+  #planAjustesRazonables {
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #334155;
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+  #planAjustesRazonables:focus {
+    outline: none;
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, .18);
+  }
+
+  /* ============================================================
+     FASE 3 — Botones de navegación inferior
+     ============================================================ */
+  .nem-step-nav-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 16px;
+    margin-top: 22px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .nem-btn-accion {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    font-size: 12.5px;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+  }
+  .nem-btn-accion:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+  /* Primario: color plano, sin degradado ni sombra */
+  .nem-btn-accion.nem-btn-primario {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: #ffffff;
+    box-shadow: none;
+  }
+  .nem-btn-accion.nem-btn-primario:hover {
+    background: #0369a1;
+    border-color: #0369a1;
+  }
+
+  .nem-btn-accion:focus-visible,
+  .nem-btn-accion.nem-btn-primario:focus-visible {
+    outline: 2px solid #0284c7;
+    outline-offset: 2px;
+  }
+
+  .nem-btn-accion:disabled,
+  .nem-btn-accion[disabled] {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ============================================================
+     FASE 4 — Pestañas de sesiones didácticas
+     ============================================================ */
+  .nem-sesiones-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 14px;
+  }
+
+  .nem-tab-sesion {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+  }
+  .nem-tab-sesion:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+  .nem-tab-sesion.activa {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: #ffffff;
+  }
+
+  .nem-tab-sesion.aprobada { border-color: #86efac; color: #15803d; background: #f0fdf4; }
+  .nem-tab-sesion.borrador { border-style: dashed; color: #64748b; }
+
+  .nem-tab-sesion.activa.aprobada,
+  .nem-tab-sesion.activa.borrador {
+    background: #0284c7;
+    border-color: #0284c7;
+    border-style: solid;
+    color: #ffffff;
+  }
+
+  .nem-tab-sesion:focus-visible {
+    outline: 2px solid #0284c7;
+    outline-offset: 2px;
+  }
+
+  /* ============================================================
+     FASE 4 — Barra de iDevices modulares
+     ============================================================ */
+  .idevice-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 10px;
+    margin: 0 0 12px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+  }
+
+  .idevice-bar > span {
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: #64748b !important;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-right: 2px;
+  }
+
+  .idevice-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+  }
+  .idevice-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+  .idevice-btn:active { background: #dbeafe; }
+  .idevice-btn:focus-visible { outline: 2px solid #0284c7; outline-offset: 2px; }
+
+  /* Variantes semánticas (requieren la clase en el marcado) */
+  .idevice-btn--lectura  { border-color: #a5b4fc; color: #4338ca; }
+  .idevice-btn--lectura:hover  { background: #eef2ff; border-color: #818cf8; }
+
+  .idevice-btn--pregunta { border-color: #fcd34d; color: #b45309; }
+  .idevice-btn--pregunta:hover { background: #fffbeb; border-color: #f59e0b; }
+
+  .idevice-btn--reto     { border-color: #86efac; color: #15803d; }
+  .idevice-btn--reto:hover     { background: #f0fdf4; border-color: #4ade80; }
+
+  /* ============================================================
+     FASE 4 — Botón azul del encabezado de sesión
+     ============================================================ */
+  .nem-btn-accion--azul {
+    background: #ffffff;
+    border-color: #3b82f6 !important;
+    color: #1d4ed8 !important;
+  }
+  .nem-btn-accion--azul:hover {
+    background: #eff6ff !important;
+    border-color: #2563eb !important;
+  }
+
+  /* ============================================================
+     FASE 7 · MÓDULOS 2, 3 y 4 — BIBLIOTECA, CECSE, PREVIEW, IFRAME,
+     LÍNEA DEL TIEMPO Y MODAL DE AYUDA PEDAGÓGICA
+     DeepSeek · Selectores del contrato: #modalAyudaNEM,
+     #vistaBibliotecaDocente, #buscarRecursoBiblioteca,
+     #gridLibrosOficialesSEP, .card-recurso, .badge-cecse,
+     #modalPreviewAlumno, .bloque-iframe-container, #timelineProyectoNEM.
+     ============================================================ */
+
+  /* ---------- 1 · Modal pedagógico NEM ---------- */
+  #modalAyudaNEM {
+    position: fixed;
+    inset: 0;
+    z-index: 99980;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.45);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .16s ease;
+  }
+  #modalAyudaNEM.visible,
+  #modalAyudaNEM.abierto { opacity: 1; pointer-events: auto; }
+
+  #modalAyudaNEM .ayuda-nem-panel {
+    width: min(660px, 96vw);
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.32);
+    transform: translateY(10px) scale(.99);
+    transition: transform .18s cubic-bezier(.2, .8, .2, 1);
+  }
+  #modalAyudaNEM.visible .ayuda-nem-panel,
+  #modalAyudaNEM.abierto .ayuda-nem-panel { transform: none; }
+
+  .ayuda-nem-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 18px;
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 58%, #0ea5e9 100%);
+    color: #ffffff;
+    flex: 0 0 auto;
+  }
+  .ayuda-nem-icono {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    font-size: 20px;
+    line-height: 1;
+  }
+  #modalAyudaTitulo {
+    margin: 0;
+    font-size: 15.5px;
+    font-weight: 800;
+    line-height: 1.3;
+    color: #ffffff;
+  }
+  .ayuda-nem-ceja {
+    margin: 2px 0 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.84);
+  }
+  .ayuda-nem-cerrar {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.34);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .ayuda-nem-cerrar:hover { background: rgba(255, 255, 255, 0.26); }
+  .ayuda-nem-cerrar:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+
+  .ayuda-nem-cuerpo {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px 18px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ayuda-nem-etiqueta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 7px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #475569;
+  }
+
+  /* Bloque 1 · fondo azul muy suave */
+  .ayuda-nem-bloque--proposito {
+    padding: 12px 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 12px;
+  }
+  /* Bloque 2 · instrucciones */
+  .ayuda-nem-bloque--como { padding: 0 2px; }
+  /* Bloque 3 · ejemplo contextual en cursiva destacada */
+  .ayuda-nem-bloque--ejemplo {
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+  }
+
+  #modalAyudaProposito,
+  #modalAyudaComoLlenar {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #334155;
+  }
+  #modalAyudaComoLlenar ol,
+  #modalAyudaComoLlenar ul { margin: 6px 0 0; padding-left: 20px; }
+  #modalAyudaComoLlenar li { margin: 0 0 5px; }
+  #modalAyudaEjemplo {
+    margin: 0;
+    font-family: Georgia, 'Palatino Linotype', serif;
+    font-size: 13.5px;
+    font-style: italic;
+    line-height: 1.6;
+    color: #0f172a;
+  }
+
+  .ayuda-nem-pie {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 18px 15px;
+    border-top: 1px solid var(--app-border);
+    background: #ffffff;
+    flex: 0 0 auto;
+  }
+  .ayuda-nem-entendido {
+    padding: 9px 18px;
+    border: 0;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .ayuda-nem-entendido:hover { background: #1d4ed8; }
+  .ayuda-nem-entendido:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+
+  /* ---------- 2 · Biblioteca de recursos ---------- */
+  #vistaBibliotecaDocente { display: block; }
+
+  .biblio-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+  }
+  .biblio-buscador {
+    position: relative;
+    flex: 1 1 240px;
+    min-width: 170px;
+  }
+  .biblio-buscador .biblio-lupa {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    line-height: 1;
+    color: #94a3b8;
+    pointer-events: none;
+  }
+  #buscarRecursoBiblioteca {
+    width: 100%;
+    height: 38px;
+    padding: 0 14px 0 34px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 12.8px;
+    color: var(--app-text);
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  #buscarRecursoBiblioteca:focus {
+    outline: none;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+  .biblio-filtro,
+  #filtroAsignaturaRecurso,
+  #filtroGradoRecurso,
+  #filtroTrimestreRecurso {
+    height: 38px;
+    padding: 0 14px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .biblio-filtro:hover,
+  #filtroAsignaturaRecurso:hover,
+  #filtroGradoRecurso:hover,
+  #filtroTrimestreRecurso:hover { border-color: #93c5fd; background: #f8fbff; }
+  .biblio-filtro:focus,
+  #filtroAsignaturaRecurso:focus,
+  #filtroGradoRecurso:focus,
+  #filtroTrimestreRecurso:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  }
+  .biblio-subir {
+    height: 38px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+    transition: background .15s ease, transform .12s ease, box-shadow .15s ease;
+  }
+  .biblio-subir:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.34);
+  }
+  .biblio-subir:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+
+  /* Libros SEP oficiales */
+  #gridLibrosOficialesSEP {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 0 0 18px;
+  }
+  #gridLibrosOficialesSEP .libro-sep {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    text-align: center;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  #gridLibrosOficialesSEP .libro-sep:hover {
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  }
+  #gridLibrosOficialesSEP .libro-sep img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #e2e8f0;
+  }
+  #gridLibrosOficialesSEP .libro-sep__grado {
+    align-self: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  #gridLibrosOficialesSEP .libro-sep__btn {
+    padding: 6px 8px;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    background: #f8fbff;
+    color: #1d4ed8;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #gridLibrosOficialesSEP .libro-sep__btn:hover { background: #eff6ff; border-color: #93c5fd; }
+
+  /* Repositorio colectivo */
+  .biblio-grid,
+  .repositorio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(236px, 1fr));
+    gap: 14px;
+  }
+  .card-recurso {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    background: #ffffff;
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .card-recurso:hover {
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.09);
+  }
+  .card-recurso__tipo {
+    align-self: flex-start;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .03em;
+  }
+  .card-recurso__tipo--pdf { background: #fee2e2; color: #b91c1c; }
+  .card-recurso__tipo--presentacion { background: #ffedd5; color: #c2410c; }
+  .card-recurso__tipo--enlace { background: #dbeafe; color: #1d4ed8; }
+  .card-recurso__tipo--video { background: #ede9fe; color: #6d28d9; }
+  .card-recurso__titulo {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #0f172a;
+  }
+  .card-recurso__meta {
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #64748b;
+  }
+  .card-recurso__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 4px;
+  }
+  .biblio-vacio {
+    grid-column: 1 / -1;
+    padding: 36px 20px;
+    text-align: center;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    background: #f8fafc;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #64748b;
+  }
+
+  /* ---------- 3 · Tecnología CECSE ---------- */
+  .badge-cecse {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border: 1px solid #bae6fd;
+    border-radius: 999px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .panel-cecse {
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid var(--app-border);
+    border-left: 4px solid #0284c7;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    margin: 0 0 14px;
+  }
+  .cecse-horas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 10px 0 14px;
+  }
+  .cecse-horas__item {
+    flex: 1 1 150px;
+    padding: 10px 12px;
+    border: 1px solid #e0f2fe;
+    border-radius: 10px;
+    background: #f0f9ff;
+  }
+  .cecse-horas__n {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #0284c7;
+  }
+  .cecse-horas__l {
+    display: block;
+    margin-top: 2px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+    color: #0369a1;
+  }
+  .cecse-software-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+  }
+  .cecse-software {
+    padding: 12px;
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    background: #ffffff;
+  }
+  .cecse-software__grado {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #64748b;
+  }
+  .cecse-software__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+  .cecse-software__badge--excel { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+  .cecse-software__badge--powerpoint { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+
+  /* ---------- 4 · Vista previa del alumno ---------- */
+  #modalPreviewAlumno {
+    position: fixed;
+    inset: 0;
+    z-index: 99980;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.6);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .16s ease;
+  }
+  #modalPreviewAlumno.visible,
+  #modalPreviewAlumno.abierto { opacity: 1; pointer-events: auto; }
+
+  #modalPreviewAlumno .preview-panel {
+    width: min(940px, 96vw);
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 26px 64px rgba(15, 23, 42, 0.34);
+    transform: translateY(10px) scale(.99);
+    transition: transform .18s cubic-bezier(.2, .8, .2, 1);
+  }
+  #modalPreviewAlumno.visible .preview-panel,
+  #modalPreviewAlumno.abierto .preview-panel { transform: none; }
+
+  .preview-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 18px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    flex: 0 0 auto;
+  }
+  .preview-cabecera h3 {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #ffffff;
+  }
+  .preview-cerrar {
+    margin-left: auto;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .preview-cerrar:hover { background: rgba(255, 255, 255, 0.24); }
+  .preview-cerrar:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+
+  .preview-marco {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 16px;
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+  .preview-barra {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #eef2f7;
+    border-bottom: 1px solid #dbe3ec;
+    flex: 0 0 auto;
+  }
+  .preview-punto {
+    width: 9px;
+    height: 9px;
+    min-width: 9px;
+    border-radius: 50%;
+    background: #f87171;
+  }
+  .preview-punto:nth-child(2) { background: #fbbf24; }
+  .preview-punto:nth-child(3) { background: #34d399; }
+  .preview-url {
+    flex: 1 1 auto;
+    height: 24px;
+    margin-left: 8px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #dbe3ec;
+    border-radius: 999px;
+    background: #ffffff;
+    font-size: 11px;
+    color: #64748b;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .preview-lienzo {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 22px;
+    background: #ffffff;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--app-text);
+  }
+  .preview-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 16px 16px;
+    flex: 0 0 auto;
+  }
+
+  /* ---------- 5 · Iframe embebido con carga y fallback ---------- */
+  .bloque-iframe-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    margin: 12px 0;
+    border: 1px solid var(--app-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #0f172a;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  }
+  .bloque-iframe-container > iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .iframe-cargando {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #0f172a;
+    color: #cbd5e1;
+    font-size: 12px;
+    font-weight: 600;
+    transition: opacity .25s ease;
+  }
+  .bloque-iframe-container.cargado .iframe-cargando { opacity: 0; pointer-events: none; }
+  .iframe-spinner {
+    width: 26px;
+    height: 26px;
+    border: 3px solid rgba(255, 255, 255, 0.18);
+    border-top-color: #38bdf8;
+    border-radius: 50%;
+    animation: iframeSpin .9s linear infinite;
+  }
+  @keyframes iframeSpin { to { transform: rotate(360deg); } }
+  .iframe-fallback {
+    position: absolute;
+    inset: auto 0 0 0;
+    z-index: 2;
+    display: none;
+    padding: 10px 14px;
+    background: rgba(220, 38, 38, 0.92);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .bloque-iframe-container.error .iframe-fallback { display: block; }
+  .bloque-iframe-container.error .iframe-cargando { opacity: 0; pointer-events: none; }
+  .bloque-iframe-container .iframe-abrir {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.74);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    opacity: 0;
+    transition: opacity .15s ease, background .15s ease;
+  }
+  .bloque-iframe-container:hover .iframe-abrir,
+  .bloque-iframe-container:focus-within .iframe-abrir { opacity: 1; }
+  .bloque-iframe-container .iframe-abrir:hover { background: rgba(37, 99, 235, 0.92); }
+  .bloque-iframe-container .iframe-abrir:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+    opacity: 1;
+  }
+  @supports not (aspect-ratio: 1 / 1) {
+    .bloque-iframe-container { height: 0; padding-top: 56.25%; }
+  }
+
+  /* ---------- 6 · Línea del tiempo del proyecto NEM ---------- */
+  #timelineProyectoNEM {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    overflow-x: auto;
+    padding: 8px 2px 16px;
+    margin: 0 0 8px;
+  }
+  .timeline-paso {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 118px;
+    padding: 0 4px;
+    text-align: center;
+  }
+  .timeline-paso::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: calc(-50% + 16px);
+    right: calc(50% + 16px);
+    height: 2px;
+    background: #e2e8f0;
+  }
+  .timeline-paso:first-child::before { display: none; }
+  .timeline-paso__punto {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .timeline-paso__titulo {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #64748b;
+  }
+  .timeline-paso__sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
+  }
+
+  /* Estado: completado */
+  .timeline-paso.completado .timeline-paso__punto {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #15803d;
+  }
+  .timeline-paso.completado .timeline-paso__titulo { color: #15803d; }
+  .timeline-paso.completado::before { background: #86efac; }
+
+  /* Estado: activo (pulso) */
+  .timeline-paso.activo .timeline-paso__punto {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+    animation: timelinePulso 2.2s ease-in-out infinite;
+  }
+  .timeline-paso.activo .timeline-paso__titulo { color: #1d4ed8; font-weight: 800; }
+  @keyframes timelinePulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45); }
+    50%      { box-shadow: 0 0 0 7px rgba(37, 99, 235, 0); }
+  }
+
+  /* Estado: pendiente */
+  .timeline-paso.pendiente .timeline-paso__punto {
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    color: #94a3b8;
+  }
+  .timeline-paso.pendiente .timeline-paso__titulo { color: #94a3b8; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline-paso.activo .timeline-paso__punto { animation: none; }
+    .iframe-spinner { animation: none; }
+  }
+
+  @media (max-width: 640px) {
+    .bloque-iframe-container { aspect-ratio: 4 / 3; border-radius: 10px; }
+    .biblio-grid,
+    .repositorio-grid { grid-template-columns: 1fr; }
+    .preview-marco { margin: 10px; }
+    .preview-lienzo { padding: 14px; }
+    #timelineProyectoNEM .timeline-paso { min-width: 104px; }
+  }
+  /* ============================================================
+     DESATURACIÓN VISUAL UI/UX — ETAPA 1 & 2  (DeepSeek)
+     Banner editorial sin cajitas · rejilla 2×2 · micro-iconos limpios ·
+     Stepper con check y barra de progreso · tarjetas de contenidos.
+     Reglas: sin declaraciones forzadas, sin cambios de ID, solo presentación.
+     ============================================================ */
+
+  /* ---------- 1 · Banner de clase: cinta editorial plana ---------- */
+  .nem-banner {
+    background: #f8fafc;
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    box-shadow: none;
+    padding: 10px 16px;
+  }
+  .nem-banner .nem-banner-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .12em;
+    color: #0e7490;
+  }
+  .nem-banner .nem-banner-tag::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #0ea5e9;
+    flex: 0 0 auto;
+  }
+  .nem-banner .nem-banner-title {
+    color: #0f172a;
+    font-size: 17px;
+    letter-spacing: -.01em;
+  }
+  .nem-banner .nem-banner-meta {
+    gap: 0;
+    justify-content: flex-start;
+    overflow: visible;
+  }
+  .nem-banner .nem-banner-meta span {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .nem-banner .nem-banner-meta span + span::before {
+    content: '•';
+    margin: 0 10px;
+    color: #cbd5e1;
+    font-weight: 700;
+  }
+  .nem-banner .nem-banner-meta strong {
+    color: #0f172a;
+    font-weight: 700;
+  }
+  .nem-banner .nem-banner-btn {
+    border-width: 1px;
+    box-shadow: none;
+    background: transparent;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .nem-banner .nem-banner-btn:hover {
+    background: #0284c7;
+    color: #ffffff;
+  }
+
+  /* ---------- 2 · Etapa 1: rejilla respirable 2×2 ---------- */
+  .nem-fila-una {
+    display: grid;
+    grid-template-columns: minmax(220px, 2.2fr) minmax(160px, 1.35fr) minmax(160px, 1.35fr) 128px;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 20px;
+  }
+  .nem-fila-una > .nem-campo-titulo,
+  .nem-fila-una > .nem-campo-formativo,
+  .nem-fila-una > .nem-campo-metodologia,
+  .nem-fila-una > .nem-campo-sesiones {
+    grid-column: span 1;
+    min-width: 0;
+  }
+
+  @media (max-width: 980px) {
+    .nem-fila-una { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .nem-fila-una > .nem-campo-titulo,
+    .nem-fila-una > .nem-campo-formativo,
+    .nem-fila-una > .nem-campo-metodologia,
+    .nem-fila-una > .nem-campo-sesiones { grid-column: span 1; }
+  }
+  @media (max-width: 620px) {
+    .nem-fila-una { grid-template-columns: 1fr; }
+    .nem-fila-una > .nem-campo-titulo,
+    .nem-fila-una > .nem-campo-sesiones,
+    .nem-fila-una > .nem-campo-formativo,
+    .nem-fila-una > .nem-campo-metodologia { grid-column: span 1; }
+  }
+
+  /* La acción de IA se alinea a la derecha del label, sin empujar el campo */
+  .nem-campo-inline > label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .nem-campo-inline > label .btn-ia-sugerir-titulo { margin-left: auto; }
+
+  /* ---------- 3 · Micro-iconos: fuera el ruido ---------- */
+  /* La bocina solo vive dentro del modal de ayuda y del drawer */
+  label .btn-voz-nem { display: none; }
+  #modalAyudaNEM .btn-voz-nem,
+  #drawerAsistenteIA .btn-voz-nem { display: inline-flex; }
+
+  /* Nada de ❓ ni ✨ dentro de las pestañas del Stepper */
+  .nem-step-tab .nem-ayuda-paso { display: none; }
+
+  /* ---------- 4 · Stepper: check y barra de progreso ---------- */
+  .nem-stepper-header {
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 9px;
+  }
+  .nem-stepper-header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 25%;
+    border-radius: 0 3px 3px 0;
+    background: linear-gradient(90deg, #2563eb 0%, #10b981 100%);
+    transition: width .35s ease;
+  }
+  .nem-stepper-header:has(#tabPasoPlan2.activo)::after { width: 50%; }
+  .nem-stepper-header:has(#tabPasoPlan3.activo)::after { width: 75%; }
+  .nem-stepper-header:has(#tabPasoPlan4.activo)::after { width: 100%; }
+
+  .nem-step-tab {
+    border: 1px solid transparent;
+    transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .nem-step-tab.completado .step-num {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0;
+  }
+  .nem-step-tab.completado .step-num::after {
+    content: '✓';
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .nem-step-tab.completado {
+    box-shadow: inset 0 -2px 0 #10b981;
+  }
+  .nem-step-tab.completado .step-txt { color: #047857; }
+
+  /* ---------- 5 · Etapa 2: rejilla y tarjetas de contenidos ---------- */
+  .grid-contenidos-nem {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(238px, 1fr));
+    gap: 12px;
+    margin: 10px 0 16px;
+  }
+  .card-contenido-nem {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .card-contenido-nem:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.10);
+  }
+  .card-contenido-nem.seleccionado {
+    padding: 13px;
+    border: 2px solid #2563eb;
+    background: #eff6ff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.16);
+  }
+  .card-contenido-nem__titulo {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: #0f172a;
+  }
+  .card-contenido-nem__texto {
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #475569;
+  }
+  .card-contenido-nem__meta {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  /* ---------- 6 · Paleta oficial por Campo Formativo ---------- */
+  .badge-campo {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    padding: 2px 9px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+  .badge-campo--lenguajes {
+    color: #1e40af;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+  }
+  .badge-campo--cientifico {
+    color: #6d28d9;
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+  }
+  .badge-campo--etica {
+    color: #c2410c;
+    background: #fff7ed;
+    border-color: #fed7aa;
+  }
+  .badge-campo--comunitario {
+    color: #047857;
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+  }
+
+  /* Acento de la tarjeta según el campo */
+  .card-contenido-nem--lenguajes { border-left: 4px solid #1e40af; }
+  .card-contenido-nem--cientifico { border-left: 4px solid #6d28d9; }
+  .card-contenido-nem--etica { border-left: 4px solid #c2410c; }
+  .card-contenido-nem--comunitario { border-left: 4px solid #047857; }
+
+  /* ---------- 7 · Filas de PDA legibles (contraste AAA) ---------- */
+
+  .pda-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin: 0 0 6px;
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: background .12s ease, border-color .12s ease;
+  }
+  .pda-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+  .pda-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    margin: 2px 0 0;
+    accent-color: #2563eb;
+    cursor: pointer;
+  }
+  .pda-item__texto {
+    font-size: 13.5px;
+    line-height: 1.45;
+    color: #1e293b;
+  }
+  .pda-item:has(input:checked) {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+  }
+  .pda-item:has(input:checked) .pda-item__texto {
+    color: #0f172a;
+    font-weight: 600;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nem-step-tab,
+    .card-contenido-nem,
+    .pda-item,
+    .nem-stepper-header::after { transition: none; }
+    .card-contenido-nem:hover { transform: none; }
+  }
+  /* ============================================================
+     OLA 1 · ETAPA 4 — LISTA DE COTEJO / RÚBRICA EDITABLE
+     Contrato: #cajaRubricaCotejoNEM, .nem-tabla-cotejo-edit,
+     .input-criterio-cotejo-nem, .btn-quitar-criterio-nem
+     ============================================================ */
+  #cajaRubricaCotejoNEM {
+    margin: 14px 0 4px;
+    padding: 12px 14px 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  }
+  .nem-rubrica-cab {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 0 10px;
+    margin: 0 0 8px;
+    border-bottom: 1px solid #eef2f7;
+  }
+  .nem-rubrica-titulo {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: .01em;
+    color: #0f172a;
+  }
+  .nem-rubrica-contador {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border: 1px solid #bae6fd;
+    border-radius: 999px;
+    background: #f0f9ff;
+    color: #0369a1;
+    font-size: 10.5px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .nem-rubrica-acciones {
+    display: flex;
+    gap: 6px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .nem-rubrica-btn {
+    padding: 5px 11px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+  .nem-rubrica-btn:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+  }
+  .nem-rubrica-btn:focus-visible {
+    outline: 2px solid #0284c7;
+    outline-offset: 2px;
+  }
+  .nem-rubrica-btn--ia {
+    border-color: #ddd6fe;
+    background: #f5f3ff;
+    color: #6d28d9;
+  }
+  .nem-rubrica-btn--ia:hover {
+    background: #ede9fe;
+    border-color: #c4b5fd;
+    color: #5b21b6;
+  }
+
+  /* ---- Tabla editable ---- */
+  .nem-tabla-cotejo-edit {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12.5px;
+  }
+  .nem-tabla-cotejo-edit thead th {
+    padding: 6px 8px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #64748b;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .nem-tabla-cotejo-edit thead th.col-indicador {
+    width: 76px;
+    text-align: center;
+  }
+  .nem-tabla-cotejo-edit thead th.col-quitar { width: 34px; }
+  .nem-tabla-cotejo-edit tbody td {
+    padding: 4px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+  .nem-tabla-cotejo-edit tbody tr:last-child td { border-bottom: 0; }
+  .nem-tabla-cotejo-edit tbody tr:hover td { background: #fbfcfe; }
+  .nem-tabla-cotejo-edit td.col-indicador { text-align: center; }
+
+  /* Input del criterio: sin borde hasta el foco */
+  .input-criterio-cotejo-nem {
+    width: 100%;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: #1e293b;
+    transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  }
+  .input-criterio-cotejo-nem:hover {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+  }
+  .input-criterio-cotejo-nem:focus {
+    outline: none;
+    border-color: #0284c7;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
+  }
+  .input-criterio-cotejo-nem::placeholder { color: #94a3b8; }
+
+  /* Indicadores Sí / En proceso / No todavía */
+  .nem-cotejo-radio {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: #0284c7;
+    cursor: pointer;
+  }
+  .nem-cotejo-radio:focus-visible {
+    outline: 2px solid #0284c7;
+    outline-offset: 2px;
+    border-radius: 999px;
+  }
+
+  /* Botón de quitar fila */
+  .btn-quitar-criterio-nem {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+  }
+  .btn-quitar-criterio-nem:hover {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+  }
+  .btn-quitar-criterio-nem:focus-visible {
+    outline: 2px solid #b91c1c;
+    outline-offset: 2px;
+  }
+
+  .nem-rubrica-vacia {
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  @media (max-width: 720px) {
+    #cajaRubricaCotejoNEM { padding: 10px 10px 8px; }
+    .nem-tabla-cotejo-edit thead th.col-indicador { width: 56px; font-size: 9px; }
+    .nem-rubrica-acciones { margin-left: 0; width: 100%; }
+  }
+
+  /* ============================================================
+     OLA 1 · MODAL DE MEMBRETE INSTITUCIONAL
+     Contrato: #modalConfigMembreteST90, #cfgLogoIzq, #cfgLogoDer,
+     #cfgEncL1, #cfgEncL2, #cfgEncL3
+     ============================================================ */
+  #modalConfigMembreteST90 {
+    position: fixed;
+    inset: 0;
+    z-index: 99990;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.5);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .16s ease;
+  }
+  #modalConfigMembreteST90.visible,
+  #modalConfigMembreteST90.abierto {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  #modalConfigMembreteST90 .membrete-panel {
+    width: min(720px, 96vw);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.32);
+  }
+  .membrete-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 100%);
+    color: #ffffff;
+    flex: 0 0 auto;
+  }
+  .membrete-cabecera h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: #ffffff;
+  }
+  .membrete-ceja {
+    margin: 2px 0 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.84);
+  }
+  .membrete-cerrar {
+    margin-left: auto;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .membrete-cerrar:hover { background: rgba(255, 255, 255, 0.26); }
+  .membrete-cerrar:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
+
+  .membrete-cuerpo {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px 18px 6px;
+  }
+  .membrete-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 14px;
+    margin: 0 0 12px;
+  }
+  .membrete-grid--una { grid-template-columns: 1fr; }
+  .membrete-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .membrete-campo label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #475569;
+  }
+  .membrete-campo .membrete-ayuda {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #94a3b8;
+  }
+  #cfgLogoIzq,
+  #cfgLogoDer,
+  #cfgEncL1,
+  #cfgEncL2,
+  #cfgEncL3 {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    font-family: inherit;
+    font-size: 12.5px;
+    color: #1e293b;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  #cfgLogoIzq:focus,
+  #cfgLogoDer:focus,
+  #cfgEncL1:focus,
+  #cfgEncL2:focus,
+  #cfgEncL3:focus {
+    outline: none;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
+  }
+  #cfgLogoIzq::placeholder,
+  #cfgLogoDer::placeholder,
+  #cfgEncL1::placeholder,
+  #cfgEncL2::placeholder,
+  #cfgEncL3::placeholder { color: #94a3b8; }
+
+  .membrete-vista {
+    margin: 4px 0 12px;
+    padding: 12px 14px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    background: #f8fafc;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #475569;
+  }
+  .membrete-pie {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 18px 15px;
+    border-top: 1px solid #e2e8f0;
+    background: #ffffff;
+    flex: 0 0 auto;
+  }
+
+  @media (max-width: 560px) {
+    .membrete-grid { grid-template-columns: 1fr; }
+  }
+  /* ============================================================
+     OLA 2 · build-569 — iDEVICE ENCUESTA DIAGNÓSTICA / ACTIVIDAD
+     Contrato: .idevice-bloque[data-tipo="encuesta"], .idevice-header,
+     .panel-modo-datos, .panel-modo-actividad
+     ============================================================ */
+  .idevice-bloque {
+    position: relative;
+    margin: 14px 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+  }
+  .idevice-bloque[data-tipo="encuesta"] {
+    border-left: 4px solid #6366f1;
+  }
+  .idevice-bloque[data-tipo="encuesta"] > .idevice-header {
+    background: #e0e7ff;
+    color: #3730a3;
+    border-bottom: 1px solid #c7d2fe;
+    font-weight: 800;
+  }
+  .idevice-bloque[data-tipo="encuesta"] > .idevice-header .idevice-tag {
+    background: #c7d2fe;
+    color: #312e81;
+  }
+
+  /* Panel de captura de datos */
+  .panel-modo-datos {
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin: 12px;
+  }
+  .panel-modo-datos + .panel-modo-actividad { margin-top: 0; }
+
+  /* Panel de actividad evaluable */
+  .panel-modo-actividad {
+    padding: 12px 14px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    margin: 12px;
+  }
+  .panel-modo-actividad .insignia-ponderacion {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 10px;
+    border: 1px solid #86efac;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+  .panel-modo-actividad .insignia-ponderacion::before {
+    content: '⚖';
+    font-size: 11px;
+    line-height: 1;
+  }
+  .panel-modo-datos > h4,
+  .panel-modo-actividad > h4 {
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .panel-modo-datos > h4 { color: #475569; }
+  .panel-modo-actividad > h4 { color: #15803d; }
+  .panel-modo-datos .insignia-ponderacion {
+    display: inline-flex;
+    padding: 2px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #475569;
+    font-size: 10.5px;
+    font-weight: 800;
+  }
+  /* ============================================================
+     OLA 3 · SECCIÓN eXeLEARNING — CONSTRUCTOR vs SESIÓN
+     Separa visualmente el constructor de bloques del editor de la
+     sesión, y aloja la acción plana «+ Crear nueva Encuesta / Quiz».
+     Contrato: .nem-seccion-exelearning (+ __cab, __titulo, __hint)
+               .nem-btn-crear-encuesta
+     ============================================================ */
+  .nem-seccion-exelearning {
+    margin: 16px 0 18px;
+    padding: 12px 14px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-top: 3px solid #6366f1;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+  }
+  .nem-seccion-exelearning__cab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 10px;
+  }
+  .nem-seccion-exelearning__titulo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #4338ca;
+  }
+  .nem-seccion-exelearning__titulo::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    border-radius: 999px;
+    background: #6366f1;
+  }
+  .nem-seccion-exelearning__hint {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  /* La barra de iDevices deja de parecer una caja suelta dentro de la sección */
+  .nem-seccion-exelearning .idevice-bar {
+    margin: 0 0 10px;
+    background: #ffffff;
+    border-style: solid;
+    border-color: #e2e8f0;
+  }
+  /* Los bloques creados respiran dentro de la sección */
+  .nem-seccion-exelearning #contenedorIDevicesDinamicos > *:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Botón plano ST90 de alta rápida */
+  .nem-btn-crear-encuesta {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 0;
+    border-radius: 8px;
+    background: #6366f1;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.15;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 150ms ease, transform 100ms ease, box-shadow 150ms ease;
+  }
+  .nem-btn-crear-encuesta:hover {
+    background: #4f46e5;
+  }
+  .nem-btn-crear-encuesta:active {
+    background: #4338ca;
+    transform: translateY(1px);
+  }
+  .nem-btn-crear-encuesta:focus-visible {
+    outline: 2px solid #4338ca;
+    outline-offset: 2px;
+  }
+  .nem-btn-crear-encuesta:disabled {
+    background: #c7d2fe;
+    color: #ffffff;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Variante neutra, por si la acción convive con «Guardar Sesión» */
+  .nem-btn-crear-encuesta--neutro {
+    background: #ffffff;
+    color: #4338ca;
+    border: 1px solid #c7d2fe;
+  }
+  .nem-btn-crear-encuesta--neutro:hover {
+    background: #eef2ff;
+    border-color: #a5b4fc;
+  }
+  .nem-btn-crear-encuesta--neutro:active {
+    background: #e0e7ff;
+    transform: translateY(1px);
+  }
+
+  @media (max-width: 620px) {
+    .nem-seccion-exelearning { padding: 10px 10px 12px; }
+    .nem-btn-crear-encuesta { margin-left: 0; width: 100%; justify-content: center; }
+  }
+  /* ============================================================
+     OLA 5 · build-578 — eXeLearning 3.0 + Inglés / Ofimática
+     Porte fiel de la paleta y las piezas del simulador de referencia
+     (simulador_exelearning.html), ampliado con los componentes
+     bilingües y de hoja de cálculo que pide la partitura.
+     ============================================================ */
+  
+  /* ---------- 0 · Contenedor de Área de Trabajo Flex (Lienzo al lado derecho) ---------- */
+  .app-workspace {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    min-height: 600px;
+    background: #ffffff;
+    border: 1px solid var(--exe-border, #cbd5e1);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    margin-top: 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .sidebar-exe {
+    width: 320px !important;
+    min-width: 320px !important;
+    max-width: 330px !important;
+    flex-shrink: 0 !important;
+    background: var(--exe-bg-sidebar, #f8fafc);
+    border-right: 1px solid var(--exe-border, #cbd5e1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .canvas-exe {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    background: var(--exe-bg-canvas, #f1f5f9);
+    padding: 24px !important;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .canvas-container {
+    width: 100% !important;
+    max-width: 900px !important;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #contenedorIDevicesDinamicos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  /* Lápiz y título del árbol de páginas */
+  .nodo-titulo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  .nodo-texto {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .btn-renombrar-nodo {
+    border: 0;
+    background: transparent;
+    color: var(--exe-teal, #0d9488);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-left: 2px;
+    opacity: 0.7;
+    line-height: 1;
+    transition: opacity .15s, background .15s;
+    flex-shrink: 0;
+  }
+  .btn-renombrar-nodo:hover {
+    opacity: 1;
+    background: var(--exe-teal-light, #ccfbf1);
+  }
+
+  /* Barra de herramientas enriquecida */
+  .toolbar-enriquecida {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px 6px 0 0;
+    padding: 6px 8px;
+    border-bottom: 0;
+  }
+  .btn-tool-formato {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: #334155;
+    transition: all .15s;
+  }
+  .btn-tool-formato:hover {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-color: #38bdf8;
+  }
+  .pill-audio-dua {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f0fdfa;
+    border: 1px solid #99f6e4;
+    color: #0f766e;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-left: auto;
+    cursor: pointer;
+  }
+  .pill-audio-dua:hover {
+    background: #ccfbf1;
+  }
+
+  /* Pestañas de origen multimedia */
+  .tabs-origen-media {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .tab-btn-media {
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #475569;
+    transition: all .15s;
+  }
+  .tab-btn-media.activo {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+  }
+  .caja-preview-media {
+    margin-top: 10px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    background: #f8fafc;
+    text-align: center;
+    max-height: 260px;
+    overflow: hidden;
+  }
+  .caja-preview-media img, .caja-preview-media video {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 6px;
+    object-fit: contain;
+  }
+
+  /* Editor de opciones Quiz */
+  .fila-opcion-quiz {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .fila-opcion-quiz input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+  .btn-quitar-opcion {
+    border: 0;
+    background: none;
+    color: #e11d48;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+  }
+
+  :root {
+    --exe-teal: #0d9488;
+    --exe-teal-light: #ccfbf1;
+    --exe-teal-dark: #0f766e;
+    --exe-bg-sidebar: #f8fafc;
+    --exe-bg-canvas: #f1f5f9;
+    --exe-border: #cbd5e1;
+    --exe-muted: #64748b;
+  }
+
+  /* ---------- 1 · Panel lateral y árbol de páginas ---------- */
+  .sidebar-exe {
+    width: 330px;
+    min-width: 330px;
+    max-width: 340px;
+    background: var(--exe-bg-sidebar);
+    border-right: 1px solid var(--exe-border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .box-arbol {
+    padding: 16px;
+    border-bottom: 1px solid var(--exe-border);
+    background: #ffffff;
+  }
+  .arbol-titulo-fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .doc-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .btn-edit-title {
+    padding: 2px 4px;
+    border: 0;
+    background: none;
+    color: var(--exe-teal);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .btn-edit-title:hover { background: var(--exe-teal-light); color: var(--exe-teal-dark); }
+  .btn-edit-title:focus-visible { outline: 2px solid var(--exe-teal); outline-offset: 2px; }
+
+  .arbol-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .nav-flechas,
+  .nav-acciones {
+    display: inline-flex;
+    align-items: center;
+    background: #f0fdfa;
+    border: 1px solid #ccfbf1;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .nav-btn,
+  .btn-action-teal {
+    padding: 5px 9px;
+    border: 0;
+    background: transparent;
+    color: var(--exe-teal-dark);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 150ms ease;
+  }
+  .nav-btn:hover,
+  .btn-action-teal:hover { background: #ccfbf1; }
+  .nav-btn:focus-visible,
+  .btn-action-teal:focus-visible { outline: 2px solid var(--exe-teal); outline-offset: -2px; }
+  .btn-action-teal.add-node {
+    background: var(--exe-teal);
+    color: #ffffff;
+    font-weight: 800;
+  }
+  .btn-action-teal.add-node:hover { background: var(--exe-teal-dark); }
+
+  .nodos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .nodo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border: 1.5px solid transparent;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+  }
+  .nodo-item:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+  .nodo-item.seleccionado {
+    background: #f0fdfa;
+    border-color: #14b8a6;
+    color: var(--exe-teal-dark);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(20, 184, 166, 0.15);
+  }
+  .nodo-item .nodo-tag {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: var(--exe-muted);
+    font-size: 11px;
+  }
+  .nodo-item.seleccionado .nodo-tag {
+    background: var(--exe-teal-light);
+    color: var(--exe-teal-dark);
+  }
+  .nodo-indent { margin-left: 14px; }
+
+  /* ---------- 2 · Acordeón de iDevices ---------- */
+  .box-idevice-menu {
+    flex: 1;
+    padding: 14px 16px;
+  }
+  .idevice-menu-titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+  }
+  .cat-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .cat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+  .cat-header:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: var(--exe-teal-dark);
+  }
+  .cat-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cat-header-icon { font-size: 16px; line-height: 1; }
+  .cat-chevron {
+    font-size: 12px;
+    color: #94a3b8;
+    transition: transform 200ms ease;
+  }
+  .cat-group.abierto .cat-chevron { transform: rotate(90deg); }
+  .cat-group.abierto .cat-header {
+    background: #f0fdfa;
+    border-color: #99f6e4;
+    color: var(--exe-teal-dark);
+  }
+  .cat-items {
+    display: none;
+    flex-direction: column;
+    gap: 3px;
+    padding: 6px 4px 8px 18px;
+  }
+  .cat-group.abierto .cat-items { display: flex; }
+
+  /* Acento cromático por categoría (se aplica al icono de la cabecera) */
+  .cat-header-icon.cat-info { color: #0284c7; }
+  .cat-header-icon.cat-eval { color: #16a34a; }
+  .cat-header-icon.cat-juego { color: #d97706; }
+  .cat-header-icon.cat-interact { color: #7c3aed; }
+  .cat-header-icon.cat-ingles { color: #2563eb; }
+  .cat-header-icon.cat-tecnologia { color: #059669; }
+  .cat-header-icon.cat-ciencias { color: #e11d48; }
+
+  .idevice-pill-add {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+  .idevice-pill-add:hover {
+    background: #f8fafc;
+    border-color: var(--exe-teal);
+    color: var(--exe-teal-dark);
+    transform: translateX(3px);
+  }
+  .idevice-pill-add .btn-mas {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    color: var(--exe-muted);
+    font-size: 11px;
+  }
+  .idevice-pill-add:hover .btn-mas {
+    background: var(--exe-teal);
+    color: #ffffff;
+  }
+
+  /* ---------- 3 · Barra flotante de acceso rápido ---------- */
+  .quick-ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 8px 16px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+  }
+  .quick-icons-group {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-right: 14px;
+    border-right: 1px solid #e2e8f0;
+  }
+  .quick-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border: 0;
+    background: none;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 150ms ease, opacity 150ms ease;
+  }
+  .quick-btn:hover { transform: scale(1.15); }
+  .quick-btn:focus-visible { outline: 2px solid #0d9488; outline-offset: 3px; border-radius: 6px; }
+  .quick-btn.text-icon { color: #1e40af; }
+  .quick-btn.flower-icon { color: #f43f5e; }
+  .quick-btn.checklist-icon { color: #0284c7; }
+  .quick-btn.file-icon { color: #ea580c; }
+  .quick-btn.gallery-icon { color: #c026d3; }
+  .quick-btn.settings-icon { color: #64748b; font-size: 20px; }
+
+  /* ---------- 4 · Tarjetas modulares del lienzo ---------- */
+  .idevice-card {
+    background: #ffffff;
+    border: 1px solid var(--exe-border);
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .idevice-card:hover {
+    border-color: #94a3b8;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  }
+  .idevice-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .idevice-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14.5px;
+    font-weight: 700;
+  }
+  .idevice-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-card-ctrl {
+    padding: 4px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: var(--exe-muted);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+  }
+  .btn-card-ctrl:hover { background: #e2e8f0; color: #0f172a; }
+  .btn-card-ctrl.del:hover { color: #e11d48; background: #ffe4e6; }
+  .btn-card-ctrl:focus-visible { outline: 2px solid var(--exe-teal); outline-offset: 1px; }
+  .idevice-card-body { padding: 18px 20px; }
+
+  .campo-grupo { margin-bottom: 14px; }
+  .campo-grupo:last-child { margin-bottom: 0; }
+  .campo-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #334155;
+  }
+  .campo-input,
+  .campo-textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: #0f172a;
+    background: #ffffff;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .campo-input:focus,
+  .campo-textarea:focus {
+    outline: none;
+    border-color: var(--exe-teal);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+  }
+  .campo-textarea { resize: vertical; min-height: 80px; }
+
+  /* ---------- 5 · Insignias de categoría ---------- */
+  .badge-info,
+  .badge-eval,
+  .badge-juego,
+  .badge-interact,
+  .badge-ingles,
+  .badge-tecnologia,
+  .badge-ciencias {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 800;
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+  .badge-info { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .badge-eval { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-juego { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .badge-interact { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+  .badge-ingles { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+  .badge-tecnologia { background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; }
+  .badge-ciencias { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+  /* ---------- 6 · Inglés: listening y flashcard ---------- */
+  .player-listening {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 0;
+    padding: 9px 12px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+  }
+  .player-listening .btn-play {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 150ms ease, transform 120ms ease;
+  }
+  .player-listening .btn-play:hover { background: #1d4ed8; transform: scale(1.05); }
+  .player-listening .btn-play:focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+  .player-listening .onda {
+    flex: 1 1 auto;
+    height: 6px;
+    border-radius: 999px;
+    background: #bfdbfe;
+    overflow: hidden;
+  }
+  .player-listening .onda__fill {
+    height: 100%;
+    width: 0;
+    border-radius: 999px;
+    background: #2563eb;
+    transition: width 200ms linear;
+  }
+  .player-listening .badge-velocidad {
+    padding: 2px 8px;
+    border: 1px solid #93c5fd;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #1d4ed8;
+    font-size: 10.5px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .flip-card-bilingue {
+    perspective: 1000px;
+    width: 100%;
+    height: 130px;
+    margin: 10px 0 0;
+    cursor: pointer;
+  }
+  .flip-card-bilingue .flip-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 600ms cubic-bezier(.2, .8, .2, 1);
+  }
+  .flip-card-bilingue:hover .flip-inner,
+  .flip-card-bilingue.volteada .flip-inner { transform: rotateY(180deg); }
+  .flip-card-bilingue .flip-front,
+  .flip-card-bilingue .flip-back {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px;
+    border-radius: 12px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    text-align: center;
+  }
+  .flip-card-bilingue .flip-front {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1e3a8a;
+  }
+  .flip-card-bilingue .flip-back {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    transform: rotateY(180deg);
+  }
+  .flip-card-bilingue .flip-en { font-size: 15px; font-weight: 800; }
+  .flip-card-bilingue .flip-es { font-size: 13px; font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) {
+    .flip-card-bilingue .flip-inner { transition: none; }
+  }
+
+  /* ---------- 7 · Ofimática: hoja de cálculo y algoritmo ---------- */
+  .sim-hoja-calculo {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 0;
+    font-size: 12px;
+    table-layout: fixed;
+    background: #ffffff;
+  }
+  .sim-hoja-calculo th,
+  .sim-hoja-calculo td {
+    border: 1px solid #d7dde5;
+    padding: 5px 8px;
+    height: 26px;
+    text-align: left;
+    color: #1e293b;
+  }
+  .sim-hoja-calculo thead th,
+  .sim-hoja-calculo tbody th {
+    background: #f1f5f9;
+    color: #475569;
+    font-weight: 800;
+    text-align: center;
+    font-size: 10.5px;
+    letter-spacing: .04em;
+  }
+  .sim-hoja-calculo tbody th { width: 34px; }
+  .sim-hoja-calculo td:focus {
+    outline: 2px solid #059669;
+    outline-offset: -2px;
+    background: #f0fdf4;
+  }
+
+  .caja-algoritmo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 10px 0 0;
+    padding: 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+  }
+  .bloque-diagrama {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 11px;
+    background: #ffffff;
+    border: 1px solid #a7f3d0;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #065f46;
+  }
+  .bloque-diagrama + .bloque-diagrama { position: relative; }
+  .bloque-diagrama + .bloque-diagrama::before {
+    content: '↓';
+    position: absolute;
+    margin-left: -2px;
+    transform: translateY(-14px);
+    color: #34d399;
+    font-weight: 800;
+  }
+  .bloque-diagrama .num-paso {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #059669;
+    color: #ffffff;
+    font-size: 10.5px;
+    font-weight: 800;
+  }
+</style>

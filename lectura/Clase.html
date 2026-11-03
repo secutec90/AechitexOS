@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+  <base target="_self">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <!-- st90-build <?= typeof version !== 'undefined' ? version : 'v303' ?> -->
+  <?!= include('ComunCSS') ?>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <?!= include('ClaseCSS') ?>
+</head>
+<body class="clase">
+  <div class="sr-live" id="vivo" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="login">
+    <p class="login-escuela"><?= typeof escuela !== 'undefined' ? escuela : 'Secundaria Técnica 90' ?></p>
+    <h1><?= (typeof modoClase !== 'undefined' && modoClase === 'maestro') ? 'Clase · Maestro' : 'Clase hablada' ?></h1>
+    <p class="login-ayuda"><?= (typeof modoClase !== 'undefined' && modoClase === 'maestro') ? 'Cada maestro entra con su usuario y su contraseña. El administrador usa el usuario admin.' : 'Escribe tu usuario y tu contraseña para escuchar la clase de esta hora.' ?></p>
+    <label for="usuarioClase">Usuario</label>
+    <input type="text" id="usuarioClase" autocomplete="username" placeholder="Tu usuario">
+    <label for="claveClase">Contraseña</label>
+    <input type="password" id="claveClase" autocomplete="current-password" placeholder="Contraseña">
+    <div class="fila-btn">
+      <button type="button" id="btnEntrarClase" onclick="entrarClase()">Entrar</button>
+    </div>
+    <p id="errorLogin"></p>
+    <p class="login-ver"><?= typeof version !== 'undefined' ? version : 'v303' ?></p>
+  </div>
+
+  <div id="panel" class="envoltorio oculto" style="width:100%;max-width:100%;padding:0;margin:0;">
+    <div class="app-shell-layout" id="appShellWrapper">
+      <!-- SIDEBAR PERSISTENTE COLAPSABLE (DESIGN SYSTEM LEGO) -->
+      <aside class="app-shell-sidebar" id="appShellSidebar" aria-label="Navegación Modular ST90">
+        <div class="app-shell-sidebar-header">
+          <div class="app-shell-logo-text">
+            <span style="font-size:10.5px;font-weight:800;color:var(--app-primary);letter-spacing:0.05em;text-transform:uppercase;">Secundaria Técnica 90</span>
+            <strong style="font-size:13.5px;color:var(--app-text);line-height:1.2;">Suite Escolar NEM</strong>
+          </div>
+          <button type="button" class="app-shell-toggle-btn" onclick="toggleSidebarShell()" id="btnToggleSidebar" title="Colapsar / Expandir barra lateral" aria-label="Colapsar menú lateral">
+            <svg id="icoSidebarChevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+        </div>
+
+        <nav class="app-shell-nav" role="navigation">
+          <!-- 1. Planeación Didáctica & Constructor NEM (Principal Activo) -->
+          <button type="button" class="app-shell-nav-item activo" id="navModPlaneacion" onclick="conmutarModuloShell('planeacion')" title="Planeación Didáctica & Constructor NEM" aria-label="Planeación Didáctica">
+            <span style="font-size:16px;">📝</span>
+            <span class="nav-label">Planeación Didáctica</span>
+            <span class="nav-check">✓</span>
+          </button>
+
+          <!-- 2. Diagnóstico y Encuestas -->
+          <button type="button" class="app-shell-nav-item" id="navModEncuestas" onclick="conmutarModuloShell('encuestas')" title="Diagnóstico Comunitario y Constructor de Encuestas" aria-label="Diagnóstico y Encuestas">
+            <span style="font-size:16px;">📊</span>
+            <span class="nav-label">Diagnóstico & Encuestas</span>
+            <span class="nav-check">✓</span>
+          </button>
+
+          <!-- 3. Comprensión Lectora -->
+          <button type="button" class="app-shell-nav-item" id="navModLectura" onclick="conmutarModuloShell('lectura')" title="Comprensión Lectora y Cálculo de PPM" aria-label="Comprensión Lectora">
+            <span style="font-size:16px;">📖</span>
+            <span class="nav-label">Comprensión Lectora</span>
+            <span class="nav-check">✓</span>
+          </button>
+
+          <!-- 4. Asistencia y Prefectura -->
+          <button type="button" class="app-shell-nav-item" id="navModAsistencia" onclick="conmutarModuloShell('asistencia')" title="Asistencia Rápida y Prefectura" aria-label="Asistencia y Prefectura">
+            <span style="font-size:16px;">📋</span>
+            <span class="nav-label">Asistencia & Lista</span>
+            <span class="nav-check">✓</span>
+          </button>
+
+          <!-- 5. Trabajo Social (Conector LEGO) -->
+          <button type="button" class="app-shell-nav-item" id="navModTrabajoSocial" onclick="conmutarModuloShell('trabajo_social')" title="Trabajo Social y Canalizaciones DUA" aria-label="Trabajo Social">
+            <span style="font-size:16px;">🤝</span>
+            <span class="nav-label">Trabajo Social</span>
+            <span class="nav-badge" style="font-size:9px;background:#e2e8f0;color:#64748b;padding:1px 4px;border-radius:4px;margin-left:auto;">LEGO</span>
+          </button>
+
+          <!-- 6. Biblioteca Escolar (Conector LEGO) -->
+          <button type="button" class="app-shell-nav-item" id="navModBiblioteca" onclick="conmutarModuloShell('biblioteca')" title="Biblioteca Escolar y Préstamos" aria-label="Biblioteca Escolar">
+            <span style="font-size:16px;">📚</span>
+            <span class="nav-label">Biblioteca Escolar</span>
+            <span class="nav-badge" style="font-size:9px;background:#e2e8f0;color:#64748b;padding:1px 4px;border-radius:4px;margin-left:auto;">LEGO</span>
+          </button>
+
+          <!-- 7. Administración & Matrícula -->
+          <button type="button" class="app-shell-nav-item" id="navModAdmin" onclick="conmutarModuloShell('admin')" title="Administración y Matrícula Oficial" aria-label="Administración">
+            <span style="font-size:16px;">⚙️</span>
+            <span class="nav-label">Administración</span>
+            <span class="nav-check">✓</span>
+          </button>
+        </nav>
+
+        <div style="padding:12px 14px;border-top:1px solid var(--app-border);display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div class="app-shell-logo-text" style="font-size:11px;color:#64748b;">
+            <span id="txtUsuarioSidebar" style="font-weight:700;color:#334155;">Docente ST90</span>
+            <span style="font-size:10px;">Fase 6 • Secundaria</span>
+          </div>
+          <button type="button" onclick="salirClase()" class="app-shell-toggle-btn" style="color:#dc2626 !important;" title="Cerrar sesión" aria-label="Cerrar sesión">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ÁREA DE CONTENIDO PRINCIPAL MODULAR -->
+      <main class="app-shell-main" id="appShellMain">
+        <!-- VISTA MODULAR 1: PLANEACIÓN DIDÁCTICA Y HORARIO (PRINCIPAL ACTIVA) -->
+        <div id="moduloViewPlaneacion" class="modulo-shell-contenedor" style="padding:8px 16px 40px;width:100%;box-sizing:border-box;">
+    <div class="barra-sup ribbon-main-nav" role="banner" aria-label="Clase ST90">
+      <div class="tabs" id="tabsMae" role="tablist">
+        <button type="button" class="ribbon-tab" id="btnN1Clases" onclick="tabN1Clase('clases', this)" aria-label="Clases">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <path d="M16 2v4M8 2v4M3 10h18"></path>
+          </svg>
+          <span class="ribbon-label">Clases</span>
+        </button>
+        <button type="button" class="ribbon-tab" id="btnN1Planeacion" onclick="tabN1Clase('planeacion', this)" aria-label="Planeación">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            <line x1="9" y1="7" x2="15" y2="7"></line>
+            <line x1="9" y1="11" x2="15" y2="11"></line>
+          </svg>
+          <span class="ribbon-label">Planeación</span>
+        </button>
+        <button type="button" class="ribbon-tab oculto" id="btnTabAluAcc" onclick="tabN1Clase('aluAcc', this)" aria-label="Alumnos">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <rect x="14" y="11" width="8" height="10" rx="1"></rect>
+          </svg>
+          <span class="ribbon-label">Alumnos</span>
+        </button>
+        <button type="button" class="ribbon-tab oculto" id="btnTabAccesos" onclick="tabN1Clase('accesos', this)" aria-label="Docentes">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M22 10v6"></path>
+            <path d="M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5"></path>
+          </svg>
+          <span class="ribbon-label">Docentes</span>
+        </button>
+      </div>
+      <div id="cintaClase" class="cinta-clase oculto" style="display:none;"></div>
+      <div class="barra-sup-acciones">
+        <button type="button" class="ribbon-btn ribbon-ico-rojo" onclick="salirClase()" aria-label="Cerrar sesión">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <path d="M16 17l5-5-5-5"></path>
+            <path d="M21 12H9"></path>
+          </svg>
+          <span class="ribbon-label">Salir</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="vistaAlu" class="oculto">
+      <div class="tarjeta">
+        <div class="alu-cab">
+          <div class="alu-cab-izq">
+            <h1 class="alu-saludo" id="txtSaludoAlu">Cargando horario…</h1>
+            <p class="alu-grupo" id="txtGrupoAlu"></p>
+            <div class="alu-fecha-caja">
+              <h2 class="alu-fecha" id="titFechaAlu" tabindex="-1">Tu horario</h2>
+              <p class="alu-fecha-nota" id="txtFechaNotaAlu"></p>
+            </div>
+          </div>
+          <div class="alu-controles">
+            <div class="cal-modo-grupo" role="group" aria-label="Vista del horario">
+              <button type="button" class="btn-cal-modo activo" id="btnVistaDiaAlu" onclick="cambiarVistaAlu('dia')" aria-pressed="true">Día</button>
+              <button type="button" class="btn-cal-modo" id="btnVistaSemanaAlu" onclick="cambiarVistaAlu('semana')" aria-pressed="false">Semana</button>
+            </div>
+            <div class="cal-nav-rango" role="group" aria-label="Cambiar fecha">
+              <button type="button" class="btn-secundario" id="btnAluAnt" onclick="moverFechaAlu(-1)" aria-label="Día anterior">←</button>
+              <button type="button" class="btn-secundario" onclick="irHoyAlu()">Hoy</button>
+              <button type="button" class="btn-secundario" id="btnAluSig" onclick="moverFechaAlu(1)" aria-label="Día siguiente">→</button>
+            </div>
+          </div>
+        </div>
+        <div class="alu-bloque-clase">
+          <section class="alu-hero" id="cajaHeroAlu" aria-labelledby="titHeroAlu"></section>
+          <div class="botones-voz" id="cajaPlayAlu">
+            <button type="button" id="btnPlayClase" onclick="hablarClase()">Escuchar clase</button>
+            <button type="button" class="sec" id="btnPausaClase" onclick="pausarClase()">Pausa</button>
+            <button type="button" class="sec" onclick="repetirClase()">Repetir</button>
+            <button type="button" class="sec" onclick="detenerClaseAlu()">Detener</button>
+            <button type="button" class="sec" onclick="cambiarVelocidadClase(-0.1)">Más lento</button>
+            <button type="button" class="sec" onclick="cambiarVelocidadClase(0.1)">Más rápido</button>
+          </div>
+          <p class="hint" id="txtVelClase">Velocidad: normal (1.0)</p>
+        </div>
+        <div id="textoClaseVis" class="alu-texto"></div>
+        <h2 class="alu-sec" id="titHorarioAlu">Horario de hoy</h2>
+        <div id="horarioAluLista"></div>
+        <div id="calAlu" class="cal-clase oculto"></div>
+        <div id="horarioAluSr" class="alu-solo-lector"></div>
+      </div>
+    </div>
+
+    <div id="vistaMae" class="oculto">
+      <div id="tabClases" class="oculto">
+        <div class="tarjeta">
+          <p class="hint oculto" id="txtDiaMae" style="display:none;margin:0;"></p>
+          <div id="wrapCalendarioMae">
+            <div class="cal-nav cinta-n3" id="navCalClase">
+              <div class="cal-filtros-grupo" id="n3Clases" role="group" aria-label="Filtros del horario">
+                <button type="button" class="ribbon-btn ribbon-ico-azul" id="btnClaseFecha" onclick="abrirCalendarioFechaClase(event)" aria-label="Fecha">
+                  <input type="date" id="fechaMaeClase" class="filtro-date-hidden" onchange="alCambiarFechaClase()" aria-label="Fecha" tabindex="-1">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                  <span class="ribbon-label">Fecha</span>
+                </button>
+                <div class="ribbon-btn ribbon-btn-select-wrap ribbon-ico-verde" id="btnClaseGrupo">
+                  <select id="selGrupoClase" class="filtro-select-overlay" onchange="cambiarGrupoClase()" aria-label="Grupo">
+                    <option value="">Elige grupo…</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
+                  <span class="ribbon-label">Grupo</span>
+                </div>
+                <div class="ribbon-btn ribbon-btn-select-wrap ribbon-ico-morado" id="btnClaseAsig">
+                  <select id="selAsigClase" class="filtro-select-overlay" onchange="cambiarAsignaturaClase()" aria-label="Asignatura">
+                    <option value="">Todas las del grupo</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                  <span class="ribbon-label">Asignatura</span>
+                </div>
+                <div class="ribbon-btn ribbon-btn-select-wrap ribbon-ico-celeste" id="btnClaseAlumno">
+                  <select id="selAluClase" class="filtro-select-overlay" onchange="cambiarAlumnoClase()" aria-label="Alumno">
+                    <option value="">Elige alumno…</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  <span class="ribbon-label">Alumno</span>
+                </div>
+                <div class="ribbon-btn ribbon-btn-select-wrap ribbon-ico-ambar" id="btnClaseTurno">
+                  <select id="selTurnoClase" class="filtro-select-overlay" onchange="alCambiarTurnoHorario()" aria-label="Turno">
+                    <option value="matutino">Matutino</option>
+                    <option value="vespertino">Vespertino</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg>
+                  <span class="ribbon-label">Turno</span>
+                </div>
+                <div class="ribbon-btn ribbon-btn-select-wrap ribbon-ico-teal" id="btnClaseVista">
+                  <select id="selVistaHorario" class="filtro-select-overlay" onchange="alCambiarVistaHorario()" aria-label="Vista del horario">
+                    <option value="grupo">Por grupo</option>
+                    <option value="docente">Por docente</option>
+                    <option value="aula">De aulas</option>
+                    <option value="concentrado">Concentrado</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                  <span class="ribbon-label">Vista</span>
+                </div>
+                <div class="ribbon-btn ribbon-btn-select-wrap ribbon-ico-morado oculto" id="btnClaseDocente">
+                  <select id="selDocenteClase" class="filtro-select-overlay" onchange="cargarHorarioMae()" aria-label="Docente">
+                    <option value="">Elige docente…</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span class="ribbon-label">Docente</span>
+                </div>
+                <div class="ribbon-btn ribbon-btn-select-wrap ribbon-ico-verde oculto" id="btnClaseAula">
+                  <select id="selAulaClase" class="filtro-select-overlay" onchange="cargarHorarioMae()" aria-label="Aula">
+                    <option value="">Elige aula…</option>
+                  </select>
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/></svg>
+                  <span class="ribbon-label">Aula</span>
+                </div>
+              </div>
+              <div class="cal-nav-rango" role="group" aria-label="Navegación de fechas">
+                <button type="button" class="ribbon-btn ribbon-ico-celeste" onclick="moverCalClase(-1)" aria-label="Anterior">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+                  <span class="ribbon-label">Anterior</span>
+                </button>
+                <strong id="txtSemanaClase">--/---/--&gt;--/---/--</strong>
+                <button type="button" class="ribbon-btn ribbon-ico-celeste" onclick="moverCalClase(1)" aria-label="Siguiente">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+                  <span class="ribbon-label">Siguiente</span>
+                </button>
+                <button type="button" class="ribbon-btn ribbon-ico-teal" onclick="irHoyClase()" aria-label="Hoy">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 16l2 2 4-4"/></svg>
+                  <span class="ribbon-label">Hoy</span>
+                </button>
+              </div>
+              <div class="cal-filtros-grupo" role="group" aria-label="Filtro de vista de horario">
+                <button type="button" class="ribbon-btn ribbon-ico-azul btn-cal-modo" id="btnModoDia" onclick="cambiarModoCal('dia')" aria-label="Vista por día">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><line x1="12" y1="14" x2="12" y2="18"/></svg>
+                  <span class="ribbon-label">Día</span>
+                </button>
+                <button type="button" class="ribbon-btn ribbon-ico-azul btn-cal-modo activo" id="btnModoSemana" onclick="cambiarModoCal('semana')" aria-label="Vista por semana">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/><path d="M9 10v12M15 10v12"/></svg>
+                  <span class="ribbon-label">Semana</span>
+                </button>
+                <button type="button" class="ribbon-btn ribbon-ico-azul btn-cal-modo" id="btnModoMes" onclick="cambiarModoCal('mes')" aria-label="Vista por mes">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M3 16h18M9 10v12M15 10v12"/></svg>
+                  <span class="ribbon-label">Mes</span>
+                </button>
+              </div>
+              <div class="cal-filtros-grupo" role="group" aria-label="Orientación del horario">
+                <button type="button" class="ribbon-btn ribbon-ico-indigo btn-cal-modo activo" id="btnOriH" onclick="cambiarOrientacionCal('h')" aria-label="Horizontal">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/><line x1="15" y1="4" x2="15" y2="20"/></svg>
+                  <span class="ribbon-label">Horizontal</span>
+                </button>
+                <button type="button" class="ribbon-btn ribbon-ico-indigo btn-cal-modo" id="btnOriV" onclick="cambiarOrientacionCal('v')" aria-label="Vertical">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>
+                  <span class="ribbon-label">Vertical</span>
+                </button>
+              </div>
+              <div class="cal-ayuda-wrap">
+                <button type="button" class="btn-ayuda ribbon-btn ribbon-ico-ambar" onclick="abrirAyuda('claseHorario')" aria-label="Ayuda">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg>
+                  <span class="ribbon-label">Ayuda</span>
+                </button>
+              </div>
+            </div>
+            <div id="listaSlotsMae" class="cal-clase"></div>
+          </div>
+        </div>
+        <!-- Formulario heredado de audio (reubicado dentro del diseño de sesiones NEM) -->
+        <div class="tarjeta oculto" id="cajaFormMae" style="display:none !important;">
+          <h2 id="titFormMae"></h2>
+          <p id="metaFormMae"></p>
+          <input type="text" id="titContClase" value="">
+          <textarea id="txtContClase"></textarea>
+          <input type="checkbox" id="chkPubClase" checked>
+          <div class="botones-voz"><button type="button" onclick="guardarContenidoMae()">Guardar</button></div>
+        </div>
+      </div>
+      <div id="tabPlaneacion" class="oculto">
+        <div class="tarjeta">
+          <div class="cal-filtros-grupo" id="n3Planeacion" role="group" aria-label="Filtros y acciones de planeación" style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:0 auto 16px;">
+            <!-- Selector de Banco: Personal vs Global -->
+            <div style="display:inline-flex;background:#e2e8f0;border-radius:8px;padding:3px;gap:2px;" role="tablist" aria-label="Banco de Planeaciones">
+              <button type="button" id="btnBancoPersonal" class="ribbon-btn activo" onclick="conmutarBancoPlaneacion_('personal')" style="padding:5px 12px;font-size:12px;font-weight:700;border-radius:6px;border:none;background:#ffffff;color:var(--st90-azul);cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
+                📁 Mi Banco Personal
+              </button>
+              <button type="button" id="btnBancoGlobal" class="ribbon-btn" onclick="conmutarBancoPlaneacion_('global')" style="padding:5px 12px;font-size:12px;font-weight:700;border-radius:6px;border:none;background:transparent;color:#475569;cursor:pointer;">
+                🌐 Repositorio Escolar Global
+              </button>
+            </div>
+            <button type="button" class="ribbon-btn ribbon-ico-verde" id="btnNuevaPlan" onclick="abrirFormNuevaPlaneacion()" aria-label="Nueva Planeación">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span class="ribbon-label">Nueva</span>
+            </button>
+            <div class="ribbon-btn ribbon-btn-select-wrap" id="btnPlanGrado">
+              <select id="selPlanGrado" class="filtro-select-overlay" onchange="alCambiarFiltroPlan()" aria-label="Grado">
+                <option value="">Todos los grados</option>
+                <option value="1">1° secundaria</option>
+                <option value="2">2° secundaria</option>
+                <option value="3">3° secundaria</option>
+              </select>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10l-10-5-10 5 10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+              <span class="ribbon-label" id="lblPlanGrado">Grado</span>
+            </div>
+            <div class="ribbon-btn ribbon-btn-select-wrap" id="btnPlanGrupo">
+              <select id="selPlanGrupo" class="filtro-select-overlay" onchange="alCambiarFiltroPlan()" aria-label="Grupo">
+                <option value="">Todos los grupos</option>
+              </select>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
+              <span class="ribbon-label" id="lblPlanGrupo">Grupo</span>
+            </div>
+            <div class="ribbon-btn ribbon-btn-select-wrap" id="btnPlanAsignatura">
+              <select id="selPlanAsignatura" class="filtro-select-overlay" onchange="alCambiarFiltroPlan()" aria-label="Asignatura">
+                <option value="">Todas las asignaturas</option>
+                <option value="Español">Español</option>
+                <option value="Matemáticas">Matemáticas</option>
+                <option value="Inglés">Inglés</option>
+                <option value="Historia">Historia</option>
+                <option value="Geografía">Geografía</option>
+                <option value="Formación Cívica y Ética">Formación Cívica</option>
+                <option value="Ciencias">Ciencias (Biología/Física/Química)</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Artes">Artes</option>
+                <option value="Educación Física">Educación Física</option>
+                <option value="Tutoría">Tutoría / Socioemocional</option>
+              </select>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <span class="ribbon-label" id="lblPlanAsignatura">Asignatura</span>
+            </div>
+            <div class="ribbon-btn ribbon-btn-select-wrap" id="btnPlanTrimestre">
+              <select id="selPlanTrimestre" class="filtro-select-overlay" onchange="alCambiarFiltroPlan()" aria-label="Trimestre">
+                <option value="">Todos los trimestres</option>
+                <option value="Trimestre 1">1° Trimestre (Ago - Nov)</option>
+                <option value="Trimestre 2">2° Trimestre (Dic - Mar)</option>
+                <option value="Trimestre 3">3° Trimestre (Abr - Jul)</option>
+              </select>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+              <span class="ribbon-label" id="lblPlanTrimestre">Trimestre</span>
+            </div>
+            <div id="wrapPlanFiltroDocente" class="oculto" style="display:inline-flex;align-items:center;">
+              <input type="text" id="inpPlanDocente" name="filtroDocentePlan_noop" autocomplete="off" placeholder="Buscar por docente..." oninput="alCambiarFiltroPlan()" style="font-size:12px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;min-width:160px;background:#fff;" title="Filtrar por autor docente en el repositorio global">
+            </div>
+            <button type="button" class="ribbon-btn ribbon-ico-azul" onclick="cargarListaPlaneacionesNEM(true)" aria-label="Actualizar">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              <span class="ribbon-label">Actualizar</span>
+            </button>
+            <button type="button" class="btn-ayuda ribbon-btn ribbon-ico-ambar" onclick="abrirAyuda('planeacionNEM')" aria-label="Ayuda">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg>
+              <span class="ribbon-label">Ayuda</span>
+            </button>
+          </div>
+
+          <div id="barraHorarioPlan" class="cal-filtros-grupo" role="group" aria-label="Horario por turno" style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:0 auto 12px;">
+            <label style="font-size:12px;font-weight:700;color:#0f172a;">Turno
+              <select id="selTurnoPlan" onchange="alCambiarTurnoPlan()" aria-label="Turno" style="margin-left:6px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;">
+                <option value="matutino">Matutino</option>
+                <option value="vespertino">Vespertino</option>
+              </select>
+            </label>
+            <label style="font-size:12px;font-weight:700;color:#0f172a;min-width:240px;flex:1;">Horario
+              <select id="selPlanClaseHorario" onchange="alSeleccionarClaseHorarioEnPlan()" aria-label="Clase del horario" style="margin-left:6px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;max-width:100%;"></select>
+            </label>
+            <label style="font-size:12px;font-weight:700;color:#0f172a;">Mostrar
+              <select id="selVistaPlan" onchange="alCambiarVistaPlan()" aria-label="Vista del horario" style="margin-left:6px;padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;">
+                <option value="grupo">Por grupo</option>
+                <option value="docente">Por docente</option>
+                <option value="aula">De aulas</option>
+                <option value="concentrado">Concentrado</option>
+              </select>
+            </label>
+            <button type="button" class="ribbon-btn ribbon-ico-azul" onclick="verHorarioDesdePlan()" aria-label="Ver el horario del turno">
+              <span class="ribbon-label">Ver horario</span>
+            </button>
+          </div>
+          <!-- SECCIÓN 1: Catálogo de Planeaciones -->
+          <div id="cajaListaPlanNEM">
+            <div id="bannerRepositorioGlobal" class="oculto" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12.5px;color:#1e40af;line-height:1.5;">
+              🌐 <strong>Repositorio Escolar Global (Espacio Colegiado):</strong> Explora las planeaciones terminadas y publicadas por el colectivo docente de la Secundaria Técnica 90. Ningún usuario puede alterar la versión original de otro colega. Pulsa <strong>«Copiar a mi Banco»</strong> para clonar el proyecto a tu banco personal como una copia 100% independiente y editable.
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h2 id="titCatalogoPlan" style="font-size:18px;color:var(--st90-azul);margin:0;">Proyectos y Planeaciones Didácticas (NEM Fase 6)</h2>
+              <span id="txtPlanConteo" style="font-size:13px;color:#64748b;font-weight:700;"></span>
+            </div>
+            <div id="gridPlaneaciones" class="nem-grid">
+              <p class="hint" style="text-align:center;">Cargando planeaciones didácticas…</p>
+            </div>
+          </div>
+
+          <!-- SECCIÓN 2: Formulario de Creación / Edición General NEM -->
+          <div id="cajaFormPlanNEM" class="oculto">
+            <div style="display:none;">
+              <div>
+                <h2 id="titFormPlan" style="font-size:18px;color:var(--st90-azul);margin:0 0 4px;">Nueva Planeación Didáctica NEM</h2>
+                <p class="hint" style="margin:0;">Fase 6: Educación Secundaria. Diseña la unidad con metodología sociocrítica y enfoque DUA.</p>
+              </div>
+              <button type="button" class="nem-btn-accion" onclick="cerrarFormPlaneacion()">← Volver a lista</button>
+            </div>
+
+            <form id="formPlanData" onsubmit="guardarPlaneacionForm(event)">
+              <input type="hidden" id="planId" value="">
+              <input type="hidden" id="planIdHorario" value="">
+
+              <!-- Encabezado / Banner informativo compacto de la Clase seleccionada -->
+              <div id="bannerClaseNEM" class="nem-banner">
+                <div class="nem-banner-header">
+                  <div class="nem-banner-main">
+                    <span class="nem-banner-tag">🏫 CLASE SELECCIONADA</span>
+                    <h2 id="txtEncabezadoMateriaGrupo" class="nem-banner-title">MATEMÁTICAS · 2°A</h2>
+                    <div class="nem-banner-meta">
+                      <span>📅 <strong id="txtEncabezadoFecha">--/--/----</strong></span>
+                      <span>⏰ <strong id="txtEncabezadoHorario">Hora --</strong></span>
+                      <span>🗓️ <strong id="txtEncabezadoPeriodo">1° Trimestre SEP</strong></span>
+                      <span id="wrapEncabezadoDocente">👨‍🏫 Docente: <strong id="txtEncabezadoDocente">--</strong></span>
+                    </div>
+                  </div>
+                  <div>
+                    <button type="button" class="nem-banner-btn" onclick="tabN1Clase('clases')" title="Ver el Horario semanal completo">
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      <span>Ver Horario</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Campos técnicos sincronizados (ocultos visualmente para persistencia) -->
+              <div id="wrapCamposOcultosPlan" style="display:none !important;">
+                <span id="badgePeriodoPlan"></span>
+                <select id="planGrado" onchange="actualizarGruposFormPlan()"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>
+                <select id="planGrupo"><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option></select>
+                <input type="text" id="planAsignatura">
+                <input type="date" id="planFechaInicio" onchange="alCambiarFechaInicioPlan()">
+                <input type="text" id="planPeriodo">
+              </div>
+
+              <!-- NAVEGADOR STEPPER UX INTERACTIVO EN 4 ETAPAS (DESIGN SYSTEM) -->
+              <div class="nem-stepper-header" role="tablist">
+                <button type="button" class="nem-step-tab activo" onclick="irAPasoPlanNEM(1)" id="tabPasoPlan1" role="tab" aria-selected="true">
+                  <span class="step-num">1</span>
+                  <span class="step-txt">Metadatos & Ejes</span>
+                </button>
+                <button type="button" class="nem-step-tab" onclick="irAPasoPlanNEM(2)" id="tabPasoPlan2" role="tab" aria-selected="false">
+                  <span class="step-num">2</span>
+                  <span class="step-txt">Contenidos & PDA</span>
+                </button>
+                <button type="button" class="nem-step-tab" onclick="irAPasoPlanNEM(3)" id="tabPasoPlan3" role="tab" aria-selected="false">
+                  <span class="step-num">3</span>
+                  <span class="step-txt">Diagnóstico & DUA</span>
+                </button>
+                <button type="button" class="nem-step-tab" onclick="irAPasoPlanNEM(4)" id="tabPasoPlan4" role="tab" aria-selected="false">
+                  <span class="step-num">4</span>
+                  <span class="step-txt">Propósito & IA</span>
+                </button>
+              </div>
+
+              <!-- ETAPA 1: METADATOS Y EJES ARTICULADORES -->
+              <div id="etapaPlanNEM_1" class="nem-step-pane">
+                <!-- FILA 1: TÍTULO, CAMPO FORMATIVO, METODOLOGÍA Y SESIONES EN UNA SOLA FILA -->
+              <div class="nem-fila-una">
+                <div class="nem-campo-inline nem-campo-titulo">
+                  <label for="planTitulo">Título del Proyecto * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planTitulo" title="Ayuda pedagógica NEM" aria-label="Ayuda para Título del Proyecto">?</button><button type="button" class="btn-ia-sugerir-titulo" id="btnSugerirTituloIA" title="Sugerir títulos motivadores con IA" aria-label="Sugerir título con IA">✨ Sugerir con IA</button></label>
+                  <input type="text" id="planTitulo" required placeholder="Ej. Voces y Raíces de Nuestra Tierra: Narrativas comunitarias">
+                </div>
+                <div class="nem-campo-inline nem-campo-formativo">
+                  <label for="planCampoFormativo" title="Asignado automáticamente por norma SEP Fase 6 según la asignatura (no modificable)">Campo Formativo * <span title="Normativo SEP Fase 6: fijo según la asignatura" style="font-size:11px;cursor:help;">🔒</span> <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planCampoFormativo" title="Ayuda pedagógica NEM" aria-label="Ayuda para Campo Formativo">?</button></label>
+                  <select id="planCampoFormativo" required disabled title="Asignado automáticamente por norma SEP Fase 6 según la asignatura" style="background:#f1f5f9;color:#334155;cursor:not-allowed;font-weight:600;">
+                    <option value="Lenguajes">Lenguajes</option>
+                    <option value="Saberes y Pensamiento Científico">Saberes y Pensamiento Científico</option>
+                    <option value="Ética, Naturaleza y Sociedades">Ética, Naturaleza y Sociedades</option>
+                    <option value="De lo Humano y lo Comunitario">De lo Humano y lo Comunitario</option>
+                  </select>
+                </div>
+                <div class="nem-campo-inline nem-campo-metodologia">
+                  <label for="planMetodologia">Metodología * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planMetodologia" title="Ayuda pedagógica NEM" aria-label="Ayuda para Metodología">?</button></label>
+                  <select id="planMetodologia" required>
+                    <option value="Aprendizaje basado en proyectos comunitarios">Proyectos Comunitarios (Lenguajes)</option>
+                    <option value="Aprendizaje basado en indagación (STEAM)">Indagación / STEAM (Saberes)</option>
+                    <option value="Aprendizaje Basado en Problemas (ABP)">ABP (Ética, Nat. y Soc.)</option>
+                    <option value="Aprendizaje Servicio (AS)">Aprendizaje Servicio / AS (De lo Humano)</option>
+                  </select>
+                </div>
+                <div class="nem-campo-inline nem-campo-sesiones">
+                  <label for="planNumSesiones">Sesiones (40m) * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planNumSesiones" title="Ayuda pedagógica NEM" aria-label="Ayuda para Sesiones">?</button></label>
+                  <input type="number" id="planNumSesiones" min="1" max="25" value="3" required style="text-align:center;font-weight:700;">
+                </div>
+              </div>
+
+              <!-- EJES ARTICULADORES (COMPACTOS EN LÍNEA) -->
+              <div class="nem-ejes-fila">
+                <label>Ejes Articuladores (Selecciona los aplicables)</label>
+                <div class="nem-ejes-wrap" id="wrapEjesPlan">
+                  <label class="nem-eje-chip"><input type="checkbox" value="Inclusión"> Inclusión</label>
+                  <label class="nem-eje-chip"><input type="checkbox" value="Pensamiento Crítico"> Pensamiento Crítico</label>
+                  <label class="nem-eje-chip"><input type="checkbox" value="Interculturalidad Crítica"> Interculturalidad</label>
+                  <label class="nem-eje-chip"><input type="checkbox" value="Igualdad de Género"> Igualdad de Género</label>
+                  <label class="nem-eje-chip"><input type="checkbox" value="Vida Saludable"> Vida Saludable</label>
+                  <label class="nem-eje-chip"><input type="checkbox" value="Apropiación de las culturas a través de la lectura y la escritura"> Lectura y Escritura</label>
+                  <label class="nem-eje-chip"><input type="checkbox" value="Artes y experiencias estéticas"> Artes y Estética</label>
+                </div>
+              </div>
+
+<div class="nem-step-nav-footer">
+                  <span class="hint" style="font-size:11px;">Paso 1 de 4: Estructura Curricular General y Ejes Articuladores</span>
+                  <button type="button" class="nem-btn-accion nem-btn-primario" onclick="irAPasoPlanNEM(2)">
+                    Siguiente: Contenidos & PDA →
+                  </button>
+                </div>
+              </div>
+
+              <!-- ETAPA 2: CATÁLOGO DINÁMICO SEP Y PROCESOS DE DESARROLLO DE APRENDIZAJE -->
+              <div id="etapaPlanNEM_2" class="nem-step-pane oculto">
+                <!-- FILA 2 (IMAGEN 2): CATÁLOGO DINÁMICO SEP EN 2 COLUMNAS -->
+              <div class="nem-catalogo-box">
+                <div class="nem-catalogo-header">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="nem-badge-official">SEP Fase 6 Oficial</span>
+                    <strong class="nem-catalogo-title">Catálogo Dinámico de Contenidos y PDA Oficiales</strong>
+                  </div>
+                  <span id="txtEtiquetaMatrizNEM" class="nem-badge-pill">Matemáticas · 2° de secundaria</span>
+                </div>
+
+                <div class="nem-catalogo-dos-col">
+                  <!-- Columna Izquierda: Contenido Central -->
+                  <div>
+                    <label for="selContenidoSinteticoNEM" style="font-size:11.5px;font-weight:700;color:#166534;margin:0 0 4px;display:flex;align-items:center;height:24px;">
+                      1. Elegir Contenido Central del Programa Sintético SEP:
+                      <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planContenidoSintetico" title="Ayuda pedagógica NEM" aria-label="Ayuda para Contenido Curricular">?</button>
+                    </label>
+                    <select id="selContenidoSinteticoNEM" class="nem-select-sintetico" onchange="alSeleccionarContenidoSinteticoNEM()">
+                      <option value="">-- Elige un contenido curricular oficial --</option>
+                    </select>
+                    <p style="font-size:11px;color:#15803d;margin:6px 0 0;line-height:1.35;">
+                      💡 Al elegir el contenido oficial, se filtrarán las progresiones de aprendizaje correspondientes a tu grado escolar.
+                    </p>
+                  </div>
+
+                  <!-- Columna Derecha: PDA Oficiales, Buscador y Checklist -->
+                  <div>
+                    <div style="display:flex;align-items:center;gap:6px;margin:0 0 4px;height:24px;flex-wrap:nowrap;">
+                      <label style="font-size:11.5px;font-weight:700;color:#166534;margin:0;display:flex;align-items:center;" title="PDA: Procesos de Desarrollo de Aprendizaje (progresiones curriculares por grado escolar)">
+                        2. PDA de este grado:
+                        <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planPDA" title="Ayuda pedagógica NEM" aria-label="Ayuda para PDA">?</button>
+                      </label>
+                      <button type="button" id="btnBuscarPDA" title="Buscar PDA" onclick="alternarBuscadorPDA_()" style="border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;height:22px;">🔍</button>
+                      <button type="button" id="btnArticulacionPDA" title="Ver progresión en otros grados" onclick="alternarArticulacionOtrosGrados_()" style="border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:0 2px;height:22px;">👁️</button>
+                      <div style="display:flex;align-items:center;gap:4px;margin-left:auto;">
+                        <span id="badgeConteoPDAs" class="nem-badge-count" aria-live="polite">0 seleccionados</span>
+                        <button type="button" class="btn-secundario" style="font-size:10px;padding:1px 6px;cursor:pointer;" onclick="marcarTodosPDAsGrado_(true)">Todos</button>
+                        <button type="button" class="btn-secundario" style="font-size:10px;padding:1px 6px;cursor:pointer;" onclick="marcarTodosPDAsGrado_(false)">Limpiar</button>
+                      </div>
+                    </div>
+
+                    <input type="text" id="buscarPDANEM" class="nem-input-filter oculto" placeholder="Filtrar PDA por palabras clave…" oninput="filtrarListaPDAsDOM_()" style="margin-bottom:6px;">
+
+                    <!-- Contenedor interactivo del selector de PDA -->
+                    <div id="listaPDAsCheckboxNEM">
+                      <select id="selPDANEM" class="nem-select-sintetico" onchange="elegirPDANEM_(this)">
+                        <option value="">Selecciona un PDA para agregarlo…</option>
+                      </select>
+                    </div>
+
+                    <!-- Articulación con otros grados (se abre con el icono del ojo) -->
+                    <div id="cajaArticulacionOtrosGrados" class="nem-box-articulacion oculto" style="margin-top:6px;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FILA 3 (IMAGEN 3): CONTENIDO SINTÉTICO Y PDA OFICIALES EN 2 COLUMNAS -->
+              <div class="nem-fila-dos-col">
+                <div class="nem-campo-inline">
+                  <label for="planContenidoSintetico">Contenido Curricular Sintético (Texto Oficial) * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planContenidoSintetico" title="Ayuda pedagógica NEM" aria-label="Ayuda para Contenido Curricular">?</button></label>
+                  <textarea id="planContenidoSintetico" rows="2" style="min-height:55px;" required placeholder="Selecciona arriba en el catálogo oficial o redacta el contenido sintético de la SEP..."></textarea>
+                </div>
+                <div class="nem-campo-inline">
+                  <label for="planPDA">Proceso(s) de Desarrollo de Aprendizaje (PDA) Oficial(es) * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planPDA" title="Ayuda pedagógica NEM" aria-label="Ayuda para PDA">?</button></label>
+                  <textarea id="planPDA" rows="2" style="min-height:55px;" required placeholder="Marca arriba las casillas de los PDA correspondientes o redacta tus adaptaciones curriculares..."></textarea>
+                </div>
+              </div>
+
+<div class="nem-step-nav-footer">
+                  <button type="button" class="nem-btn-accion" onclick="irAPasoPlanNEM(1)">
+                    ← Volver a Metadatos
+                  </button>
+                  <button type="button" class="nem-btn-accion nem-btn-primario" onclick="irAPasoPlanNEM(3)">
+                    Siguiente: Diagnóstico CTE & DUA →
+                  </button>
+                </div>
+              </div>
+
+              <!-- ETAPA 3: CONTEXTO ANALÍTICO CTE & EDUCACIÓN INCLUSIVA DUA (UDEI) -->
+              <div id="etapaPlanNEM_3" class="nem-step-pane oculto">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <strong style="font-size:13px;color:var(--st90-azul);">Contexto Analítico del CTE & Diagnóstico Comunitario</strong>
+                    <span class="nem-badge-pill" style="font-size:10px;padding:2px 7px;">Fase 6 • Programa Analítico</span>
+                  </div>
+                  <button type="button" class="btn-outline-custom" onclick="vincularHallazgoActualCTE_()" style="font-size:11px;padding:4px 9px;">
+                    📊 Importar Hallazgo de Encuesta Comunitaria
+                  </button>
+                </div>
+
+                <div class="nem-fila-dos-col" style="margin-bottom:12px;">
+                  <!-- COLUMNA 1: Selector de problemática CTE con botón de gestión -->
+                  <div class="nem-campo-inline">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;flex-wrap:wrap;gap:4px;">
+                      <label for="selProblemaEscolar" style="margin:0;font-size:11.5px;font-weight:700;color:var(--st90-azul);">Catálogo del Programa Analítico CTE *</label>
+                      <button type="button" class="btn-secundario" onclick="abrirModalGestionCTE_()" style="font-size:9.5px;padding:2px 6px;cursor:pointer;background:#f8fafc;border:1px solid #cbd5e1;border-radius:4px;font-weight:700;color:#0f172a;" title="Abrir panel para agregar o editar problemáticas del Programa Analítico CTE">
+                        ⚙️ Editar Catálogo CTE
+                      </button>
+                    </div>
+                    <select id="selProblemaEscolar" class="nem-select-sintetico" onchange="alSeleccionarProblemaCTE()" style="font-size:11px;padding:6px 7px;width:100%;margin-bottom:4px;">
+                      <option value="">-- Cargar problemática priorizada por el CTE --</option>
+                    </select>
+                    <div class="hint" style="font-size:10px;color:#64748b;line-height:1.25;">
+                      💡 Selecciona para precargar el reto de la comunidad o redacta libremente.
+                    </div>
+                  </div>
+
+                  <!-- COLUMNA 2: Problema de la Comunidad (Textarea) -->
+                  <div class="nem-campo-inline">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;flex-wrap:wrap;gap:4px;">
+                      <label for="planProblema" style="margin:0;font-size:11.5px;font-weight:700;color:var(--st90-azul);">Problema de la Comunidad (Situación-Problema) * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planProblema" title="Ayuda pedagógica NEM" aria-label="Ayuda para Problema de la Comunidad">?</button></label>
+                      <button type="button" class="btn-soft-primary" onclick="abrirModalImportarCensoCTE_()" style="font-size:10px;padding:3px 8px;font-weight:700;border-radius:4px;cursor:pointer;" title="Importar hallazgos del Censo de Diagnóstico Escolar directamente al proyecto">
+                        📊 Importar Censo Escolar CTE
+                      </button>
+                    </div>
+                    <textarea id="planProblema" rows="3" style="min-height:75px;resize:vertical !important;overflow-y:auto !important;" required placeholder="¿Qué reto de la escuela o comunidad detona este proyecto? (Selecciona a la izquierda del catálogo CTE, importa de encuestas o redacta libremente)"></textarea>
+                  </div>
+                </div>
+
+                <!-- MÓDULO DE EDUCACIÓN INCLUSIVA Y AJUSTES RAZONABLES (DUA / UDEI) -->
+                <div id="secInclusionBAPyC" class="nem-inclusion-box oculto">
+                  <div class="nem-inclusion-header-single">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1 1 auto;min-width:0;">
+                      <span class="nem-badge-udei" aria-label="UDEI: Unidad de Educación Especial y Educación Inclusiva" data-tip="UDEI: Unidad de Educación Especial y Educación Inclusiva" style="cursor:help;">UDEI</span>
+                      <strong class="nem-dua-label" aria-label="DUA: Diseño Universal para el Aprendizaje" data-tip="DUA: Diseño Universal para el Aprendizaje (múltiples formas de representación, acción y motivación)" style="color:#92400e;font-size:11.5px;white-space:nowrap;cursor:help;text-decoration:underline dotted #d97706;">Inclusión (DUA):</strong><span class="nem-ayuda-paso" aria-label="Haz clic para ver qué significan UDEI, DUA y BAPyC" data-tip="Haz clic para ver qué significan UDEI, DUA y BAPyC" onclick="abrirAyudaInclusion_()" style="margin-left:4px;font-size:12px;cursor:pointer;">?</span>
+                      <div id="wrapChipsBAPyCGrupo" style="display:inline-flex;gap:4px;flex-wrap:wrap;align-items:center;"></div>
+                    </div>
+                    <div id="badgeAlertaBAPyC" class="nem-badge-bapyc-alert" aria-label="BAPyC: Barreras para el Aprendizaje, la Participación y la Convivencia detectadas en este grupo" data-tip="BAPyC: Barreras para el Aprendizaje, la Participación y la Convivencia detectadas en este grupo" style="white-space:nowrap;flex:0 0 auto;cursor:help;">
+                      ⚠️ BAPyC detectadas en grupo
+                    </div>
+                  </div>
+                  <div>
+                    <div class="nem-chips-dua-bar">
+                      <button type="button" class="nem-chip-dua-rapido" onclick="insertarAjusteDUARapido('• Material visual con macrotipo, alto contraste y apoyos gráficos paso a paso (DUA Representación).')">+ Macrotipo y Alto Contraste</button>
+                      <button type="button" class="nem-chip-dua-rapido" onclick="insertarAjusteDUARapido('• Instrucciones breves apoyadas con lectura guiada y audio descriptivo (DUA Representación).')">+ Audio DUA y Lectura Guiada</button>
+                      <button type="button" class="nem-chip-dua-rapido" onclick="insertarAjusteDUARapido('• Tiempos flexibles de entrega, pausas activas focalizadas y evaluación diversificada (DUA Acción y Expresión).')">+ Tiempos Flexibles</button>
+                      <button type="button" class="nem-chip-dua-rapido" onclick="insertarAjusteDUARapido('• Trabajo colaborativo en parejas tutoras con monitoreo cercano y refuerzo positivo (DUA Motivación).')">+ Parejas Tutoras</button>
+                    </div>
+                    <label for="planAjustesRazonables" style="font-size:11px;font-weight:700;color:#78350f;margin-bottom:3px;display:block;">
+                      Ajustes Razonables Curriculares y Metodológicos (DUA) * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planAjustesRazonables" title="Ayuda pedagógica NEM" aria-label="Ayuda para Ajustes Razonables DUA">?</button>
+                    </label>
+                    <textarea id="planAjustesRazonables" rows="2" style="width:100%;min-height:55px;border:1px solid #fcd34d;border-radius:6px;padding:6px;font-size:11.5px;background:#ffffff;box-sizing:border-box;resize:vertical !important;overflow-y:auto !important;" placeholder="Describe las adecuaciones de acceso, apoyos visuales/auditivos, tiempos flexibles o macrotipos..."></textarea>
+                  </div>
+                </div>
+
+<div class="nem-step-nav-footer">
+                  <button type="button" class="nem-btn-accion" onclick="irAPasoPlanNEM(2)">
+                    ← Volver a Contenidos & PDA
+                  </button>
+                  <button type="button" class="nem-btn-accion nem-btn-primario" onclick="irAPasoPlanNEM(4)">
+                    Siguiente: Propósito & Asistente IA →
+                  </button>
+                </div>
+              </div>
+
+              <!-- ETAPA 4: PROPÓSITO CENTRAL, ASISTENTE PEDAGÓGICO IA Y GUARDADO -->
+              <div id="etapaPlanNEM_4" class="nem-step-pane oculto">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px;flex-wrap:wrap;gap:8px;">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <strong style="font-size:13px;color:var(--st90-azul);">Propósito del Proyecto y Producto Central</strong>
+                    <span class="nem-badge-pill" style="font-size:10px;padding:2px 7px;">Fase 6 • Evaluación Formativa</span>
+                  </div>
+                  <button type="button" class="nem-btn-ai-solo" onclick="solicitarSugerenciaProyectoIA()" id="btnSugerirProyectoIA" style="margin:0;font-size:11.5px;padding:5px 12px;" title="Genera propuesta de problema, propósito y producto a partir de los PDA oficiales">
+                    ✨ Sugerir Proyecto con IA
+                  </button>
+                </div>
+
+                <div class="nem-campo-inline" style="margin-bottom:14px;">
+                  <label for="planProposito" style="margin-bottom:4px;font-size:12px;font-weight:700;color:var(--st90-azul);">Propósito Formativo del Proyecto y Producto Central Tangible * <button type="button" class="btn-ayuda-nem" data-ayuda-campo="planProposito" title="Ayuda pedagógica NEM" aria-label="Ayuda para Propósito y Producto">?</button></label>
+                  <textarea id="planProposito" rows="4" style="min-height:90px;width:100%;resize:vertical !important;overflow-y:auto !important;" placeholder="Define qué aprenderán los estudiantes, para qué lo aprenderán y cuál será el producto integrador o evidencia central de aprendizaje..."></textarea>
+                </div>
+
+                <div id="cajaRubricaCotejoNEM" aria-live="polite"></div>
+
+<div class="nem-step-nav-footer">
+                  <button type="button" class="nem-btn-accion" onclick="irAPasoPlanNEM(3)">
+                    ← Volver a Diagnóstico CTE
+                  </button>
+                  <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <button type="button" class="nem-btn-accion" id="btnAbrirConfigMembreteNEM" onclick="abrirConfigMembreteNEM()">⚙️ Membrete Oficial</button>
+                    <button type="button" class="nem-btn-accion" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;font-weight:700;" onclick="abrirVistaPreviaPDFPlaneacionNEM('formulario')">📄 Vista Previa PDF Oficial</button>
+                    <button type="button" class="nem-btn-accion" onclick="cerrarFormPlaneacion()">Cancelar</button>
+                    <button type="submit" class="nem-btn-accion nem-btn-primario" id="btnGuardarPlan">💾 Guardar Planeación</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- SECCIÓN 3: Gestor y Editor de Sesiones DUA (40 min) -->
+          <div id="cajaSesionesPlanNEM" class="oculto">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px;border-bottom:1px solid #e2e8f0;padding-bottom:12px;">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <h2 id="titPlanSesiones" style="font-size:18px;color:var(--st90-azul);margin:0;">Sesiones Didácticas</h2>
+                  <span id="badgeEstadoPlan" class="badge-nem badge-borrador">BORRADOR</span>
+                </div>
+                <p id="subMetaPlanSesiones" class="hint" style="margin:4px 0 0;"></p>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" class="nem-btn-accion" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;font-weight:700;" onclick="abrirVistaPreviaPDFPlaneacionNEM()">📄 Formato Oficial PDF</button>
+                <button type="button" class="nem-btn-accion" style="background:#1d4ed8;color:#ffffff;border-color:#1d4ed8;" onclick="solicitarDesgloseSesionesIA()" id="btnDesglosarSesionesIA">✨ Desglosar con IA (40 min DUA)</button>
+                <button type="button" class="nem-btn-accion" onclick="aprobarPlaneacionActual()" id="btnAprobarPlan">✓ Aprobar Planeación</button>
+                <button type="button" class="nem-btn-accion" onclick="cerrarGestorSesiones()">← Volver a lista</button>
+              </div>
+            </div>
+
+            <!-- Guía rápida de uso del Gestor de Sesiones -->
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12px;color:#14532d;">
+              <div>
+                <strong>💡 ¿Cómo funciona esta vista?</strong>
+                <span><strong>1)</strong> Cada sesión ya incluye una secuencia base (o pulsa <strong>✨ Desglosar con IA</strong> para redactar todas con IA). <strong>2)</strong> Opcionalmente vincula páginas del <strong>📚 Libro SEP</strong> o asigna fecha con <strong>📅 Calendarizar</strong>. <strong>3)</strong> Pulsa <strong>💾 Guardar</strong> o descarga tu <strong>📄 Formato Oficial PDF</strong>.</span>
+              </div>
+            </div>
+
+            <!-- Pestañas de Sesiones -->
+            <div id="tabsSesionesPlan" class="nem-sesiones-tabs"></div>
+
+            <!-- Editor de la Sesión Activa -->
+            <div id="editorSesionActiva" class="oculto">
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                <div>
+                  <h3 id="titSesionActiva" style="margin:0;font-size:16px;color:#0f172a;">Sesión 1 (40 min)</h3>
+                  <p id="progSesionActiva" style="margin:4px 0 0;font-size:12px;color:#64748b;font-weight:600;"></p>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                  <button type="button" class="nem-btn-accion btn-soft-primary" onclick="abrirModalLibrosSEP_()" id="btnVincularLibroSEP" title="Consultar Libros de Texto Gratuitos SEP Fase 6 y vincular páginas">
+                    📚 Vincular Libro SEP Fase 6
+                  </button>
+                  <button type="button" class="nem-btn-accion" onclick="abrirModalCalendarizarSesion()" id="btnCalSesion" style="border-color:#3b82f6;color:#1d4ed8;">📅 Calendarizar en Horario</button>
+                  <button type="button" class="nem-btn-accion nem-btn-primario" onclick="guardarSesionActiva()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;font-weight:700;">
+                    💾 Guardar Sesión
+                  </button>
+                </div>
+              </div>
+
+              <section class="nem-seccion-exelearning">
+                <div class="nem-seccion-exelearning__cab">
+                  <h3 class="nem-seccion-exelearning__titulo">🧩 Constructor de Clase Interactiva (eXeLearning)</h3>
+                  <span class="nem-seccion-exelearning__hint">Los cuatro momentos de la sesión siguen compactos. Aquí armas los bloques interactivos.</span>
+                </div>
+              <!-- BARRA DE HERRAMIENTAS IDEVICES MODULARES (TIPO EXELOGIC / EXELearning) -->
+              <div class="idevice-bar">
+                <span style="font-size:11px;font-weight:800;color:var(--app-muted);text-transform:uppercase;letter-spacing:0.04em;">iDevices Modulares (Opcional):</span>
+                <button type="button" class="idevice-btn" onclick="insertariDeviceSesion_('lectura')" title="Insertar bloque de lectura guiada con narración de voz">
+                  🎧 Lectura Guiada (Audio DUA)
+                </button>
+                <button type="button" class="idevice-btn" onclick="insertariDeviceSesion_('pregunta')" title="Insertar pregunta formativa detonadora con retroalimentación">
+                  ❓ Pregunta Formativa
+                </button>
+                <button type="button" class="idevice-btn" onclick="insertariDeviceSesion_('reto')" title="Insertar reto situado comunitario o desafío práctico">
+                  🏆 Desafío Práctico Situado
+                </button>
+                <button type="button" class="idevice-btn" onclick="insertariDeviceSesion_('encuesta')">📊 Encuesta / Diagnóstico</button>
+              </div>
+              <div id="contenedorIDevicesDinamicos"></div>
+              </section>
+
+              <!-- Título / Tema de la clase -->
+              <div style="margin:10px 0 12px;">
+                <label for="sesTitulo" style="font-weight:700;font-size:13px;color:var(--st90-azul);margin-bottom:4px;display:block;">Título / Tema de la clase</label>
+                <input type="text" id="sesTitulo" placeholder="Tema de la clase" style="width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:13.5px;font-weight:600;color:#0f172a;">
+              </div>
+
+              <!-- Desglose de los 4 momentos NEM (40 min) en cuadrícula 2x2 -->
+              <div class="grid-momentos-nem">
+                <div class="momento-caja momento-apertura" style="margin-bottom:0;">
+                  <div class="momento-caja-header">
+                    <h3>⏱️ 1. Apertura (5 min)</h3>
+                    <span class="nem-meta-pill">Activación y saberes previos</span>
+                  </div>
+                  <textarea id="sesApertura" style="min-height:85px;width:100%;box-sizing:border-box;" placeholder="Pregunta generadora, reto cognitivo o anécdota detonadora..."></textarea>
+                </div>
+
+                <div class="momento-caja momento-desarrollo" style="margin-bottom:0;">
+                  <div class="momento-caja-header">
+                    <h3>📖 2. Desarrollo / Explicación (10 min)</h3>
+                    <span class="nem-meta-pill">Conceptos centrales y Libro SEP</span>
+                  </div>
+                  <textarea id="sesDesarrollo" style="min-height:85px;width:100%;box-sizing:border-box;" placeholder="Explicación directa del docente, contenido clave y páginas vinculadas..."></textarea>
+                </div>
+
+                <div class="momento-caja momento-actividad" style="margin-bottom:0;">
+                  <div class="momento-caja-header">
+                    <h3>✍️ 3. Actividad / Producción (20 min)</h3>
+                    <span class="nem-meta-pill">Trabajo práctico / Producto</span>
+                  </div>
+                  <textarea id="sesActividad" style="min-height:85px;width:100%;box-sizing:border-box;" placeholder="Instrucciones paso a paso de la actividad de aprendizaje..."></textarea>
+                </div>
+
+                <div class="momento-caja momento-cierre" style="margin-bottom:0;">
+                  <div class="momento-caja-header">
+                    <h3>🎯 4. Cierre (5 min)</h3>
+                    <span class="nem-meta-pill">Síntesis y metacognición</span>
+                  </div>
+                  <textarea id="sesCierre" style="min-height:85px;width:100%;box-sizing:border-box;" placeholder="Preguntas de reflexión metacognitiva y retroalimentación..."></textarea>
+                </div>
+              </div>
+
+              <!-- Controles Principales de Publicación y Guardado -->
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:12px 16px;margin-bottom:14px;">
+                <label style="display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:#0f172a;cursor:pointer;margin:0;">
+                  <input type="checkbox" id="chkPubSesionClase" checked style="width:18px;height:18px;accent-color:var(--st90-verde);cursor:pointer;">
+                  <span>Publicar ahora para que los alumnos vean la sesión</span>
+                </label>
+                <div style="display:flex;gap:10px;align-items:center;">
+                  <button type="button" class="nem-btn-accion" onclick="probarVozGuionSesion()" id="btnEscucharGuionSesion" style="display:inline-flex;align-items:center;gap:6px;background:#eff6ff;border-color:#93c5fd;color:#1d4ed8;font-weight:700;padding:8px 16px;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                    <span>Escuchar clase hablada</span>
+                  </button>
+                  <button type="button" class="nem-btn-accion nem-btn-primario" onclick="guardarSesionActiva()" style="display:inline-flex;align-items:center;gap:6px;padding:8px 22px;font-weight:700;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Guardar Sesión</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Opciones adicionales plegables (Audio Estudiante, Imagen DUA y Notas Docentes) -->
+              <details style="background:#ffffff;border:1px solid #cbd5e1;border-radius:10px;padding:10px 14px;margin-bottom:14px;">
+                <summary style="cursor:pointer;font-weight:700;font-size:13px;color:#334155;user-select:none;">
+                  🎧 Opciones de Aula Hablada, Recurso Visual DUA y Notas Docentes (Opcional · se autogenera desde los 4 momentos)
+                </summary>
+                <div style="margin-top:12px;">
+                  <!-- Sección DUA: Recursos Visuales con Descripción Oral Obligatoria -->
+                  <div class="dua-box">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                      <div style="display:flex;align-items:center;gap:6px;">
+                        <span class="dua-badge-audio">DUA · Accesibilidad Universal</span>
+                        <strong style="font-size:14px;color:#92400e;">Recurso Visual con Descripción Auditiva</strong>
+                      </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;">
+                      <div>
+                        <label for="sesVisualUrl" style="font-size:12px;">URL de imagen (opcional)</label>
+                        <input type="text" id="sesVisualUrl" placeholder="https://... o imagen" style="width:100%;box-sizing:border-box;">
+                      </div>
+                      <div>
+                        <label for="sesVisualDesc" style="font-size:12px;">Descripción Oral Accesible (si hay imagen)</label>
+                        <textarea id="sesVisualDesc" style="min-height:60px;width:100%;box-sizing:border-box;" placeholder="Describe lo que muestra la imagen para alumnos con discapacidad visual..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Guion Estudiante Integrado: Texto que escuchará el alumno -->
+                  <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:12px;margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+                      <div>
+                        <label for="sesGuionEstudiante" style="font-size:14px;font-weight:800;color:var(--st90-azul);margin:0;display:block;">
+                          Texto que escuchará el alumno (Guion de voz)
+                        </label>
+                      </div>
+                      <button type="button" class="nem-btn-accion" onclick="generarGuionDesdeMomentos()" style="background:#f0fdf4;border-color:#86efac;color:#15803d;font-weight:700;">
+                        ✨ Actualizar guion desde los 4 momentos
+                      </button>
+                    </div>
+                    <textarea id="sesGuionEstudiante" style="min-height:110px;width:100%;box-sizing:border-box;" placeholder="Se genera automáticamente a partir de los 4 momentos de la sesión..."></textarea>
+                  </div>
+
+                  <!-- Notas y Orientaciones Docentes -->
+                  <div>
+                    <label for="sesNotasDocente" style="font-size:13px;font-weight:700;">Notas y Orientaciones para el Docente</label>
+                    <textarea id="sesNotasDocente" style="min-height:60px;width:100%;box-sizing:border-box;" placeholder="Materiales requeridos, adecuaciones curriculares individuales, observaciones..."></textarea>
+                  </div>
+                </div>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="tabAluAcc" class="oculto">
+        <div class="tarjeta">
+          <div id="txtAluPassConteo" class="oculto" style="display:none;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--st90-azul);text-align:center;">
+            Alumnos encontrados: 0
+          </div>
+          <div class="cal-filtros-grupo" id="n3AluAcc" role="group" aria-label="Filtros y acciones de alumnos" style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:0 auto 16px;">
+            <div class="ribbon-btn ribbon-btn-select-wrap" id="btnPassGrado">
+              <select id="filtroGradoPass" class="filtro-select-overlay" onchange="cambiarGradoPassAlu()" aria-label="Grado">
+                <option value="">Todos los grados</option>
+                <option value="1">1° de secundaria</option>
+                <option value="2">2° de secundaria</option>
+                <option value="3">3° de secundaria</option>
+              </select>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10l-10-5-10 5 10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
+              <span class="ribbon-label">Grado</span>
+            </div>
+            <div class="ribbon-btn ribbon-btn-select-wrap" id="btnPassGrupo">
+              <select id="filtroGrupoPass" class="filtro-select-overlay" onchange="cambiarGrupoPassAlu()" aria-label="Grupo">
+                <option value="">Todos los grupos</option>
+              </select>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg>
+              <span class="ribbon-label">Grupo</span>
+            </div>
+            <div class="asi-dd" id="ddPassBuscar" style="position:relative;">
+              <button type="button" class="ribbon-btn" id="btnPassBuscar" onclick="toggleDdPassBuscar(event)" aria-label="Buscar">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+                <span class="ribbon-label" id="etqPassBuscar">Buscar</span>
+              </button>
+              <div id="panelPassBuscar" class="asi-dd-panel oculto" style="position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:100;background:#fff;border:1px solid var(--st90-borde);border-radius:10px;padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:240px;" onclick="event.stopPropagation()">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input type="search" id="buscAluPass" placeholder="Nombre o matrícula…" oninput="filtrarTablaPassLocal();actualizarEtqPassBuscar();" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--st90-borde);border-radius:6px;font-size:13px;outline:none;">
+                  <button type="button" onclick="limpiarPassBuscar()" style="border:none;background:#f1f5f9;color:#64748b;padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:700;" title="Limpiar">×</button>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="ribbon-btn ribbon-ico-verde" onclick="generarClavesMasivasAlu('grupo')" aria-label="Generar a este grupo">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+              <span class="ribbon-label">Generar</span>
+            </button>
+            <button type="button" class="btn-ayuda ribbon-btn ribbon-ico-ambar" onclick="abrirAyuda('claseAluAcc')" aria-label="Ayuda">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg>
+              <span class="ribbon-label">Ayuda</span>
+            </button>
+          </div>
+          <div id="cajaTablaAluPass" style="overflow-x:auto;">
+            <p class="hint">Cargando lista de alumnos…</p>
+          </div>
+        </div>
+      </div>
+      <div id="tabAccesos" class="oculto">
+        <div class="tarjeta" id="cajaMaeAccWrap">
+          <div id="contMaeClase" class="oculto" style="display:none;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--st90-azul);text-align:center;">
+            Docentes registrados: 0
+          </div>
+          <div class="cal-filtros-grupo" id="n3MaeAcc" role="group" aria-label="Filtros y acciones de docentes" style="display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:0 auto 16px;">
+            <div class="asi-dd" id="ddMaeBuscar" style="position:relative;">
+              <button type="button" class="ribbon-btn" id="btnMaeBuscar" onclick="toggleDdMaeBuscar(event)" aria-label="Buscar">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+                <span class="ribbon-label" id="etqMaeBuscar">Buscar</span>
+              </button>
+              <div id="panelMaeBuscar" class="asi-dd-panel oculto" style="position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);z-index:100;background:#fff;border:1px solid var(--st90-borde);border-radius:10px;padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:240px;" onclick="event.stopPropagation()">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input type="search" id="buscMaeClase" placeholder="Docente o usuario…" oninput="filtrarTablaMaeClaseLocal();actualizarEtqMaeBuscar();" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--st90-borde);border-radius:6px;font-size:13px;outline:none;">
+                  <button type="button" onclick="limpiarMaeBuscar()" style="border:none;background:#f1f5f9;color:#64748b;padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:700;" title="Limpiar">×</button>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="ribbon-btn" onclick="syncMaestrosClase()" aria-label="Sincronizar">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+              <span class="ribbon-label">Sincronizar</span>
+            </button>
+            <button type="button" class="ribbon-btn ribbon-ico-verde" onclick="generarClavesMasivasMae()" aria-label="Generar claves">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>
+              <span class="ribbon-label">Generar</span>
+            </button>
+            <button type="button" class="btn-ayuda ribbon-btn ribbon-ico-ambar" onclick="abrirAyuda('claseMaeAcc')" aria-label="Ayuda">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><circle cx="12" cy="17" r="1" fill="currentColor" stroke="none"></circle></svg>
+              <span class="ribbon-label">Ayuda</span>
+            </button>
+          </div>
+          <div id="cajaMaeAcc" style="overflow-x:auto;">
+            <p class="hint" style="text-align:center;">Cargando lista de docentes…</p>
+          </div>
+        </div>
+      </div>
+    </div> <!-- Fin moduloViewPlaneacion -->
+
+  <!-- VISTA MODULAR 2: DIAGNÓSTICO Y ENCUESTAS (CONSTRUCTOR Y ANALÍTICA) -->
+  <div id="moduloViewEncuestas" class="modulo-shell-contenedor oculto" style="padding:16px 20px 48px;width:100%;box-sizing:border-box;">
+    <div class="lego-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;border-bottom:1px solid var(--app-border);padding-bottom:12px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <h2 style="font-size:18px;color:var(--app-primary);margin:0;">📊 Diagnóstico Escolar & Constructor de Encuestas</h2>
+            <span class="tipo-badge" style="background:var(--app-primary-soft);color:var(--app-primary-dark);border:1px solid #bfdbfe;">Censo Comunitario</span>
+          </div>
+          <p class="hint" style="margin:4px 0 0;">Analítica situacional de movilidad, convivencia y bienestar para fundamentar el Programa Analítico CTE.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn-outline-custom activo" id="btnSubTabAnalitica" onclick="conmutarSubTabEncuestas('analitica')">📈 Panel de Analítica</button>
+          <button type="button" class="btn-outline-custom" id="btnSubTabEditor" onclick="conmutarSubTabEncuestas('editor')">🛠️ Constructor de Preguntas</button>
+          <button type="button" class="btn-soft-primary" onclick="vincularHallazgoActualCTE_()" title="Vincular resultados detectados en el censo con el Programa Analítico de la Planeación NEM">
+            🔗 Vincular al Programa Analítico CTE
+          </button>
+        </div>
+      </div>
+
+      <!-- SUB-PANEL 1: ANALÍTICA Y GRÁFICAS (CON TOKENS SKILL.MD) -->
+      <div id="subPanelEncuestaAnalitica">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;margin-bottom:16px;">
+          <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:12px;">
+            <span style="font-size:11px;color:var(--app-muted);font-weight:700;">ALUMNOS CENSADOS</span>
+            <h3 style="font-size:22px;color:var(--app-primary);margin:4px 0 0;">842 <span style="font-size:12px;color:#16a34a;">(94%)</span></h3>
+            <p style="font-size:10.5px;color:#64748b;margin:2px 0 0;">Matutino y Vespertino</p>
+          </div>
+          <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:12px;">
+            <span style="font-size:11px;color:var(--app-muted);font-weight:700;">FACTOR DE RIESGO VIAL</span>
+            <h3 style="font-size:22px;color:#dc2626;margin:4px 0 0;">68.4%</h3>
+            <p style="font-size:10.5px;color:#64748b;margin:2px 0 0;">Cruce conflictivo Av. Tláhuac / Calle 11</p>
+          </div>
+          <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:12px;">
+            <span style="font-size:11px;color:var(--app-muted);font-weight:700;">TIEMPO TRASLADO &gt; 40 MIN</span>
+            <h3 style="font-size:22px;color:#d97706;margin:4px 0 0;">41.2%</h3>
+            <p style="font-size:10.5px;color:#64748b;margin:2px 0 0;">Afecta puntualidad y fatiga</p>
+          </div>
+          <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:12px;">
+            <span style="font-size:11px;color:var(--app-muted);font-weight:700;">DISPOSITIVO / INTERNET EN CASA</span>
+            <h3 style="font-size:22px;color:#2563eb;margin:4px 0 0;">76.8%</h3>
+            <p style="font-size:10.5px;color:#64748b;margin:2px 0 0;">Viable para tareas digitales y audio DUA</p>
+          </div>
+        </div>
+
+        <!-- Gráficas y Hallazgos Cuantitativos -->
+        <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:16px;margin-bottom:16px;">
+          <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+            <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 10px;display:flex;justify-content:space-between;">
+              <span>Medio de Transporte y Movilidad Estudiantil</span>
+              <span class="tipo-badge" style="background:#eff6ff;color:#1d4ed8;">N = 842</span>
+            </h4>
+            <div style="height:220px;position:relative;">
+              <canvas id="chartMovilidadEscolar"></canvas>
+            </div>
+          </div>
+          <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+            <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 10px;display:flex;justify-content:space-between;">
+              <span>Factores de Entorno & Bienestar</span>
+              <span class="tipo-badge" style="background:#fef2f2;color:#b91c1c;">Prioridades CTE</span>
+            </h4>
+            <div style="height:220px;position:relative;">
+              <canvas id="chartRiesgoDiagnostico"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-PANEL 2: CONSTRUCTOR DE FORMULARIOS -->
+      <div id="subPanelEncuestaEditor" class="oculto">
+        <div style="background:#f8fafc;border:1px dashed var(--app-border-strong);border-radius:10px;padding:16px;margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+            <strong style="font-size:13px;color:var(--app-text);">+ Agregar Reactivo de Diagnóstico Comunitario</strong>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button type="button" class="btn-outline-custom" onclick="agregarPreguntaDemo_('opcion')">+ Opción Múltiple</button>
+              <button type="button" class="btn-outline-custom" onclick="agregarPreguntaDemo_('escala')">+ Escala Likert</button>
+              <button type="button" class="btn-outline-custom" onclick="agregarPreguntaDemo_('abierta')">+ Texto Libre</button>
+              <button type="button" class="btn-outline-custom" onclick="agregarPreguntaDemo_('dicotomica')">+ Sí / No</button>
+            </div>
+          </div>
+          <div id="listaPreguntasConstructor" style="display:flex;flex-direction:column;gap:10px;">
+            <div class="lego-card" style="margin:0;padding:12px 14px;border-left:4px solid var(--app-primary);">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span class="tipo-badge" style="background:#dbeafe;color:#1e40af;">Opción Múltiple</span>
+                <span style="font-size:11px;color:#64748b;">Reactivo 1 (Movilidad)</span>
+              </div>
+              <p style="margin:0 0 6px;font-size:12.5px;font-weight:700;">¿Cuál es tu principal medio de transporte para llegar a la escuela?</p>
+              <div style="font-size:11.5px;color:#475569;display:flex;gap:12px;flex-wrap:wrap;">
+                <span>• Caminando</span> <span>• Transporte Público</span> <span>• Bicicleta / Patín</span> <span>• Auto particular</span>
+              </div>
+            </div>
+            <div class="lego-card" style="margin:0;padding:12px 14px;border-left:4px solid #10b981;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span class="tipo-badge" style="background:#d1fae5;color:#065f46;">Escala Likert (1 a 5)</span>
+                <span style="font-size:11px;color:#64748b;">Reactivo 2 (Seguridad)</span>
+              </div>
+              <p style="margin:0 0 6px;font-size:12.5px;font-weight:700;">¿Qué tan seguro te sientes en los cruces peatonales alrededor del plantel?</p>
+              <div style="font-size:11.5px;color:#475569;display:flex;gap:12px;flex-wrap:wrap;">
+                <span>1 (Muy inseguro) — 5 (Totalmente seguro)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" class="btn-outline-custom" onclick="previsualizarEncuestaModal_()">👁️ Previsualizar como Alumno</button>
+          <button type="button" class="btn-soft-primary" onclick="guardarEncuestaDiagnostico_()">💾 Guardar Cuestionario</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA MODULAR 3: COMPRENSIÓN LECTORA & CÁLCULO DE PPM -->
+  <div id="moduloViewLectura" class="modulo-shell-contenedor oculto" style="padding:16px 20px 48px;width:100%;box-sizing:border-box;">
+    <div class="lego-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;border-bottom:1px solid var(--app-border);padding-bottom:12px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <h2 style="font-size:18px;color:var(--app-primary);margin:0;">📖 Comprensión Lectora & Medición de PPM</h2>
+            <span class="tipo-badge" style="background:#dbeafe;color:#1e40af;">Fase 6 • Secundaria</span>
+          </div>
+          <p class="hint" style="margin:4px 0 0;">Medición de fluidez, palabras por minuto (PPM) y banco institucional de 32 lecturas oficiales con reactivos formativos.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button type="button" class="btn-outline-custom activo" id="btnSubTabLecMedicion" onclick="conmutarSubTabLectura_('medicion')">⏱️ Medición PPM</button>
+          <button type="button" class="btn-outline-custom" id="btnSubTabLecReactivos" onclick="conmutarSubTabLectura_('reactivos')">📝 Catálogo de Reactivos</button>
+          <button type="button" class="btn-soft-primary" onclick="abrirSimuladorLecturaAlumno_()" title="Abrir la interfaz interactiva de lectura que ven los alumnos">
+            🚀 Abrir Simulador de Lectura Alumno
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de Lectura Oficial -->
+      <div style="display:flex;align-items:center;gap:12px;background:#f8fafc;border:1px solid var(--app-border);border-radius:8px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap;">
+        <label for="selLecturaDocente" style="font-size:12.5px;font-weight:700;color:var(--app-text);margin:0;">Seleccionar Lectura Oficial:</label>
+        <select id="selLecturaDocente" class="nem-select-sintetico" onchange="cambiarLecturaDocenteLocal_(this.value)" style="flex:1;min-width:280px;font-size:12.5px;padding:6px 10px;">
+          <option value="1">1. El Enigma de los Códices Prehispánicos (Historia 1° — 280 palabras)</option>
+          <option value="2">2. El Celular en el Aula: ¿Herramienta o Distractor? (Formación Cívica — 210 palabras)</option>
+          <option value="3">3. Ecosistemas y Preservación de la Cuenca de México (Biología 1° — 310 palabras)</option>
+          <option value="4">4. Mujeres Pioneras de la Ciencia en México (Química 3° — 345 palabras)</option>
+        </select>
+        <span class="tipo-badge" id="badgeLecturaPalabras" style="background:#e2e8f0;color:#334155;">280 palabras</span>
+      </div>
+
+      <!-- SUB-PANEL 1: MEDICIÓN DE FLUIDEZ Y PPM -->
+      <div id="subPanelLecturaMedicion">
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;">
+          <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:16px;line-height:1.75;font-size:14px;color:#1e293b;" id="cajaTextoLecturaPPM">
+            <h3 style="font-size:16px;color:var(--app-primary);margin:0 0 10px;" id="titLecturaPPM">El Enigma de los Códices Prehispánicos</h3>
+            <p id="parrafoLecturaPPM">Los antiguos pueblos mesoamericanos desarrollaron avanzados sistemas de registro en tiras de papel amate y piel de venado plegadas como biombos. En estos documentos, conocidos como códices, los tlacuilos plasmaban conocimientos astronómicos, linajes dinásticos y calendarios rituales. Cada glifo representaba una síntesis visual de ideas complejas que permitían mantener viva la memoria colectiva a través de los siglos...</p>
+          </div>
+          <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;">
+            <div>
+              <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 10px;">⏱️ Medición de Fluidez</h4>
+              <div style="text-align:center;padding:14px 10px;background:#ffffff;border-radius:8px;border:1px solid var(--app-border);margin-bottom:12px;">
+                <span style="font-size:11px;color:#64748b;font-weight:700;">TIEMPO TRANSCURRIDO</span>
+                <div style="font-size:24px;font-weight:800;color:#0f172a;margin:2px 0 6px;" id="dispCronometroLectura">00:00</div>
+                <span style="font-size:11px;color:#64748b;font-weight:700;">VELOCIDAD ESTIMADA</span>
+                <div style="font-size:28px;font-weight:900;color:var(--app-primary);margin:2px 0 6px;" id="dispPPM">-- PPM</div>
+                <span class="tipo-badge" style="background:#dcfce7;color:#166534;" id="estatusPPM">Estándar SEP: Nivel Óptimo (135 - 144 ppm)</span>
+              </div>
+              <div style="font-size:11px;color:#64748b;line-height:1.4;margin-bottom:12px;">
+                <strong>Estándares SEP Fase 6 (Secundaria):</strong><br>
+                • 1.° Grado: 125 a 134 PPM<br>
+                • 2.° Grado: 135 a 144 PPM<br>
+                • 3.° Grado: 145 a 154 PPM
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <button type="button" class="btn-soft-primary" id="btnIniciarLecPPM" onclick="iniciarCronometroLectura_()" style="width:100%;text-align:center;">⏱️ Iniciar Lectura</button>
+              <button type="button" class="btn-outline-custom" id="btnPausarLecPPM" onclick="pausarCronometroLectura_()" style="width:100%;text-align:center;">⏸️ Pausar</button>
+              <button type="button" class="nem-btn-accion" style="width:100%;text-align:center;" onclick="finalizarLecturaPPM_()">⏹️ Detener y Calcular PPM</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-PANEL 2: CATÁLOGO DE REACTIVOS FORMATIVOS -->
+      <div id="subPanelLecturaReactivos" class="oculto">
+        <div style="display:flex;flex-direction:column;gap:12px;" id="cajaReactivosLectura">
+          <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;border-left:4px solid #2563eb;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="tipo-badge" style="background:#eff6ff;color:#1d4ed8;">Nivel 1: Literal</span>
+              <span style="font-size:11px;color:#64748b;">Reactivo 1</span>
+            </div>
+            <p style="font-size:13px;font-weight:700;margin:0 0 8px;" id="txtPreguntaLec1">¿En qué materiales elaboraban sus códices los antiguos pueblos mesoamericanos?</p>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#334155;">
+              <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="r1" checked> En tiras de papel amate y piel de venado plegadas como biombos (Correcta)</label>
+              <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="r1"> En pergaminos de seda importados de oriente</label>
+              <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="r1"> En tablillas de arcilla grabadas con cuneiforme</label>
+            </div>
+          </div>
+          <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;border-left:4px solid #10b981;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="tipo-badge" style="background:#d1fae5;color:#065f46;">Nivel 2: Inferencial</span>
+              <span style="font-size:11px;color:#64748b;">Reactivo 2</span>
+            </div>
+            <p style="font-size:13px;font-weight:700;margin:0 0 8px;" id="txtPreguntaLec2">¿Por qué los tlacuilos ocupaban un papel central en la conservación de la memoria comunitaria?</p>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#334155;">
+              <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="r2" checked> Porque sintetizaban visualmente conocimientos astronómicos y linajes (Correcta)</label>
+              <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="r2"> Porque eran los únicos comerciantes autorizados en los tianguis</label>
+            </div>
+          </div>
+          <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;border-left:4px solid #f59e0b;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+              <span class="tipo-badge" style="background:#fef3c7;color:#92400e;">Nivel 3: Crítico / Reflexivo</span>
+              <span style="font-size:11px;color:#64748b;">Reactivo 3</span>
+            </div>
+            <p style="font-size:13px;font-weight:700;margin:0 0 8px;" id="txtPreguntaLec3">¿Qué valor tiene para nuestra identidad actual rescatar el testimonio gráfico de los códices?</p>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:#334155;">
+              <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="r3" checked> Reivindicar la raíz pluricultural y científica de los pueblos originarios (Correcta)</label>
+              <label style="display:flex;align-items:center;gap:6px;"><input type="radio" name="r3"> Ninguno, son documentos que ya no aplican en la vida moderna</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA MODULAR 4: ASISTENCIA Y PREFECTURA -->
+  <div id="moduloViewAsistencia" class="modulo-shell-contenedor oculto" style="padding:16px 20px 48px;width:100%;box-sizing:border-box;">
+    <div class="lego-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;border-bottom:1px solid var(--app-border);padding-bottom:12px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <h2 style="font-size:18px;color:var(--app-primary);margin:0;">📋 Asistencia Rápida y Prefectura</h2>
+            <span class="tipo-badge" style="background:#dcfce7;color:#166534;">Toma de Lista Diaria</span>
+          </div>
+          <p class="hint" style="margin:4px 0 0;">Pase de lista con estados instantáneos (Presente, Falta, Retardo, Justificante) y sincronización con Asistencia.gs.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn-outline-custom" onclick="marcarTodosAsistencia_('P')">✓ Todos Presentes</button>
+          <button type="button" class="btn-soft-primary" onclick="guardarAsistenciaRapida_()">💾 Guardar Pase de Lista</button>
+        </div>
+      </div>
+
+      <!-- Filtros de Grupo y Fecha -->
+      <div style="display:flex;gap:12px;align-items:center;background:#f8fafc;border:1px solid var(--app-border);border-radius:8px;padding:10px 14px;margin-bottom:14px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label for="selAsiGrado" style="font-size:12px;font-weight:700;color:#475569;">Grado:</label>
+          <select id="selAsiGrado" class="nem-select-sintetico" onchange="cargarAlumnosAsistenciaRapida_()" style="font-size:12px;padding:5px 8px;">
+            <option value="1" selected>1.° Secundaria</option>
+            <option value="2">2.° Secundaria</option>
+            <option value="3">3.° Secundaria</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label for="selAsiGrupo" style="font-size:12px;font-weight:700;color:#475569;">Grupo:</label>
+          <select id="selAsiGrupo" class="nem-select-sintetico" onchange="cargarAlumnosAsistenciaRapida_()" style="font-size:12px;padding:5px 8px;">
+            <option value="A" selected>Grupo A</option>
+            <option value="B">Grupo B</option>
+            <option value="C">Grupo C</option>
+            <option value="D">Grupo D</option>
+            <option value="E">Grupo E</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <label for="inputAsiFecha" style="font-size:12px;font-weight:700;color:#475569;">Fecha:</label>
+          <input type="date" id="inputAsiFecha" class="nem-select-sintetico" style="font-size:12px;padding:5px 8px;">
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
+          <span style="font-size:11.5px;color:#64748b;font-weight:700;">Resumen:</span>
+          <span class="tipo-badge" style="background:#e0f2fe;color:#0369a1;">Total: <strong id="kpiAsiTotal">15</strong></span>
+          <span class="tipo-badge" style="background:#dcfce7;color:#166534;">P: <strong id="kpiAsiP">15</strong></span>
+          <span class="tipo-badge" style="background:#fee2e2;color:#991b1b;">F: <strong id="kpiAsiF">0</strong></span>
+          <span class="tipo-badge" style="background:#fef3c7;color:#92400e;">R: <strong id="kpiAsiR">0</strong></span>
+          <span class="tipo-badge" style="background:#ede9fe;color:#5b21b6;">J: <strong id="kpiAsiJ">0</strong></span>
+        </div>
+      </div>
+
+      <!-- Tabla Dinámica de Asistencia -->
+      <div id="contenedorListaRapidaAsistencia" style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+          <thead>
+            <tr style="background:#f1f5f9;color:#475569;text-align:left;">
+              <th style="padding:8px 10px;width:50px;">N.L.</th>
+              <th style="padding:8px 10px;width:120px;">Matrícula</th>
+              <th style="padding:8px 10px;">Nombre Completo del Alumno</th>
+              <th style="padding:8px 10px;width:180px;text-align:center;">Estado (P / F / R / J)</th>
+              <th style="padding:8px 10px;">Observación / Incidencia</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyAsistenciaRapida">
+            <!-- Filas dinámicas pobladas por cargarAlumnosAsistenciaRapida_() -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA MODULAR 5: TRABAJO SOCIAL (CONECTOR TIPO LEGO) -->
+  <div id="moduloViewTrabajoSocial" class="modulo-shell-contenedor oculto" style="padding:16px 20px 48px;width:100%;box-sizing:border-box;">
+    <div class="lego-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--app-border);padding-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h2 style="font-size:18px;color:var(--app-primary);margin:0;">🤝 Trabajo Social Escolar</h2>
+          <span class="tipo-badge" style="background:#e0f2fe;color:#0369a1;">🧩 Conector LEGO Listo</span>
+        </div>
+        <span class="tipo-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;">Módulo en construcción (Conector LEGO listo)</span>
+      </div>
+      <p style="font-size:13px;color:#475569;">Módulo conectado con el padrón UDEI de Inclusión Educativa, canalizaciones biopsicosociales y seguimiento de vulnerabilidad comunitaria.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:14px;margin-top:16px;">
+        <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">📂 Fichas Biopsicosociales</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Expediente integral del alumno, entorno familiar y apoyos requeridos según el DUA.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="toast('Módulo en construcción: Conector LEGO preparado para expedientes UDEI.', 'info')">Acceder a Expedientes</button>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">⚠️ Canalizaciones e Incidencias</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Vinculación interinstitucional con DIF, UDEI y centros comunitarios de salud.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="toast('Módulo en construcción: Conector LEGO preparado para canalizaciones.', 'info')">Registrar Canalización</button>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">🏠 Bitácora de Visitas Domiciliarias</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Seguimiento preventivo del ausentismo crónico y apoyo a familias en riesgo.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="toast('Módulo en construcción: Conector LEGO preparado para visitas.', 'info')">Ver Bitácora</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA MODULAR 6: BIBLIOTECA ESCOLAR (CONECTOR TIPO LEGO) -->
+  <div id="moduloViewBiblioteca" class="modulo-shell-contenedor oculto" style="padding:16px 20px 48px;width:100%;box-sizing:border-box;">
+    <div class="lego-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--app-border);padding-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h2 style="font-size:18px;color:var(--app-primary);margin:0;">📚 Biblioteca Escolar y Sala de Lectura</h2>
+          <span class="tipo-badge" style="background:#f3e8ff;color:#7e22ce;">🧩 Conector LEGO Listo</span>
+        </div>
+        <span class="tipo-badge" style="background:#fef3c7;color:#92400e;border:1px solid #fde68a;">Módulo en construcción (Conector LEGO listo)</span>
+      </div>
+      <p style="font-size:13px;color:#475569;">Control de préstamos bibliográficos, credencialización de alumnos y articulación con los Libros de Texto Gratuitos SEP Fase 6.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:14px;margin-top:16px;">
+        <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">📖 Acervo Bibliográfico ST90</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Catálogo de títulos de literatura juvenil, divulgación científica y consulta técnica.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="toast('Módulo en construcción: Conector LEGO preparado para acervo.', 'info')">Buscar en Acervo</button>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">🔄 Préstamos Activos</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Registro de devoluciones y control de ejemplares en préstamo a domicilio.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="toast('Módulo en construcción: Conector LEGO preparado para préstamos.', 'info')">Ver Préstamos</button>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--app-border);border-radius:10px;padding:14px;">
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">📘 Libros de Texto SEP Fase 6</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Consulta digital de proyectos de aula, comunitarios y escolares oficiales.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="conmutarModuloShell('planeacion')">Explorar en Planeación NEM</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA MODULAR 7: ADMINISTRACIÓN & MATRÍCULA -->
+  <div id="moduloViewAdmin" class="modulo-shell-contenedor oculto" style="padding:16px 20px 48px;width:100%;box-sizing:border-box;">
+    <div class="lego-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;border-bottom:1px solid var(--app-border);padding-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h2 style="font-size:18px;color:var(--app-primary);margin:0;">⚙️ Consola de Administración & Matrícula Escolar</h2>
+          <span class="tipo-badge" style="background:#fee2e2;color:#991b1b;">Gestión Oficial</span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn-outline-custom" onclick="conmutarIframeAdmin_()" id="btnToggleIframeAdmin">👁️ Vista Previa Integrada</button>
+          <button type="button" id="btnAccesoDirectoAdmin" onclick="abrirModuloAdminDirecto_()" class="nem-btn-accion nem-btn-primario" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;">
+            🚀 Abrir Panel Administrativo (Admin.html)
+          </button>
+        </div>
+      </div>
+      <p style="font-size:13px;color:#475569;">Configuración general, importación de matrícula escolar, asignación de docentes, claves de acceso masivas y malla curricular.</p>
+      
+      <!-- 4 Hub Cards de Administración Rápida -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:14px;margin-top:16px;">
+        <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+          <div style="font-size:24px;margin-bottom:6px;">👥</div>
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">Padrón y Matrícula Oficial</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Gestión de 840+ alumnos registrados en 15 grupos (1.° a 3.°).</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="gestionarAlumnosAdmin_()">Gestionar Alumnos</button>
+        </div>
+        <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+          <div style="font-size:24px;margin-bottom:6px;">🔑</div>
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">Generación Masiva de Claves</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Creación y reimpresión de credenciales para docentes y estudiantes.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="gestionarCredencialesAdmin_()">Generar Credenciales</button>
+        </div>
+        <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+          <div style="font-size:24px;margin-bottom:6px;">📅</div>
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">Malla Horaria aSc Timetables</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Supervisión de los 600 bloques de horario y asignaciones de aula.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="verMallaHorariaPlaneacion_()">Ver en Planeación</button>
+        </div>
+        <div style="background:#ffffff;border:1px solid var(--app-border);border-radius:10px;padding:14px;box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+          <div style="font-size:24px;margin-bottom:6px;">📊</div>
+          <h4 style="font-size:13px;font-weight:800;color:var(--app-text);margin:0 0 6px;">Reportes de Desempeño</h4>
+          <p style="font-size:11.5px;color:#64748b;margin:0 0 10px;">Analítica de PPM, asistencia y resultados para reuniones de Consejo Técnico Escolar.</p>
+          <button type="button" class="btn-outline-custom" style="font-size:11.5px;" onclick="verReportesDesempeno_()">Ver Reportes CTE</button>
+        </div>
+      </div>
+
+      <!-- Contenedor de Vista Previa Embebida -->
+      <div id="cajaIframeAdminWrap" class="oculto" style="margin-top:18px;border:1px solid var(--app-border);border-radius:10px;overflow:hidden;background:#ffffff;">
+        <div style="background:#f1f5f9;padding:8px 12px;border-bottom:1px solid var(--app-border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:12px;font-weight:700;color:#334155;">Vista Previa Embebida: Consola de Administración</span>
+          <button type="button" class="btn-outline-custom" style="padding:2px 8px;font-size:11px;" onclick="conmutarIframeAdmin_()">Cerrar Vista Previa</button>
+        </div>
+        <iframe id="iframeAdminEmbed" src="about:blank" style="width:100%;height:580px;border:none;"></iframe>
+      </div>
+    </div>
+  </div>
+  </main>
+  </div>
+</div>
+
+  <script>
+    const URL_BASE_APP = <?= JSON.stringify(urlBase || '') ?>;
+    const MODO_CLASE = <?= JSON.stringify(typeof modoClase !== 'undefined' ? modoClase : 'alumno') ?>;
+    const VERSION_CLASE = <?= JSON.stringify(typeof version !== 'undefined' ? version : 'v303') ?>;
+  </script>
+  <?!= include('ComunJS') ?>
+  <?!= include('HorarioVistaJS') ?>
+  <?!= include('ClaseJS_01') ?>
+  <?!= include('ClaseJS_02') ?>
+  <?!= include('ClaseJS_03') ?>
+  <?!= include('ClaseJS_04') ?>
+  <?!= include('ClaseJS_05') ?>
+  <?!= include('ClaseJS_06') ?>
+  <?!= include('ClaseJS_07') ?>
+  <?!= include('ClaseJS_08') ?>
+  <?!= include('ClaseJS_09') ?>
+  <?!= include('ClaseJS_Arranque') ?>
+  <?!= include('AyudaJS') ?>
+
+</body>
+</html>

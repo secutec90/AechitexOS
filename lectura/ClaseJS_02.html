@@ -1,0 +1,592 @@
+<script>
+/* ClaseJS_02 — diaCalAlu_, pintarListaDiaAlu_, listaSrSemanaAlu_, aplicarFocoAlu_, pintarCalendarioAlu_, elegirClaseAlu, tabMae, tabN1ClaseActual, subN2ClaseActual, fechaClaseEtiquetaManual, ... */
+
+
+    function diaCalAlu_(r, fecha) {
+      const dias = (r && r.calendario) || [];
+      for (let i = 0; i < dias.length; i++) {
+        if (dias[i].fecha === fecha) return dias[i];
+      }
+      return null;
+    }
+
+    function pintarListaDiaAlu_(r) {
+      const caja = document.getElementById('horarioAluLista');
+      if (!caja) return;
+      const fe = fechaAluCal || fechaLocalClase();
+      const dia = diaCalAlu_(r, fe);
+      const filas = ((dia && dia.horario) || []).slice().sort(function (a, b) {
+        return minutosHmAlu_(a.horaInicio) - minutosHmAlu_(b.horaInicio);
+      });
+      if (!filas.length) {
+        caja.innerHTML = '<p class="hint">No hay clases este día.</p>';
+        return;
+      }
+      const selClave = selAluSlot ? claveSlotAlu_(selAluSlot) : '';
+      let html = '<ol class="alu-horario-lista">';
+      filas.forEach(function (h) {
+        const clave = claveSlotAlu_(h);
+        const etqs = etiquetasEstadoAlu_(h, r);
+        const cls = (h.enCurso ? ' ahora' : '') + (clave === selClave ? ' sel' : '') +
+          (slotReproAlu_(h) ? ' repro' : '') + (claseTerminadaAlu_(h, r) ? ' terminada' : '');
+        const sel = clave === selClave;
+        const fe = String(h.fecha || '').slice(0, 10);
+        const idH = String(h.idHorario == null ? '' : h.idHorario);
+        html += '<li><button type="button" class="alu-clase' + cls + '" data-alu-pick="1" data-alu-clave="' +
+          escaparHtml(clave) + '" data-alu-fecha="' + escaparHtml(fe) + '" data-alu-id="' + escaparHtml(idH) + '"' +
+          ' aria-pressed="' + (sel ? 'true' : 'false') + '"' +
+          (sel ? ' aria-current="true"' : '') +
+          ' aria-label="' + escaparHtml(fraseSlotAlu_(h, r) + (sel ? ' Seleccionada.' : ' Botón seleccionar.')) + '">';
+        html += '<span class="alu-fila1">';
+        html += '<span class="alu-hora">' + escaparHtml(h.horaInicio || '') + '</span>';
+        html += '<span class="alu-datos">';
+        html += '<span class="alu-asig-mini">' + escaparHtml(h.asignatura || 'Clase') + '</span>';
+        html += '<span class="alu-meta">' + escaparHtml((h.maestro ? (h.maestro + ' · ') : '') +
+          (h.horaInicio || '') + '–' + (h.horaFin || '')) + '</span>';
+        html += '</span>';
+        html += '<span class="alu-accion">' + (sel ? 'Seleccionada' : 'Seleccionar') + '</span>';
+        html += '</span>';
+        if (etqs.length) html += '<span class="alu-etq">' + escaparHtml(etqs.join(' · ')) + '</span>';
+        html += '</button></li>';
+      });
+      html += '</ol>';
+      caja.innerHTML = html;
+      enlazarClicksAlu_(caja);
+    }
+
+    function listaSrSemanaAlu_(r) {
+      const dias = (r && r.calendario) || [];
+      if (!dias.length) return '<p>No hay horario publicado para tu grupo en esta semana.</p>';
+      let html = '<h3>Horario de la semana en lista</h3>';
+      dias.forEach(function (d) {
+        html += '<h4>' + escaparHtml(fechaLargaEsMx_(d.fecha, true)) + (d.hoy ? '. Hoy.' : '.') + '</h4>';
+        const filas = (d.horario || []).slice().sort(function (a, b) {
+          return minutosHmAlu_(a.horaInicio) - minutosHmAlu_(b.horaInicio);
+        });
+        if (!filas.length) {
+          html += '<p>No hay clases.</p>';
+          return;
+        }
+        html += '<ol>';
+        filas.forEach(function (h) {
+          html += '<li>' + escaparHtml(fraseSlotAlu_(h, r)) + '</li>';
+        });
+        html += '</ol>';
+      });
+      return html;
+    }
+
+    function aplicarFocoAlu_() {
+      const dest = pendingFocoAlu_;
+      pendingFocoAlu_ = '';
+      if (!dest) return;
+      let el = null;
+      if (dest === 'fecha') el = document.getElementById('titFechaAlu');
+      else if (dest.indexOf('slot:') === 0) {
+        const clave = dest.slice(5);
+        const nodos = document.querySelectorAll('button[data-alu-clave]');
+        for (let i = 0; i < nodos.length; i++) {
+          if (nodos[i].getAttribute('data-alu-clave') === clave) { el = nodos[i]; break; }
+        }
+      }
+      if (el && typeof el.focus === 'function') el.focus();
+    }
+
+    function pintarCalendarioAlu_(r) {
+      const caja = document.getElementById('calAlu');
+      if (!caja) return;
+      const dias = (r && r.calendario) || [];
+      const bloques = (r && r.bloques) || [];
+      const mapa = {};
+      dias.forEach(function (d) {
+        (d.horario || []).forEach(function (h) {
+          mapa[claveCeldaCal_(d.fecha, h.idHorario)] = h;
+          mapa[d.fecha + '#' + String(h.horaInicio || '') + '|' + String(h.horaFin || '')] = h;
+        });
+      });
+      caja._mapa = mapa;
+      if (!dias.length || !bloques.length) {
+        caja.innerHTML = '<p class="hint">No hay horario publicado para tu grupo en esta semana.</p>';
+        return;
+      }
+      const selClave = selAluSlot ? claveCeldaCal_(selAluSlot.fecha, selAluSlot.idHorario) : '';
+      let html = '<table class="cal-tabla"><thead><tr><th></th>';
+      dias.forEach(function (d) {
+        html += '<th class="' + (d.hoy ? 'hoy-col' : '') + '">' + escaparHtml(d.etqCorta) + ' ' +
+          escaparHtml(d.etqNum) + (d.hoy ? ' · Hoy' : '') + '</th>';
+      });
+      html += '</tr></thead><tbody>';
+      bloques.forEach(function (b) {
+        html += '<tr><td class="hora">' + escaparHtml(b.horaInicio) + '</td>';
+        dias.forEach(function (d) {
+          const h = mapa[d.fecha + '#' + b.clave];
+          if (!h) {
+            html += '<td><div class="cal-vacia"></div></td>';
+            return;
+          }
+          const hay = hayTextoAlu_(h);
+          const clave = claveCeldaCal_(d.fecha, h.idHorario);
+          const claveSlot = claveSlotAlu_(h);
+          const etqs = etiquetasEstadoAlu_(h, r);
+          const cls = (h.enCurso ? ' en-curso' : '') + (hay ? ' publicado' : '') +
+            (clave === selClave ? ' sel' : '') + (slotReproAlu_(h) ? ' repro' : '');
+          const extra = etqs.join(' · ');
+          const aria = fraseSlotAlu_(h, r);
+          const feCel = String(d.fecha || h.fecha || '').slice(0, 10);
+          const idCel = String(h.idHorario == null ? '' : h.idHorario);
+          html += '<td><button type="button" class="cal-celda' + cls + '" data-alu-pick="1" data-alu-clave="' +
+            escaparHtml(claveSlot) + '" data-alu-fecha="' + escaparHtml(feCel) + '" data-alu-id="' +
+            escaparHtml(idCel) + '" aria-label="' + escaparHtml(aria) + '">' +
+            '<strong>' + escaparHtml(h.asignatura || 'Clase') + '</strong>' +
+            '<span>' + escaparHtml((h.maestro || '') + (h.maestro && h.bloque ? ' · ' : '') +
+              ordinalHoraAlu_(h.bloque)) + '</span>' +
+            (extra ? ('<span>' + escaparHtml(extra) + '</span>') : '') + '</button></td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      caja.innerHTML = html;
+      enlazarClicksAlu_(caja);
+    }
+
+    function elegirClaseAlu(fecha, idHorario) {
+      const h = buscarSlotCalAlu_(ctxAlu, fecha, idHorario);
+      if (!h) {
+        toast('No se encontró esa clase en el horario.', 'error');
+        return;
+      }
+      selAluSlot = h;
+      pendingFocoAlu_ = 'slot:' + claveSlotAlu_(h);
+      if (ctxAlu) {
+        pintarAlu(ctxAlu);
+        pintarHorarioAlu_(ctxAlu);
+      }
+      anunciar((h.asignatura || 'Clase') + '. ' + ordinalHoraAlu_(h.bloque) +
+        (claseTerminadaAlu_(h, ctxAlu) ? '. Clase terminada.' : '.') + ' ' +
+        (hayTextoAlu_(h) ? 'Pulsa Escuchar clase.' : 'Contenido no disponible.'));
+    }
+
+    function tabMae(id, btn) {
+      tabN1Clase(id, btn);
+    }
+
+    var tabN1ClaseActual = '';
+    var subN2ClaseActual = '';
+    var fechaClaseEtiquetaManual = false;
+
+    function hayCuerpoClase_() {
+      return ['tabClases', 'tabAluAcc', 'tabAccesos'].some(function (id) {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('oculto');
+      });
+    }
+
+    function ocultarSubribbonClase_() {
+      const cinta = document.getElementById('cintaClase');
+      if (cinta) cinta.classList.add('oculto');
+      if (typeof ribbonSetNivel2 === 'function') ribbonSetNivel2(false);
+    }
+
+    function mostrarN2Clase_(idN1) {
+      const cinta = document.getElementById('cintaClase');
+      if (cinta) cinta.classList.add('oculto');
+      if (typeof ribbonSetNivel2 === 'function') ribbonSetNivel2(false);
+    }
+
+    function iniciarCintaClase_() {
+      tabN1ClaseActual = '';
+      subN2ClaseActual = '';
+      fechaClaseEtiquetaManual = false;
+      document.querySelectorAll('#tabsMae button').forEach(function (b) {
+        b.classList.remove('activa', 'activo');
+      });
+      const cinta = document.getElementById('cintaClase');
+      if (cinta) cinta.classList.add('oculto');
+      ['tabClases', 'tabAluAcc', 'tabAccesos'].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('oculto');
+      });
+      if (typeof ribbonSetNivel2 === 'function') ribbonSetNivel2(false);
+    }
+
+    function tabN1Clase(id, btn) {
+      if (id === tabN1ClaseActual) {
+        if (typeof ribbonN2Abierto !== 'undefined' && !ribbonN2Abierto) {
+          if (typeof ribbonSetNivel2 === 'function') ribbonSetNivel2(true);
+          const cinta = document.getElementById('cintaClase');
+          if (cinta && cinta.children.length) cinta.classList.remove('oculto');
+          return;
+        }
+        ocultarSubribbonClase_();
+        return;
+      }
+      tabN1ClaseActual = id;
+      subN2ClaseActual = '';
+      document.querySelectorAll('#tabsMae button').forEach(function (b) {
+        b.classList.remove('activa', 'activo');
+      });
+      if (btn) btn.classList.add('activa');
+      const cinta = document.getElementById('cintaClase');
+      if (cinta) cinta.classList.add('oculto');
+      if (typeof ribbonSetNivel2 === 'function') ribbonSetNivel2(false);
+
+      const tC = document.getElementById('tabClases');
+      const tP = document.getElementById('tabPlaneacion');
+      const tA = document.getElementById('tabAluAcc');
+      const tM = document.getElementById('tabAccesos');
+
+      if (id === 'clases') {
+        if (tP) tP.classList.add('oculto');
+        if (tA) tA.classList.add('oculto');
+        if (tM) tM.classList.add('oculto');
+        if (tC) tC.classList.remove('oculto');
+        const n3c = document.getElementById('n3Clases');
+        if (n3c) n3c.classList.remove('oculto');
+        const fe = document.getElementById('fechaMaeClase');
+        if (fe && !fe.value) fe.value = fechaLocalClase();
+        toggleHorarioMae(true);
+        cargarHorarioMae();
+        return;
+      }
+
+      if (id === 'planeacion') {
+        if (tC) tC.classList.add('oculto');
+        if (tA) tA.classList.add('oculto');
+        if (tM) tM.classList.add('oculto');
+        if (tP) tP.classList.remove('oculto');
+        const n3p = document.getElementById('n3Planeacion');
+        if (n3p) n3p.classList.remove('oculto');
+        cargarContextoPlaneacionNEM();
+        cargarHorarioMae();
+        return;
+      }
+
+      if (id === 'aluAcc') {
+        if (tC) tC.classList.add('oculto');
+        if (tP) tP.classList.add('oculto');
+        if (tM) tM.classList.add('oculto');
+        if (tA) tA.classList.remove('oculto');
+        const n3a = document.getElementById('n3AluAcc');
+        if (n3a) n3a.classList.remove('oculto');
+        cargarAlumnosPass();
+        return;
+      }
+
+      if (id === 'accesos') {
+        if (tC) tC.classList.add('oculto');
+        if (tP) tP.classList.add('oculto');
+        if (tA) tA.classList.add('oculto');
+        if (tM) tM.classList.remove('oculto');
+        const n3m = document.getElementById('n3MaeAcc');
+        if (n3m) n3m.classList.remove('oculto');
+        cargarMaestrosAcc();
+        return;
+      }
+    }
+
+    function tabN2Clase(id, btn) {
+      if (subN2ClaseActual === id) {
+        subN2ClaseActual = '';
+        if (btn) btn.classList.remove('activo', 'activa');
+        ['n3Clases', 'n3AluAcc', 'n3MaeAcc'].forEach(function (xid) {
+          const el = document.getElementById(xid);
+          if (el) el.classList.add('oculto');
+        });
+        return;
+      }
+      subN2ClaseActual = id;
+      ['btnN2Horario', 'btnN2AluLista', 'btnN2MaeLista'].forEach(function (xid) {
+        const b = document.getElementById(xid);
+        if (b) b.classList.remove('activo', 'activa');
+      });
+      if (btn) btn.classList.add('activo');
+      const n3c = document.getElementById('n3Clases');
+      const n3a = document.getElementById('n3AluAcc');
+      const n3m = document.getElementById('n3MaeAcc');
+      const tC = document.getElementById('tabClases');
+      const tA = document.getElementById('tabAluAcc');
+      const tM = document.getElementById('tabAccesos');
+      if (n3c) n3c.classList.toggle('oculto', id !== 'horario');
+      if (n3a) n3a.classList.toggle('oculto', id !== 'aluLista');
+      if (n3m) n3m.classList.toggle('oculto', id !== 'maeLista');
+      if (tC) tC.classList.toggle('oculto', id !== 'horario');
+      if (tA) tA.classList.toggle('oculto', id !== 'aluLista');
+      if (tM) tM.classList.toggle('oculto', id !== 'maeLista');
+      if (id === 'horario') {
+        const fe = document.getElementById('fechaMaeClase');
+        if (fe && !fe.value) fe.value = fechaLocalClase();
+        toggleHorarioMae(true);
+        cargarHorarioMae();
+      } else if (id === 'aluLista') {
+        cargarAlumnosPass();
+      } else       if (id === 'maeLista' && rolClase === 'admin') {
+        cargarMaestrosAcc();
+      }
+      if (typeof ribbonColapsarTrasN2 === 'function') ribbonColapsarTrasN2();
+    }
+
+    function textoOpcionClase_(id) {
+      const sel = document.getElementById(id);
+      if (!sel || sel.selectedIndex < 0) return '';
+      return ((sel.options[sel.selectedIndex] || {}).text || '').trim();
+    }
+
+    function recortarEtq_(t, n) {
+      const s = String(t || '').trim();
+      if (!s) return '';
+      return s.length > n ? (s.slice(0, n) + '…') : s;
+    }
+
+    function pintarEtqFiltroClase_() {
+      function setBtn(idBtn, activo, etq) {
+        const b = document.getElementById(idBtn);
+        if (!b) return;
+        b.classList.toggle('activo', !!activo);
+        const lab = b.querySelector('.ribbon-label');
+        if (lab && etq) lab.textContent = etq;
+      }
+      const fe = valorSel_('fechaMaeClase');
+      setBtn('btnClaseFecha', fechaClaseEtiquetaManual, fechaClaseEtiquetaManual ? fmtFechaCortaClase_(fe) : 'Fecha');
+      const g = valorSel_('selGrupoClase');
+      setBtn('btnClaseGrupo', !!g, g ? recortarEtq_(textoOpcionClase_('selGrupoClase'), 8) : 'Grupo');
+      const a = valorSel_('selAluClase');
+      setBtn('btnClaseAlumno', !!a, a ? recortarEtq_(textoOpcionClase_('selAluClase'), 10) : 'Alumno');
+      const as = valorSel_('selAsigClase');
+      setBtn('btnClaseAsig', !!as, as ? recortarEtq_(textoOpcionClase_('selAsigClase'), 10) : 'Asignatura');
+    }
+
+    function pintarEtqFiltroPass_() {
+      function setBtn(idBtn, activo, etq) {
+        const b = document.getElementById(idBtn);
+        if (!b) return;
+        b.classList.toggle('activo', !!activo);
+        const lab = b.querySelector('.ribbon-label');
+        if (lab && etq) lab.textContent = etq;
+      }
+      const g = valorSel_('filtroGradoPass');
+      setBtn('btnPassGrado', !!g, g ? textoOpcionClase_('filtroGradoPass') : 'Grado');
+      const gp = valorSel_('filtroGrupoPass');
+      setBtn('btnPassGrupo', !!gp, gp ? recortarEtq_(textoOpcionClase_('filtroGrupoPass'), 8) : 'Grupo');
+      const bus = ((document.getElementById('buscAluPass') || {}).value || '').trim();
+      setBtn('btnPassBuscar', !!bus, bus ? recortarEtq_(bus, 10) : 'Buscar');
+      const busM = ((document.getElementById('buscMaeClase') || {}).value || '').trim();
+      setBtn('btnMaeBuscar', !!busM, busM ? recortarEtq_(busM, 10) : 'Buscar');
+    }
+
+    function fmtFechaCortaClase_(iso) {
+      const p = String(iso || '').split('-');
+      if (p.length !== 3) return 'Fecha';
+      return p[2] + '/' + p[1];
+    }
+
+    function abrirModalFiltroClase(cual) {
+      if (cual === 'fecha') {
+        const actual = valorSel_('fechaMaeClase') || fechaLocalClase();
+        modal({
+          titulo: 'Fecha',
+          html: '<div class="form-modal-usu"><div class="campo" style="margin:0;"><label for="modalClaseFecha">Día</label>' +
+            '<input type="date" id="modalClaseFecha" value="' + escaparHtml(actual) + '"></div></div>',
+          botones: [
+            { texto: 'Cancelar', valor: null, clase: 'btn-secundario' },
+            { texto: 'Aplicar', valor: 'ok' }
+          ],
+          capturar: function (fondo, val) {
+            if (val === null) return null;
+            return ((fondo.querySelector('#modalClaseFecha') || {}).value || '');
+          }
+        }).then(function (v) {
+          if (v === null || typeof v === 'undefined') return;
+          const inp = document.getElementById('fechaMaeClase');
+          if (inp) inp.value = v;
+          fechaClaseEtiquetaManual = true;
+          cargarHorarioMae();
+        });
+        return;
+      }
+      const mapa = {
+        grupo: { id: 'selGrupoClase', titulo: 'Grupo', after: cambiarGrupoClase },
+        alumno: { id: 'selAluClase', titulo: 'Alumno', after: cambiarAlumnoClase },
+        asig: { id: 'selAsigClase', titulo: 'Asignatura', after: function () { cargarHorarioMae(); } }
+      };
+      const cfg = mapa[cual];
+      if (!cfg) return;
+      const sel = document.getElementById(cfg.id);
+      if (!sel) return;
+      let opts = '';
+      Array.from(sel.options).forEach(function (o) {
+        opts += '<option value="' + escaparHtml(o.value) + '"' + (o.value === sel.value ? ' selected' : '') + '>' + escaparHtml(o.text) + '</option>';
+      });
+      modal({
+        titulo: cfg.titulo,
+        html: '<div class="form-modal-usu"><div class="campo" style="margin:0;"><label for="modalFiltroClaseSel">' + escaparHtml(cfg.titulo) + '</label>' +
+          '<select id="modalFiltroClaseSel">' + opts + '</select></div></div>',
+        botones: [
+          { texto: 'Cancelar', valor: null, clase: 'btn-secundario' },
+          { texto: 'Aplicar', valor: 'ok' }
+        ],
+        capturar: function (fondo, val) {
+          if (val === null) return null;
+          return ((fondo.querySelector('#modalFiltroClaseSel') || {}).value);
+        }
+      }).then(function (valor) {
+        if (valor === null || typeof valor === 'undefined') return;
+        sel.value = valor;
+        if (typeof cfg.after === 'function') cfg.after();
+        pintarEtqFiltroClase_();
+      });
+    }
+
+    function toggleDdPassBuscar(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const p = document.getElementById('panelPassBuscar');
+      if (!p) return;
+      const oc = p.classList.contains('oculto');
+      document.querySelectorAll('.asi-dd-panel').forEach(function (el) { el.classList.add('oculto'); });
+      if (oc) {
+        p.classList.remove('oculto');
+        const inp = document.getElementById('buscAluPass');
+        if (inp) setTimeout(function () { inp.focus(); inp.select(); }, 50);
+      }
+    }
+
+    function limpiarPassBuscar() {
+      const inp = document.getElementById('buscAluPass');
+      if (inp) inp.value = '';
+      filtrarTablaPassLocal();
+      actualizarEtqPassBuscar();
+      const p = document.getElementById('panelPassBuscar');
+      if (p) p.classList.add('oculto');
+    }
+
+    function actualizarEtqPassBuscar() {
+      const inp = document.getElementById('buscAluPass');
+      const v = (inp ? inp.value : '').trim();
+      const etq = document.getElementById('etqPassBuscar');
+      const btn = document.getElementById('btnPassBuscar');
+      if (etq) etq.textContent = v ? (v.length > 8 ? v.slice(0, 8) + '…' : v) : 'Buscar';
+      if (btn) btn.classList.toggle('activo', !!v);
+    }
+
+    function toggleDdMaeBuscar(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const p = document.getElementById('panelMaeBuscar');
+      if (!p) return;
+      const oc = p.classList.contains('oculto');
+      document.querySelectorAll('.asi-dd-panel').forEach(function (el) { el.classList.add('oculto'); });
+      if (oc) {
+        p.classList.remove('oculto');
+        const inp = document.getElementById('buscMaeClase');
+        if (inp) setTimeout(function () { inp.focus(); inp.select(); }, 50);
+      }
+    }
+
+    function limpiarMaeBuscar() {
+      const inp = document.getElementById('buscMaeClase');
+      if (inp) inp.value = '';
+      filtrarTablaMaeClaseLocal();
+      actualizarEtqMaeBuscar();
+      const p = document.getElementById('panelMaeBuscar');
+      if (p) p.classList.add('oculto');
+    }
+
+    function actualizarEtqMaeBuscar() {
+      const inp = document.getElementById('buscMaeClase');
+      const v = (inp ? inp.value : '').trim();
+      const etq = document.getElementById('etqMaeBuscar');
+      const btn = document.getElementById('btnMaeBuscar');
+      if (etq) etq.textContent = v ? (v.length > 8 ? v.slice(0, 8) + '…' : v) : 'Buscar';
+      if (btn) btn.classList.toggle('activo', !!v);
+    }
+
+    function abrirModalFiltroPass(cual) {
+      if (cual === 'buscar') toggleDdPassBuscar();
+      else if (cual === 'buscarMae') toggleDdMaeBuscar();
+      else if (cual === 'grado') {
+        const s = document.getElementById('filtroGradoPass');
+        if (s) { s.focus(); try { s.showPicker(); } catch (e) {} }
+      } else if (cual === 'grupo') {
+        const s = document.getElementById('filtroGrupoPass');
+        if (s) { s.focus(); try { s.showPicker(); } catch (e) {} }
+      }
+    }
+
+    function toggleHorarioMae(forzarMostrar) {
+      const wrap = document.getElementById('wrapCalendarioMae');
+      const lbl = document.getElementById('lblToggleHorario');
+      const ico = document.getElementById('icoToggleHorario');
+      if (!wrap) return;
+      let nuevoColapsado;
+      if (typeof forzarMostrar === 'boolean') {
+        nuevoColapsado = !forzarMostrar;
+      } else {
+        nuevoColapsado = !wrap.classList.contains('oculto');
+      }
+      wrap.classList.toggle('oculto', nuevoColapsado);
+      if (lbl) lbl.textContent = nuevoColapsado ? 'Mostrar horario con asignaturas' : 'Colapsar horario';
+      if (ico) ico.textContent = nuevoColapsado ? '📂' : '📅';
+    }
+
+    function valorSel_(id) {
+      return (document.getElementById(id) || {}).value || '';
+    }
+
+    function llenarOpciones_(sel, items, valor, placeholderHtml) {
+      if (!sel) return;
+      sel.innerHTML = placeholderHtml + items.map(function (it) {
+        return '<option value="' + escaparHtml(it.valor) + '"' +
+          (it.valor === valor ? ' selected' : '') + '>' + escaparHtml(it.etq) + '</option>';
+      }).join('');
+    }
+
+    function nombreAluSel_() {
+      const sel = document.getElementById('selAluClase');
+      if (!sel || !sel.value) return '';
+      return ((sel.options[sel.selectedIndex] || {}).text || '').trim();
+    }
+
+    function formatearRangoDdMmAa_(ini, fin) {
+      const meses3 = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      function aDdMmAa(f) {
+        if (!f) return '';
+        const d = (f instanceof Date) ? f : new Date(String(f).indexOf('T') === -1 ? (String(f) + 'T12:00:00') : String(f));
+        if (isNaN(d.getTime())) return String(f);
+        const dd = ('0' + d.getDate()).slice(-2);
+        const mes = meses3[d.getMonth()] || ('0' + (d.getMonth() + 1)).slice(-2);
+        const aa = String(d.getFullYear()).slice(-2);
+        return dd + '/' + mes + '/' + aa;
+      }
+      const fIni = aDdMmAa(ini);
+      const fFin = aDdMmAa(fin || ini);
+      return fIni + '-->' + fFin;
+    }
+
+    function actualizarHintMae_(r) {
+      const dia = document.getElementById('txtDiaMae');
+      if (!dia) return;
+      dia.textContent = '';
+      dia.classList.add('oculto');
+      dia.style.display = 'none';
+    }
+
+    function pintarAlumnosAcceso_(alumnos, grupoSel) {
+      // Los accesos de alumnos ahora se gestionan en la pestaña exclusiva "Contraseñas Alumnos"
+    }
+
+    function abrirCalendarioFechaClase(e) {
+      const inp = document.getElementById('fechaMaeClase');
+      if (!inp) return;
+      if (typeof inp.showPicker === 'function') {
+        try {
+          inp.showPicker();
+          if (e && typeof e.preventDefault === 'function') { e.preventDefault(); e.stopPropagation(); }
+          return;
+        } catch (err) {}
+      }
+      inp.focus();
+    }
+
+    function alCambiarFechaClase() {
+      fechaClaseEtiquetaManual = true;
+      pintarEtqFiltroClase_();
+      cargarHorarioMae();
+    }</script>

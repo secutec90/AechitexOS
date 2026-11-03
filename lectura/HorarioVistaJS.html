@@ -1,0 +1,454 @@
+<script>
+function sujetoVistaHorario_() {
+  const vista = (typeof valorSel_ === 'function' ? valorSel_('selVistaHorario') : '') || 'grupo';
+  if (vista === 'docente') return (typeof valorSel_ === 'function' ? valorSel_('selDocenteClase') : '');
+  if (vista === 'aula') return (typeof valorSel_ === 'function' ? valorSel_('selAulaClase') : '');
+  return '';
+}
+
+function subtituloCeldaHorario_(h) {
+  const vista = (panelMaeUlt && panelMaeUlt.vista) || 'grupo';
+  h = h || {};
+  if (vista === 'docente') return (h.grupoEtq || '') + (h.salon ? (' · ' + h.salon) : '');
+  if (vista === 'aula') return (h.grupoEtq || '') + (h.maestro ? (' · ' + h.maestro) : '');
+  return (h.maestro || '') + (h.salon ? (' · ' + h.salon) : '');
+}
+
+function htmlCeldaCalendario_(lista, fecha, bloque, horaInicio, horaFin, selClave) {
+  if (!lista || !lista.length) {
+    return '<td><div class="cal-vacia" onclick="abrirCeldaVaciaCal(\'' + escaparHtml(fecha) + '\',\'' + escaparHtml(bloque || '') + '\',\'' + escaparHtml(horaInicio) + '\',\'' + escaparHtml(horaFin) + '\')" title="Espacio sin clase asignada" style="cursor:pointer;min-height:48px;"></div></td>';
+  }
+  let html = '<td>';
+  lista.forEach(function (h) {
+    const hay = h.contenido && String(h.contenido.texto || '').trim();
+    const clave = claveCeldaCal_(fecha, h.idHorario);
+    const cls = (h.enCurso ? ' en-curso' : '') + (hay ? ' con-texto publicado' : '') +
+      (!h.propia ? ' ajena' : '') + (clave === selClave ? ' sel' : '');
+    const extra = !h.propia ? 'Otro maestro' : (hay ? ((h.contenido && h.contenido.titulo) ? h.contenido.titulo : 'Con texto') : '');
+    html += '<button type="button" class="cal-celda' + cls + '" onclick="abrirCeldaCal(\'' +
+      escaparHtml(fecha) + '\',\'' + String(h.idHorario || '').replace(/'/g, '') + '\')">' +
+      '<strong>' + escaparHtml(h.asignatura || 'Clase') + '</strong>' +
+      '<span>' + escaparHtml(subtituloCeldaHorario_(h)) + '</span>' +
+      (extra ? ('<span>' + escaparHtml(extra) + '</span>') : '') + '</button>';
+  });
+  html += '</td>';
+  return html;
+}
+
+function aplicarControlesVistaHorario_(r) {
+  r = r || {};
+  const vista = r.vista || 'grupo';
+  const turno = r.turno || 'matutino';
+  const selT = document.getElementById('selTurnoClase');
+  if (selT) selT.value = turno;
+  const selTP = document.getElementById('selTurnoPlan');
+  if (selTP && document.activeElement !== selTP) selTP.value = turno;
+  const selV = document.getElementById('selVistaHorario');
+  if (selV) selV.value = vista;
+  const selVP = document.getElementById('selVistaPlan');
+  if (selVP && document.activeElement !== selVP) selVP.value = vista;
+  ['btnClaseGrupo', 'btnClaseAlumno'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('oculto', vista !== 'grupo');
+  });
+  const asig = document.getElementById('btnClaseAsig');
+  if (asig) asig.classList.toggle('oculto', vista === 'concentrado');
+  const doc = document.getElementById('btnClaseDocente');
+  if (doc) doc.classList.toggle('oculto', vista !== 'docente');
+  const aula = document.getElementById('btnClaseAula');
+  if (aula) aula.classList.toggle('oculto', vista !== 'aula');
+  if (typeof llenarOpciones_ === 'function') {
+    llenarOpciones_(document.getElementById('selDocenteClase'), (r.docentes || []).map(function (n) {
+      return { valor: n, etq: n };
+    }), r.sujeto || '', '<option value="">Elige docente…</option>');
+    llenarOpciones_(document.getElementById('selAulaClase'), (r.aulas || []).map(function (n) {
+      return { valor: n, etq: n };
+    }), (r.sujeto && r.sujeto !== 'todas') ? r.sujeto : 'todas', '<option value="todas">Todas las aulas</option>');
+  }
+}
+
+function alCambiarTurnoHorario() {
+  const t = valorSel_('selTurnoClase');
+  const p = document.getElementById('selTurnoPlan');
+  if (p && t) p.value = t;
+  cargarHorarioMae();
+}
+
+function alCambiarVistaHorario() {
+  const v = valorSel_('selVistaHorario');
+  const p = document.getElementById('selVistaPlan');
+  if (p && v) p.value = v;
+  cargarHorarioMae();
+}
+
+function alCambiarTurnoPlan() {
+  const t = valorSel_('selTurnoPlan');
+  const s = document.getElementById('selTurnoClase');
+  if (s && t) s.value = t;
+  cargarHorarioMae();
+}
+
+function alCambiarVistaPlan() {
+  const v = valorSel_('selVistaPlan');
+  const s = document.getElementById('selVistaHorario');
+  if (s && v) s.value = v;
+  const tabC = document.getElementById('tabClases');
+  if (tabC && !tabC.classList.contains('oculto')) cargarHorarioMae();
+}
+
+function verHorarioDesdePlan() {
+  const t = valorSel_('selTurnoPlan');
+  const v = valorSel_('selVistaPlan');
+  const st = document.getElementById('selTurnoClase');
+  const sv = document.getElementById('selVistaHorario');
+  if (st && t) st.value = t;
+  if (sv && v) sv.value = v;
+  if (typeof conmutarVistaPlaneacion_ === 'function') {
+    conmutarVistaPlaneacion_('horario', document.getElementById('btnSubPlanHorario'));
+    return;
+  }
+  if (typeof tabN1Clase === 'function') tabN1Clase('clases');
+}
+
+function claveMateriaAsc_(nombre) {
+  return String(nombre || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+/** Sigla de la hoja impresa. No cambia el nombre guardado en la columna Asignatura. */
+function siglaAsignatura_(nombre) {
+  const crudo = String(nombre || '').trim();
+  if (!crudo) return '';
+  const clave = claveMateriaAsc_(crudo);
+  const mapa = {
+    'espanol': 'Esp',
+    'ingles': 'Ing',
+    'artes': 'Art',
+    'educacion fisica': 'EduF',
+    'matematicas': 'Mat',
+    'ciencias': 'CIEN',
+    'geografia': 'Geo',
+    'tecnologia': 'Tec',
+    'f.c.e': 'FcyE',
+    'f.c.e.': 'FcyE',
+    'fce': 'FcyE',
+    'formacion civica y etica': 'FcyE',
+    'historia': 'His',
+    'a curr': 'A Curr',
+    'tutoria': 'Tut'
+  };
+  if (mapa[clave]) return mapa[clave];
+  if (crudo.length <= 6) return crudo;
+  return crudo.slice(0, 4);
+}
+
+function horaAsc_(hhmm) {
+  const m = String(hhmm || '').trim().match(/^0?(\d{1,2}):(\d{2})/);
+  if (!m) return String(hhmm || '');
+  return String(Number(m[1])) + ':' + m[2];
+}
+
+function normalizarAsc_(s) {
+  return String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function firmaClaseAsc_(h) {
+  h = h || {};
+  return [siglaAsignatura_(h.asignatura), h.maestro || '', h.grupoEtq || '', h.salon || ''].join('|');
+}
+
+function firmaListaAsc_(lista) {
+  if (!lista || lista.length !== 1) return '';
+  return firmaClaseAsc_(lista[0]);
+}
+
+/** Une periodos seguidos que son la misma clase (la hora doble del impreso). */
+function fusionarCeldasAsc_(listas) {
+  const out = [];
+  let i = 0;
+  listas = listas || [];
+  while (i < listas.length) {
+    const firma = firmaListaAsc_(listas[i]);
+    let span = 1;
+    if (firma) {
+      while (i + span < listas.length && firmaListaAsc_(listas[i + span]) === firma) span++;
+    }
+    out.push({ indice: i, span: span });
+    i += span;
+  }
+  return out;
+}
+
+function nombreDiaAsc_(dia) {
+  const mapa = {
+    lunes: 'Lunes', martes: 'Martes', miercoles: 'Miércoles',
+    jueves: 'Jueves', viernes: 'Viernes', sabado: 'Sábado', domingo: 'Domingo'
+  };
+  return mapa[dia] || dia || '';
+}
+
+function fechaPieAsc_() {
+  const d = new Date();
+  const dd = ('0' + d.getDate()).slice(-2);
+  const mm = ('0' + (d.getMonth() + 1)).slice(-2);
+  return dd + '/' + mm + '/' + d.getFullYear();
+}
+
+function tituloHojaAsc_(r) {
+  r = r || {};
+  if (r.vista === 'docente') return r.sujeto || 'Docente';
+  if (r.vista === 'concentrado') return 'Concentrado';
+  if (r.vista === 'aula') return (r.sujeto && r.sujeto !== 'todas') ? r.sujeto : 'Aulas';
+  const clave = r.grupoClave || '';
+  const g = (r.grupos || []).filter(function (x) { return x.clave === clave; })[0];
+  return (g && g.etq) || clave || 'Grupo';
+}
+
+function etiquetaTurnoAsc_(turno) {
+  return turno === 'vespertino' ? 'Vespertino' : 'Matutino';
+}
+
+function claveMapaAsc_(fecha, id) {
+  if (typeof claveCeldaCal_ === 'function') return claveCeldaCal_(fecha, id);
+  return String(fecha || '') + '|' + String(id || '');
+}
+
+function attrAsc_(s) {
+  return String(s == null ? '' : s).replace(/\\/g, '').replace(/'/g, '').replace(/"/g, '');
+}
+
+function clasesDeBloqueAsc_(dia, bloque, filtroSalon) {
+  const clave = bloque.clave || (String(bloque.horaInicio || '') + '|' + String(bloque.horaFin || ''));
+  const lista = ((dia && dia.horario) || []).filter(function (h) {
+    return (String(h.horaInicio || '') + '|' + String(h.horaFin || '')) === clave;
+  });
+  if (!filtroSalon) return lista;
+  const sala = normalizarAsc_(filtroSalon);
+  return lista.filter(function (h) { return normalizarAsc_(h.salon) === sala; });
+}
+
+function diasPatronAsc_(r, filtroSalon) {
+  const vistos = {};
+  (r.calendario || []).forEach(function (d) {
+    if (d && d.dia && !vistos[d.dia]) vistos[d.dia] = d;
+  });
+  const vista = r.vista || 'grupo';
+  let claves = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes'];
+  if (vistos.sabado) claves.push('sabado');
+  if (vista === 'docente' || vista === 'aula') {
+    claves = claves.filter(function (k) { return vistos[k]; });
+  }
+  return claves.map(function (k) {
+    return vistos[k] || { dia: k, fecha: '', horario: [] };
+  }).filter(function (d) {
+    if (vista !== 'docente' && vista !== 'aula') return true;
+    return (d.horario || []).some(function (h) {
+      return !filtroSalon || normalizarAsc_(h.salon) === normalizarAsc_(filtroSalon);
+    });
+  });
+}
+
+function htmlInteriorAsc_(h, vista) {
+  const sigla = siglaAsignatura_(h.asignatura);
+  const grupo = h.grupoEtq || '';
+  const maestro = h.maestro || '';
+  const salon = h.salon || '';
+  if (vista === 'docente') {
+    return '<span class="asc-grande">' + escaparHtml(grupo) + '</span>' +
+      '<span class="asc-chica">' + escaparHtml(sigla) + '</span>';
+  }
+  if (vista === 'aula') {
+    return '<span class="asc-grande">' + escaparHtml(sigla) + '</span>' +
+      '<span class="asc-media">' + escaparHtml(grupo) + '</span>' +
+      '<span class="asc-chica">' + escaparHtml(maestro) + '</span>';
+  }
+  let html = '';
+  if (salon && vista !== 'concentrado') html += '<span class="asc-salon">' + escaparHtml(salon) + '</span>';
+  html += '<span class="asc-grande">' + escaparHtml(sigla) + '</span>' +
+    '<span class="asc-chica">' + escaparHtml(maestro) + '</span>';
+  if (salon && vista === 'concentrado') html += '<span class="asc-salon">' + escaparHtml(salon) + '</span>';
+  return html;
+}
+
+function htmlBotonesAsc_(clases, fecha, vista, selClave, mapa) {
+  let html = '';
+  (clases || []).forEach(function (h) {
+    const clave = claveMapaAsc_(fecha, h.idHorario);
+    if (mapa) mapa[clave] = h;
+    const sel = clave === selClave ? ' sel' : '';
+    html += '<button type="button" class="asc-celda' + sel + '" onclick="abrirCeldaCal(\'' +
+      attrAsc_(fecha) + '\',\'' + attrAsc_(h.idHorario) + '\')">' + htmlInteriorAsc_(h, vista) + '</button>';
+  });
+  return html;
+}
+
+function htmlCeldaFusionAsc_(listas, fusion, bloques, fecha, vista, selClave, mapa) {
+  const visibles = listas[fusion.indice] || [];
+  const todas = [];
+  for (let k = 0; k < fusion.span; k++) {
+    (listas[fusion.indice + k] || []).forEach(function (h) { todas.push(h); });
+  }
+  const span = fusion.span > 1 ? ' colspan="' + fusion.span + '"' : '';
+  if (!visibles.length) {
+    const b = bloques[fusion.indice] || {};
+    if (vista !== 'grupo') return '<td class="asc-vacia"' + span + '></td>';
+    return '<td class="asc-vacia"' + span + ' onclick="abrirCeldaVaciaCal(\'' + attrAsc_(fecha) + '\',\'' +
+      attrAsc_(b.bloque) + '\',\'' + attrAsc_(b.horaInicio) + '\',\'' + attrAsc_(b.horaFin) + '\')"></td>';
+  }
+  let forzarSel = false;
+  todas.forEach(function (h) {
+    const clave = claveMapaAsc_(fecha, h.idHorario);
+    if (mapa) mapa[clave] = h;
+    if (clave === selClave) forzarSel = true;
+  });
+  let botones = htmlBotonesAsc_(visibles, fecha, vista, selClave, mapa);
+  if (forzarSel) botones = botones.replace('class="asc-celda"', 'class="asc-celda sel"');
+  return '<td' + span + '>' + botones + '</td>';
+}
+
+function htmlEncabezadoPeriodosAsc_(bloques) {
+  let html = '<tr><th class="asc-esquina"></th>';
+  bloques.forEach(function (b, i) {
+    const n = String(b.bloque || (i + 1));
+    html += '<th class="asc-periodo"><div class="asc-num">' + escaparHtml(n) + '</div><div class="asc-hora">' +
+      escaparHtml(horaAsc_(b.horaInicio) + ' - ' + horaAsc_(b.horaFin)) + '</div></th>';
+  });
+  return html + '</tr>';
+}
+
+function htmlPieAsc_() {
+  return '<div class="asc-pie"><span>Horario generado:' + escaparHtml(fechaPieAsc_()) + '</span><span>aSc Horarios</span></div>';
+}
+
+function htmlHojaAsc_(r, bloques, mapa, titulo, filtroSalon) {
+  const vista = (r && r.vista) || 'grupo';
+  const dias = diasPatronAsc_(r, filtroSalon);
+  const selClave = (typeof slotMaeSel !== 'undefined' && slotMaeSel) ? claveMapaAsc_(slotMaeSel.fecha, slotMaeSel.idHorario) : '';
+  let html = '<section class="hoja-asc">';
+  html += '<p class="asc-turno">' + escaparHtml(etiquetaTurnoAsc_(r.turno)) + '</p>';
+  html += '<h2 class="asc-titulo">' + escaparHtml(titulo || '') + '</h2>';
+  if (!dias.length) {
+    html += '<p class="hint">Sin clases en esta semana.</p>' + htmlPieAsc_() + '</section>';
+    return html;
+  }
+  html += '<table class="asc-tabla"><thead>' + htmlEncabezadoPeriodosAsc_(bloques) + '</thead><tbody>';
+  dias.forEach(function (d) {
+    const listas = bloques.map(function (b) { return clasesDeBloqueAsc_(d, b, filtroSalon); });
+    html += '<tr><th class="asc-dia"><span>' + escaparHtml(nombreDiaAsc_(d.dia)) + '</span></th>';
+    fusionarCeldasAsc_(listas).forEach(function (f) {
+      html += htmlCeldaFusionAsc_(listas, f, bloques, d.fecha, vista, selClave, mapa);
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>' + htmlPieAsc_() + '</section>';
+  return html;
+}
+
+function htmlAulasAsc_(r, bloques, mapa) {
+  const una = r.sujeto && r.sujeto !== 'todas';
+  let nombres = una ? [r.sujeto] : (r.aulas || []).slice();
+  if (!una) {
+    nombres = nombres.filter(function (nombre) {
+      return (r.calendario || []).some(function (d) {
+        return (d.horario || []).some(function (h) { return normalizarAsc_(h.salon) === normalizarAsc_(nombre); });
+      });
+    });
+  }
+  if (!nombres.length) {
+    return '<p class="hint">Este turno no tiene aulas con clase. Si el XML no trae salón, usa la vista por grupo.</p>';
+  }
+  let html = '<div class="hojas-asc">';
+  nombres.forEach(function (nombre) {
+    html += htmlHojaAsc_(r, bloques, mapa, nombre, nombre);
+  });
+  html += '</div>';
+  return html;
+}
+
+function htmlConcentradoAsc_(r, bloques, mapa) {
+  const c = (r && r.concentrado) || {};
+  const grupos = c.grupos || [];
+  const dias = c.dias || [];
+  if (!grupos.length || !dias.length) {
+    return '<p class="hint">No hay clases del turno ' + escaparHtml((r && r.turno) || '') + ' para el concentrado.</p>';
+  }
+  const selClave = (typeof slotMaeSel !== 'undefined' && slotMaeSel) ? claveMapaAsc_(slotMaeSel.fecha, slotMaeSel.idHorario) : '';
+  let html = '<section class="hoja-asc hoja-asc-concentrado">';
+  html += '<p class="asc-turno">' + escaparHtml(etiquetaTurnoAsc_(r.turno)) + '</p>';
+  html += '<h2 class="asc-titulo">Concentrado</h2>';
+  html += '<table class="asc-tabla"><thead><tr><th class="asc-esquina"></th><th class="asc-periodo">Hora</th>';
+  grupos.forEach(function (g) { html += '<th>' + escaparHtml(g.etq) + '</th>'; });
+  html += '</tr></thead><tbody>';
+  dias.forEach(function (d) {
+    const columnas = grupos.map(function (g) {
+      const listas = bloques.map(function (b) {
+        return (d.celdas && d.celdas[g.clave] && d.celdas[g.clave][b.clave]) || [];
+      });
+      const porIndice = {};
+      fusionarCeldasAsc_(listas).forEach(function (f) { porIndice[f.indice] = { f: f, listas: listas }; });
+      return porIndice;
+    });
+    bloques.forEach(function (b, i) {
+      html += '<tr>';
+      if (i === 0) {
+        html += '<th class="asc-dia" rowspan="' + bloques.length + '"><span>' + escaparHtml(nombreDiaAsc_(d.dia)) + '</span></th>';
+      }
+      html += '<td class="asc-periodo"><div class="asc-num">' + escaparHtml(String(b.bloque || (i + 1))) + '</div><div class="asc-hora">' +
+        escaparHtml(horaAsc_(b.horaInicio) + ' - ' + horaAsc_(b.horaFin)) + '</div></td>';
+      columnas.forEach(function (porIndice) {
+        const item = porIndice[i];
+        if (!item) return;
+        const span = item.f.span > 1 ? ' rowspan="' + item.f.span + '"' : '';
+        const lista = item.listas[item.f.indice] || [];
+        if (!lista.length) {
+          html += '<td class="asc-vacia"' + span + '></td>';
+          return;
+        }
+        for (let k = 1; k < item.f.span; k++) {
+          (item.listas[item.f.indice + k] || []).forEach(function (h) {
+            mapa[claveMapaAsc_(d.fecha, h.idHorario)] = h;
+          });
+        }
+        html += '<td' + span + '>' + htmlBotonesAsc_(lista, d.fecha, 'concentrado', selClave, mapa) + '</td>';
+      });
+      html += '</tr>';
+    });
+  });
+  html += '</tbody></table>' + htmlPieAsc_() + '</section>';
+  return html;
+}
+
+/** Dibuja grupo, docente, aulas o concentrado con la cuadrícula del impreso aSc. */
+function pintarHojaAsc_(r) {
+  const caja = document.getElementById('listaSlotsMae');
+  if (!caja) return;
+  caja.classList.remove('scroll-mes-h');
+  const mapa = {};
+  r = r || {};
+  const vista = r.vista || 'grupo';
+  const bloques = r.bloques || [];
+  let html = '';
+  if (!bloques.length) {
+    html = '<p class="hint">No hay horas de este turno. Importa el XML del horario.</p>';
+  } else if (vista === 'concentrado') {
+    html = htmlConcentradoAsc_(r, bloques, mapa);
+  } else if (vista === 'aula') {
+    html = htmlAulasAsc_(r, bloques, mapa);
+  } else {
+    html = '<div class="hojas-asc">' + htmlHojaAsc_(r, bloques, mapa, tituloHojaAsc_(r), null) + '</div>';
+  }
+  caja._mapa = mapa;
+  caja.innerHTML = html;
+}
+
+function pintarConcentradoMae_(r) {
+  pintarHojaAsc_(Object.assign({}, r || {}, { vista: 'concentrado' }));
+}
+
+function refrescarSelectorHorarioPlan_() {
+  if (typeof poblarSelectorHorarioPlan_ !== 'function') return;
+  const idActual = (document.getElementById('planIdHorario') || {}).value || '';
+  poblarSelectorHorarioPlan_(idActual);
+}
+</script>
