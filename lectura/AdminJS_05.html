@@ -1,0 +1,673 @@
+<script>
+/* AdminJS_05 — cargarPrefectosAsi, filtrarTablaPrefLocal, renderTablaPref_, generarClaveUnicaPref, editarAccesoPref, abrirModalGruposPref, pintarCheckGruposPrefecto, abrirModalAltaPref, crearPrefectoAsi, guardarGruposPrefectoAsi, ... */
+
+
+    function cargarPrefectosAsi() {
+      gsRun('listarPrefectos', token).then(function (res) {
+        listaPrefectosAsi = (res && res.prefectos) || [];
+        filtrarTablaPrefLocal();
+      }).catch(function (e) {
+        toast((e && e.message) || String(e), 'error');
+        const caja = document.getElementById('cajaTablaPrefAdmin');
+        if (caja) caja.innerHTML = '<p style="color:var(--st90-rojo);font-weight:600;">Error al cargar prefectas: ' + escaparHtml((e && e.message) || String(e)) + '</p>';
+      });
+    }
+
+    function filtrarTablaPrefLocal() {
+      const busc = ((document.getElementById('buscPrefAdmin') || {}).value || '').trim().toLowerCase();
+      const cont = document.getElementById('contPrefAdmin');
+      const filtrados = (listaPrefectosAsi || []).filter(function (p) {
+        if (!busc) return true;
+        const nom = String(p.nombre || '').toLowerCase();
+        const usu = String(p.usuario || '').toLowerCase();
+        const gps = (p.grupos || []).join(' ').toLowerCase();
+        return nom.indexOf(busc) >= 0 || usu.indexOf(busc) >= 0 || gps.indexOf(busc) >= 0;
+      });
+      if (cont) cont.textContent = 'Prefectas: ' + filtrados.length;
+      renderTablaPref_(filtrados);
+    }
+
+    function renderTablaPref_(filas) {
+      const caja = document.getElementById('cajaTablaPrefAdmin');
+      if (!caja) return;
+      if (!filas.length) {
+        caja.innerHTML = '<p style="color:#64748b;font-size:13px;padding:12px 0;">Aún no hay prefectas. Da de alta una arriba.</p>';
+        return;
+      }
+      let html = '<table class="tabla-acc"><thead><tr>' +
+        '<th style="width:30px;">#</th>' +
+        '<th>Nombre</th>' +
+        '<th>Grupos</th>' +
+        '<th>Usuario</th>' +
+        '<th>Contraseña</th>' +
+        '<th style="text-align:right;">Acciones</th>' +
+        '</tr></thead><tbody>';
+      html += filas.map(function (p, idx) {
+        const idSafe = jsSafe_(p.id);
+        const nomSafe = jsSafe_(p.nombre);
+        const usuSafe = jsSafe_(p.usuario);
+        const claSafe = jsSafe_(p.clave);
+        const gruposHtml = (p.grupos && p.grupos.length)
+          ? p.grupos.map(function (g) { return '<span class="badge-grupo">' + escaparHtml(String(g).toUpperCase()) + '</span>'; }).join('')
+          : '<span style="color:#94a3b8;font-size:12px;">Sin grupos</span>';
+        const claveHtml = p.clave
+          ? ('<span class="dato-acc badge-pass">' + escaparHtml(p.clave) + '</span>')
+          : '<span style="color:#94a3b8;font-size:12px;">Sin contraseña</span>';
+        return '<tr>' +
+          '<td style="color:#94a3b8;font-size:12px;">' + (idx + 1) + '</td>' +
+          '<td><strong>' + escaparHtml(p.nombre) + '</strong></td>' +
+          '<td>' + gruposHtml + '</td>' +
+          '<td><span class="dato-acc" style="color:var(--st90-azul);">' + escaparHtml(p.usuario || '—') + '</span></td>' +
+          '<td>' + claveHtml + '</td>' +
+          '<td style="text-align:right;white-space:nowrap;"><span class="acciones-fila">' +
+            htmlBtnsCredencial_({
+              aleatoria: 'generarClaveUnicaPref(\'' + idSafe + '\',\'' + nomSafe + '\')',
+              editar: 'editarAccesoPref(\'' + idSafe + '\',\'' + nomSafe + '\',\'' + usuSafe + '\',\'' + claSafe + '\')',
+              copiar: p.clave ? 'copiarCredencialMae(\'' + usuSafe + '\',\'' + claSafe + '\')' : '',
+              grupos: 'abrirModalGruposPref(\'' + idSafe + '\')'
+            }) +
+          '</span></td>' +
+        '</tr>';
+      }).join('');
+      html += '</tbody></table>';
+      caja.innerHTML = html;
+    }
+
+    function generarClaveUnicaPref(id, nombre) {
+      toast('Generando contraseña aleatoria para ' + nombre + '…', 'info');
+      gsRun('generarClavePrefecto', token, id).then(function (r) {
+        toast((r && r.mensaje) || 'Contraseña generada.', 'ok');
+        cargarPrefectosAsi();
+      }).catch(function (e) {
+        toast((e && e.message) || String(e), 'error');
+      });
+    }
+
+    function editarAccesoPref(id, nombre, usuario, clave) {
+      modal({
+        titulo: 'Acceso de prefecta: ' + escaparHtml(nombre),
+        html: '<label for="usuClavePrefAdmin">Usuario</label><input id="usuClavePrefAdmin" type="text" value="' + escaparHtml(usuario || '') + '" autocomplete="off" style="width:100%;margin-bottom:10px;padding:8px;box-sizing:border-box;border:1px solid var(--st90-borde);border-radius:6px;">' +
+          '<label for="passClavePrefAdmin">Contraseña (mín. 6)</label><input id="passClavePrefAdmin" type="text" value="' + escaparHtml(clave || '') + '" autocomplete="off" style="width:100%;padding:8px;box-sizing:border-box;border:1px solid var(--st90-borde);border-radius:6px;">',
+        botones: [
+          { texto: 'Cancelar', valor: null, clase: 'btn-secundario' },
+          { texto: 'Guardar', valor: 'ok' }
+        ],
+        capturar: function (fondo, val) {
+          if (val === null) return null;
+          return {
+            usuario: (fondo.querySelector('#usuClavePrefAdmin') || {}).value || '',
+            clave: (fondo.querySelector('#passClavePrefAdmin') || {}).value || ''
+          };
+        }
+      }).then(function (datos) {
+        if (!datos) return;
+        gsRun('asignarClavePrefecto', token, id, datos.usuario, datos.clave).then(function (r) {
+          toast((r && r.mensaje) || 'Listo.', 'ok');
+          cargarPrefectosAsi();
+        }).catch(function (e) {
+          toast((e && e.message) || String(e), 'error');
+        });
+      });
+    }
+
+    function abrirModalGruposPref(id) {
+      const pref = (listaPrefectosAsi || []).filter(function (p) { return p.id === id; })[0];
+      if (!pref) return toast('No se encontró a esa prefecta.', 'error');
+      const asignados = (pref.grupos || []);
+      const grupos = listaGrupos();
+      const checks = grupos.map(function (g) {
+        const etq = String(g.grupo).toUpperCase();
+        const val = String(g.grado) + String(g.grupo).toLowerCase();
+        const chk = asignados.indexOf(val) >= 0 || asignados.indexOf(String(g.grupo).toLowerCase()) >= 0 ? ' checked' : '';
+        return '<label class="asi-chip" style="margin:4px;"><input type="checkbox" data-grado="' + g.grado + '" data-grupo="' + g.grupo + '"' + chk + '> ' + etq + '</label>';
+      }).join('') || '<p class="sub-lec">No hay grupos en Matrícula.</p>';
+      modal({
+        titulo: 'Grupos de ' + escaparHtml(pref.nombre),
+        html: '<p class="sub-lec" style="margin:0 0 10px;">Marca los grupos que puede ver esta prefecta.</p><div class="lista-asig-grupos">' + checks + '</div>',
+        botones: [
+          { texto: 'Cancelar', valor: null, clase: 'btn-secundario' },
+          { texto: 'Guardar', valor: 'ok' }
+        ],
+        capturar: function (fondo, val) {
+          if (val === null) return null;
+          const gruposSel = [];
+          fondo.querySelectorAll('input[type="checkbox"]:checked').forEach(function (c) {
+            gruposSel.push({ grado: c.getAttribute('data-grado'), grupo: c.getAttribute('data-grupo'), turno: 'matutino' });
+          });
+          return gruposSel;
+        }
+      }).then(function (gruposSel) {
+        if (!gruposSel) return;
+        gsRun('guardarAsignacionPrefecto', token, id, gruposSel).then(function (res) {
+          toast((res && res.mensaje) || 'Asignación guardada.', 'exito');
+          cargarPrefectosAsi();
+        }).catch(function (e) {
+          toast((e && e.message) || String(e), 'error');
+        });
+      });
+    }
+
+    function pintarCheckGruposPrefecto() {}
+
+    function abrirModalAltaPref() {
+      modal({
+        titulo: 'Alta de prefecta',
+        html:
+          '<div class="form-modal-usu">' +
+            '<p>La prefecta entra a Asistencia con este usuario y contraseña. Los grupos se asignan después con el icono de grupos.</p>' +
+            '<div class="campo"><label for="nomPrefectoNuevo">Nombre</label>' +
+              '<input type="text" id="nomPrefectoNuevo" placeholder="Nombre de la prefecta" autocomplete="off"></div>' +
+            '<div class="campo"><label for="usuarioPrefectoNuevo">Usuario</label>' +
+              '<input type="text" id="usuarioPrefectoNuevo" placeholder="ej. laura" autocomplete="off"></div>' +
+            '<div class="campo" style="margin:0;"><label for="clavePrefectoNuevo">Clave (mín. 6)</label>' +
+              '<input type="password" id="clavePrefectoNuevo" placeholder="Clave de entrada" autocomplete="off"></div>' +
+          '</div>',
+        botones: [
+          { texto: 'Cancelar', valor: null, clase: 'btn-secundario' },
+          { texto: 'Crear prefecta', valor: 'ok', clase: 'btn-verde' }
+        ],
+        capturar: function (fondo, val) {
+          if (val === null) return null;
+          return {
+            nom: ((fondo.querySelector('#nomPrefectoNuevo') || {}).value || '').trim(),
+            usu: ((fondo.querySelector('#usuarioPrefectoNuevo') || {}).value || '').trim(),
+            cla: ((fondo.querySelector('#clavePrefectoNuevo') || {}).value || '').trim()
+          };
+        }
+      }).then(function (datos) {
+        if (!datos) return;
+        crearPrefectoAsi(datos);
+      });
+    }
+
+    function crearPrefectoAsi(datos) {
+      datos = datos || {};
+      const nom = datos.nom != null ? datos.nom : ((document.getElementById('nomPrefectoNuevo') || {}).value || '');
+      const usu = datos.usu != null ? datos.usu : ((document.getElementById('usuarioPrefectoNuevo') || {}).value || '');
+      const cla = datos.cla != null ? datos.cla : ((document.getElementById('clavePrefectoNuevo') || {}).value || '');
+      gsRun('altaPrefecto', token, nom, cla, usu).then(function (res) {
+        toast((res && res.mensaje) || 'Creado.', 'exito');
+        cargarPrefectosAsi();
+      }).catch(function (e) {
+        toast((e && e.message) || String(e), 'error');
+      });
+    }
+
+    function guardarGruposPrefectoAsi() {
+      const id = (document.getElementById('selPrefectoAsig') || {}).value || '';
+      const checks = document.querySelectorAll('#checksGruposPref input[type="checkbox"]:checked');
+      const grupos = [];
+      checks.forEach(function (c) {
+        grupos.push({ grado: c.getAttribute('data-grado'), grupo: c.getAttribute('data-grupo'), turno: 'matutino' });
+      });
+      gsRun('guardarAsignacionPrefecto', token, id, grupos).then(function (res) {
+        toast((res && res.mensaje) || 'Asignación guardada.', 'exito');
+        cargarPrefectosAsi();
+      }).catch(function (e) {
+        toast((e && e.message) || String(e), 'error');
+      });
+    }
+
+    function importarHorarioAsi(datos) {
+      const file = datos && datos.file;
+      const turno = (datos && datos.turno) || 'auto';
+      if (!file) {
+        toast('Elige el archivo XML del horario (Horario.xml).', 'error');
+        return;
+      }
+      toast('Leyendo horario aSc…', 'info');
+      const r = new FileReader();
+      r.onload = function (ev) {
+        gsRun('importarHorarioAsc', token, ev.target.result, turno).then(function (res) {
+          toast((res && res.mensaje) || 'Horario importado.', 'exito');
+          cargarContextoAsistencia();
+        }).catch(function (e) {
+          toast((e && e.message) || String(e), 'error');
+        });
+      };
+      r.onerror = function () { toast('No se pudo leer el archivo.', 'error'); };
+      try { r.readAsText(file, 'windows-1252'); } catch (eEnc) { r.readAsText(file); }
+    }
+
+    function abrirModalHorarioAsi() {
+      modal({
+        titulo: 'Importar horario XML',
+        html:
+          '<div class="form-modal-usu">' +
+            '<p>Importa el XML de aSc. De 7:00 a 12:59 es matutino; de 1:00 a 6:59 y desde las 13:00 es vespertino. Cada turno se guarda aparte y el otro se conserva.</p>' +
+            '<div class="campo"><label for="xmlHorarioAsi">Archivo XML</label>' +
+              '<input type="file" id="xmlHorarioAsi" accept=".xml,text/xml"></div>' +
+            '<div class="campo" style="margin:0;"><label for="turnoHorarioAsi">Turno</label>' +
+              '<select id="turnoHorarioAsi">' +
+                '<option value="auto">Detectar</option>' +
+                '<option value="matutino">Matutino</option>' +
+                '<option value="vespertino">Vespertino</option>' +
+              '</select></div>' +
+          '</div>',
+        botones: [
+          { texto: 'Cancelar', valor: null, clase: 'btn-secundario' },
+          { texto: 'Importar', valor: 'ok' }
+        ],
+        capturar: function (fondo, val) {
+          if (val === null) return null;
+          const inp = fondo.querySelector('#xmlHorarioAsi');
+          return {
+            file: inp && inp.files && inp.files[0],
+            turno: ((fondo.querySelector('#turnoHorarioAsi') || {}).value || 'auto')
+          };
+        }
+      }).then(function (datos) {
+        if (!datos) return;
+        importarHorarioAsi(datos);
+      });
+    }
+
+    function abrirModalAsistenciaDemo() {
+      const badgeDev = document.getElementById('badgeEntornoDev');
+      const esDev = badgeDev && !badgeDev.classList.contains('oculto');
+      const aviso = esDev ? '' : '<div style="margin-top:10px;padding:8px 12px;background:#fff7ed;border:1px solid #fdba74;border-radius:6px;font-size:12px;color:#c2410c;"><strong>Ambiente protegido:</strong> Esta función está restringida exclusivamente a entornos de pruebas/desarrollo para proteger la integridad de los datos reales.</div>';
+      modal({
+        titulo: 'Asistencia de prueba',
+        html: '<div class="form-modal-usu"><p>Genera asistencia de ejemplo (1–24 sep 2026) para ver reportes con números y gráficas. No borra alumnos ni horarios.</p>' + aviso + '</div>',
+        botones: esDev ? [
+          { texto: 'Cancelar', valor: null, clase: 'btn-secundario' },
+          { texto: 'Generar', valor: 'ok', clase: 'btn-verde' }
+        ] : [
+          { texto: 'Entendido', valor: null, clase: 'btn-secundario' }
+        ]
+      }).then(function (ok) {
+        if (!ok) return;
+        sembrarAsistenciaDemoAsi();
+      });
+    }
+
+    function sembrarAsistenciaDemoAsi() {
+      const badgeDev = document.getElementById('badgeEntornoDev');
+      const esDev = badgeDev && !badgeDev.classList.contains('oculto');
+      if (!esDev && (!VERSION_APP || String(VERSION_APP).indexOf('dev') === -1)) {
+        toast('Acción protegida: la siembra demo está restringida al entorno de desarrollo/pruebas.', 'info');
+        return;
+      }
+      toast('Inventando asistencia de prueba…', 'info');
+      gsRun('sembrarAsistenciaDemo').then(function (res) {
+        toast((res && res.mensaje) || 'Datos de prueba listos.', 'exito');
+      }).catch(function (e) {
+        const msg = (e && e.message) || String(e);
+        if (msg.indexOf('ENTORNO=PRUEBAS') !== -1 || msg.indexOf('Acceso denegado') !== -1) {
+          toast('Ambiente protegido: siembra demo disponible únicamente en entorno de pruebas.', 'info');
+        } else {
+          toast(msg, 'error');
+        }
+      });
+    }
+
+    /* ==================== UTILIDADES ==================== */
+    function normalizarGrado(v) {
+      if (!v) return '';
+      const m = String(v).match(/([123])/);
+      return m ? m[1] : '';
+    }
+
+    function gradoDeGrupo(g) {
+      if (!g) return '';
+      if (typeof g === 'string') return normalizarGrado(g);
+      if (g.grado) {
+        const ng = normalizarGrado(g.grado);
+        if (ng) return ng;
+      }
+      return normalizarGrado(g.grupo || '');
+    }
+
+    function listaGrupos() {
+      const mapa = {};
+      const out = [];
+
+      // 1. Grupos de la base de datos (datos.grupos)
+      (datos.grupos || []).forEach(function (g) {
+        if (!g || !g.grupo) return;
+        if (String(g.activo).toUpperCase() === 'NO') return;
+        const cod = String(g.grupo).trim().toLowerCase();
+        if (!mapa[cod]) {
+          mapa[cod] = true;
+          const gr = gradoDeGrupo(g) || normalizarGrado(cod) || '1';
+          out.push({ grado: gr, grupo: cod, activo: 'SI', extra: Number(g.extra || 0) });
+        }
+      });
+
+      // 2. Grupos de los alumnos registrados (datos.alumnos)
+      (datos.alumnos || []).forEach(function (a) {
+        if (!a || !a.grupo) return;
+        const cod = String(a.grupo).trim().toLowerCase();
+        if (!mapa[cod]) {
+          mapa[cod] = true;
+          const gr = normalizarGrado(a.grado) || gradoDeGrupo(cod) || '1';
+          out.push({ grado: gr, grupo: cod, activo: 'SI', extra: 0 });
+        }
+      });
+
+      // 3. Garantizar grupos por defecto (1a-1e, 2a-2e, 3a-3e)
+      ['1', '2', '3'].forEach(function (gr) {
+        ['a', 'b', 'c', 'd', 'e'].forEach(function (letra) {
+          const cod = gr + letra;
+          if (!mapa[cod]) {
+            mapa[cod] = true;
+            out.push({ grado: gr, grupo: cod, activo: 'SI', extra: 0 });
+          }
+        });
+      });
+
+      return out.sort(function (a, b) { return a.grupo.localeCompare(b.grupo, 'es'); });
+    }
+
+    function barras(id, serie, maxHint, clase) {
+      serie = serie || [];
+      const cont = document.getElementById(id);
+      if (!cont) return;
+      if (!serie.length) { cont.innerHTML = '<p style="color:#64748b;font-size:13px;margin:4px 0;">Sin datos registrados aún.</p>'; return; }
+      const max = Math.max(maxHint || 1, 1, ...serie.map(function (s) { return s.valor; }));
+      cont.innerHTML = serie.map(function (s) {
+        const w = Math.round((s.valor / max) * 100);
+        return '<div class="barra-fila"><div class="barra-etiqueta">' + escaparHtml(s.etiqueta) +
+          '</div><div class="barra ' + (clase || '') + '" style="width:' + w + '%"></div>' +
+          '<div class="barra-valor">' + s.valor + (s.sufijo || '') + '</div></div>';
+      }).join('');
+    }
+
+    /* ==================== PINTAR TODO ==================== */
+    function pintarTodo() {
+      const cfg = datos.config || {};
+      const asigs = cfg.asignaturas || [];
+      const opts = asigs.map(function (a) { return '<option value="' + escaparHtml(a) + '">' + escaparHtml(a) + '</option>'; }).join('');
+      
+      const elEditAsi = document.getElementById('editAsi');
+      if (elEditAsi) elEditAsi.innerHTML = opts;
+      
+      const elCAsi = document.getElementById('cAsi');
+      if (elCAsi) elCAsi.innerHTML = '<option value="">Todas las asignaturas</option>' + opts;
+      
+      const elCfgInt = document.getElementById('cfgInt');
+      if (elCfgInt) elCfgInt.value = cfg.intentos || 1;
+      const elSitioA = document.getElementById('cfgUrlSitioAlumno');
+      if (elSitioA) elSitioA.value = cfg.urlSitioAlumno || '';
+      const elSitioD = document.getElementById('cfgUrlSitioDocente');
+      if (elSitioD) elSitioD.value = cfg.urlSitioDocente || '';
+      pintarCamposIdentidad(cfg.identidad || {});
+
+      // Especificaciones de solo lectura
+      let specHtml = '';
+      Object.keys(cfg.especificaciones || {}).forEach(function (g) {
+        const s = cfg.especificaciones[g];
+        specHtml += '<p style="margin:4px 0;"><strong>' + g + '° de secundaria</strong>: ' + s.palabrasMin + '–' + s.palabrasMax +
+          ' palabras · ' + s.preguntasMin + '–' + s.preguntasMax + ' preguntas · ' + escaparHtml(s.tipo) + '</p>';
+      });
+      const elSpecs = document.getElementById('specs');
+      if (elSpecs) elSpecs.innerHTML = specHtml;
+
+      // Grid PPM editable
+      pintarGridPpm(cfg.ppmObjetivo || {});
+      fusionarNombresAlumnosConResultados();
+
+      // Llenar selects y filtros
+      llenarGruposAlta();
+      llenarSelectsConfig();
+      llenarFiltroLecturas();
+      cambiarFiltroGrado();
+      actualizarAsignaturasYTemasIA();
+
+      // Configuración de hoja vinculada
+      const urlH = (datos.diagnostico && datos.diagnostico.url) || datos.urlHoja || '';
+      const nomH = (datos.diagnostico && datos.diagnostico.libro) || 'Hoja de Google Sheets';
+      if (document.getElementById('cfgUrlHoja') && urlH) {
+        document.getElementById('cfgUrlHoja').value = urlH;
+      }
+      if (document.getElementById('btnAbrirHojaDirecto') && urlH) {
+        document.getElementById('btnAbrirHojaDirecto').href = urlH;
+      }
+      if (document.getElementById('msgHojaEstado')) {
+        document.getElementById('msgHojaEstado').textContent = '✅ Conectado a: ' + nomH;
+      }
+
+      pintarAlumnos();
+      pintarPanelTrimestral();
+      asegurarResultadosAdmin().then(function () {
+        fusionarNombresAlumnosConResultados();
+        pintarResultados();
+      }).catch(function (e) {
+        toast('No se pudieron cargar los resultados: ' + ((e && e.message) || String(e)), 'error');
+      });
+    }
+
+    function asegurarResultadosAdmin() {
+      if (resultadosAdminListos) return Promise.resolve(datos.resultados || []);
+      if (resultadosAdminPendiente) return resultadosAdminPendiente;
+      if ((datos.resultados || []).length) {
+        resultadosAdminListos = true;
+        return Promise.resolve(datos.resultados);
+      }
+      resultadosAdminPendiente = gsRun('detalleResultados', token).then(function (res) {
+        datos.resultados = (res && res.resultados) || [];
+        resultadosAdminListos = true;
+        resultadosAdminPendiente = null;
+        return datos.resultados;
+      }).catch(function (e) {
+        resultadosAdminPendiente = null;
+        throw e;
+      });
+      return resultadosAdminPendiente;
+    }
+
+    function ppmRecomendados() {
+      const specs = ((datos.config || {}).especificaciones) || {};
+      const rec = {
+        '1': { ppmMin: 135, ppmMax: 145, ppmObjetivo: 140 },
+        '2': { ppmMin: 145, ppmMax: 155, ppmObjetivo: 150 },
+        '3': { ppmMin: 155, ppmMax: 160, ppmObjetivo: 158 }
+      };
+      ['1', '2', '3'].forEach(function (g) {
+        if (specs[g]) {
+          rec[g] = {
+            ppmMin: Number(specs[g].ppmMin) || rec[g].ppmMin,
+            ppmMax: Number(specs[g].ppmMax) || rec[g].ppmMax,
+            ppmObjetivo: Number(specs[g].ppmObjetivo) || rec[g].ppmObjetivo
+          };
+        }
+      });
+      return rec;
+    }
+
+    function specPpmCliente(grado) {
+      const g = normalizarGrado(grado) || '1';
+      const rec = ppmRecomendados()[g] || ppmRecomendados()['1'];
+      const cfg = ((datos.config || {}).ppmObjetivo || {})[g] || {};
+      return {
+        ppmMin: Number(cfg.ppmMin || rec.ppmMin),
+        ppmMax: Number(cfg.ppmMax || rec.ppmMax),
+        ppmObjetivo: Number(cfg.ppmObjetivo || rec.ppmObjetivo)
+      };
+    }
+
+    function nivelPpmVivo(r) {
+      const spec = specPpmCliente(r.grado || r.grupo);
+      const ppm = Number(r.ppm || 0);
+      if (!ppm) return r.nivelPpm || '';
+      if (ppm < spec.ppmMin) return 'bajo';
+      if (ppm > spec.ppmMax) return 'alto';
+      return 'dentro';
+    }
+
+    let ppmGradoActivo = '1';
+
+    function pintarGridPpm(ppmObj) {
+      const recs = ppmRecomendados();
+      const html = ['1', '2', '3'].map(function (g) {
+        const rec = recs[g];
+        const v = (ppmObj && ppmObj[g]) || rec;
+        const min = v.ppmMin || rec.ppmMin;
+        const obj = v.ppmObjetivo || rec.ppmObjetivo;
+        const max = v.ppmMax || rec.ppmMax;
+        const claseOculta = (g === ppmGradoActivo) ? '' : 'oculto';
+        return '<div id="ppmCardGrado' + g + '" class="tarjeta-ppm-ed ' + claseOculta + '" style="margin-bottom:0;">' +
+          '<h4>' + g + 'º de secundaria</h4>' +
+          '<p class="ppm-rec">Recomendado: ' + rec.ppmMin + '-' + rec.ppmMax + ' PPM (objetivo ' + rec.ppmObjetivo + ')</p>' +
+          '<div><label>Mínimo: </label> <input type="number" min="1" data-ppm-g="' + g + '" data-ppm-c="ppmMin" value="' + min + '"> PPM</div>' +
+          '<div style="margin:6px 0;"><label>Objetivo: </label> <input type="number" min="1" data-ppm-g="' + g + '" data-ppm-c="ppmObjetivo" value="' + obj + '"> PPM</div>' +
+          '<div><label>Máximo: </label> <input type="number" min="1" data-ppm-g="' + g + '" data-ppm-c="ppmMax" value="' + max + '"> PPM</div>' +
+          '</div>';
+      }).join('');
+      document.getElementById('gridPpm').innerHTML = html;
+      actualizarBotonesPpmGrado();
+    }
+
+    function mostrarPpmGrado(g) {
+      ppmGradoActivo = g;
+      ['1', '2', '3'].forEach(function(grade) {
+        const card = document.getElementById('ppmCardGrado' + grade);
+        if (card) {
+          if (grade === g) card.classList.remove('oculto');
+          else card.classList.add('oculto');
+        }
+      });
+      actualizarBotonesPpmGrado();
+    }
+
+    function actualizarBotonesPpmGrado() {
+      ['1', '2', '3'].forEach(function(g) {
+        const btn = document.getElementById('btnPpmGrado' + g);
+        if (btn) {
+          btn.classList.toggle('activa', g === ppmGradoActivo);
+        }
+      });
+    }
+
+    function guardarPpm() {
+      const obj = {};
+      ['1', '2', '3'].forEach(function (g) {
+        obj[g] = {
+          ppmMin: Number(document.querySelector('[data-ppm-g="' + g + '"][data-ppm-c="ppmMin"]').value),
+          ppmObjetivo: Number(document.querySelector('[data-ppm-g="' + g + '"][data-ppm-c="ppmObjetivo"]').value),
+          ppmMax: Number(document.querySelector('[data-ppm-g="' + g + '"][data-ppm-c="ppmMax"]').value)
+        };
+      });
+      gsRun('guardarPpmObjetivo', token, JSON.stringify(obj))
+        .then(function (res) {
+          if (!datos.config) datos.config = {};
+          datos.config.ppmObjetivo = obj;
+          toast(res.mensaje || 'Guardado', 'exito');
+          recargar();
+        })
+        .catch(function (e) { toast(e.message, 'error'); });
+    }
+
+    function restaurarPpmRecomendados() {
+      gsRun('restaurarPpmRecomendados', token)
+        .then(function (res) {
+          const rec = res.ppmObjetivo || ppmRecomendados();
+          if (!datos.config) datos.config = {};
+          datos.config.ppmObjetivo = rec;
+          pintarGridPpm(rec);
+          if (typeof pintarResultados === 'function') pintarResultados();
+          toast(res.mensaje || 'Se restauraron los rangos recomendados.', 'exito');
+        })
+        .catch(function (e) { toast(e.message, 'error'); });
+    }
+
+    /* ==================== MATRÍCULA DINÁMICA ==================== */
+    function llenarGruposAlta() {
+      const selGrado = document.getElementById('nGra');
+      const grado = normalizarGrado(selGrado ? selGrado.value : '');
+      const sel = document.getElementById('nGru');
+      if (!sel) return;
+
+      const todos = listaGrupos();
+      let grupos = todos.filter(function (g) {
+        const gg = gradoDeGrupo(g);
+        return !grado || gg === grado;
+      });
+
+      if (!grupos.length && grado) {
+        ['a', 'b', 'c', 'd', 'e'].forEach(function (letra) {
+          grupos.push({ grado: grado, grupo: grado + letra, activo: 'SI', extra: 0 });
+        });
+      }
+
+      if (!grupos.length) {
+        sel.innerHTML = '<option value="">-- Elige grado primero --</option>';
+        return;
+      }
+      let html = '<option value="">-- Elige grupo --</option>';
+      grupos.forEach(function (g) {
+        html += '<option value="' + escaparHtml(g.grupo) + '">' + escaparHtml(g.grupo.toUpperCase()) + '</option>';
+      });
+      sel.innerHTML = html;
+      if (grado && grupos.length > 0) {
+        sel.value = grupos[0].grupo;
+      }
+    }
+
+    function llenarSelectsConfig() {
+      const grupos = listaGrupos();
+      document.getElementById('cfgGrupo').innerHTML = grupos.length
+        ? grupos.map(function (g) {
+            return '<option value="' + escaparHtml(g.grupo) + '">' + escaparHtml(g.grupo.toUpperCase()) + ' (extra: ' + (g.extra || 0) + ')</option>';
+          }).join('')
+        : '<option value="">No hay grupos</option>';
+      const alumnos = (datos.alumnos || []).filter(function (a) { return String(a.activo).toUpperCase() !== 'NO'; });
+      document.getElementById('cfgAlumno').innerHTML = alumnos.length
+        ? alumnos.map(function (a) {
+            return '<option value="' + escaparHtml(a.matricula) + '">' + escaparHtml(a.nombre) + ' · ' + escaparHtml(a.grupo.toUpperCase()) + ' (extra: ' + a.extra + ')</option>';
+          }).join('')
+        : '<option value="">No hay alumnos</option>';
+    }
+
+    function llenarFiltroLecturas() {
+      const lecturas = datos.lecturas || [];
+      document.getElementById('fLectura').innerHTML = '<option value="">Todas</option>' +
+        lecturas.map(function (l) {
+          const tit = (l.asignatura && l.tema) ? (l.grado + '° · ' + l.asignatura + ' · ' + l.tema) : (l.id || 'Lectura');
+          return '<option value="' + escaparHtml(l.id) + '">' + escaparHtml(tit) + '</option>';
+        }).join('');
+    }
+
+    /* ==================== FILTROS RESULTADOS ==================== */
+    function cambiarFiltroGrado() {
+      const selGrado = document.getElementById('fGrado');
+      const grado = normalizarGrado(selGrado ? selGrado.value : '');
+      const sel = document.getElementById('fGrupo');
+      if (!sel) return;
+
+      let grupos = listaGrupos().filter(function (g) {
+        const gg = gradoDeGrupo(g);
+        return !grado || gg === grado;
+      });
+
+      if (!grupos.length && grado) {
+        ['a', 'b', 'c', 'd', 'e'].forEach(function (letra) {
+          grupos.push({ grado: grado, grupo: grado + letra, activo: 'SI', extra: 0 });
+        });
+      }
+
+      let html = '<option value="">Todos</option>';
+      grupos.forEach(function (g) { html += '<option value="' + escaparHtml(g.grupo) + '">' + escaparHtml(g.grupo.toUpperCase()) + '</option>'; });
+      sel.innerHTML = html;
+      cambiarFiltroGrupo();
+    }
+
+    function normalizarNombreFiltro(v) {
+      return String(v || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    function normalizarGrupoFiltro(v) {
+      return String(v || '').toLowerCase().replace(/\s+/g, '').replace(/°/g, '');
+    }
+
+    function esGrupoValido(v) {
+      return /^[123][a-z]$/.test(normalizarGrupoFiltro(v));
+    }
+
+    function nombreEsAlumnoReal(nom) {
+      const n = normalizarNombreFiltro(nom);
+      if (!n || n.length < 6) return false;
+      if (/^(grado|grupo|alumno|nombre|matricula|escuela|estudiante|todos|activo|genero|calificacion)/.test(n)) return false;
+      if (/^estudiante\s*\d+$/.test(n)) return false;
+      return n.split(' ').length >= 2;
+    }</script>

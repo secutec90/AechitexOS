@@ -1,0 +1,153 @@
+<script>
+function sujetoVistaHorario_() {
+  const vista = (typeof valorSel_ === 'function' ? valorSel_('selVistaHorario') : '') || 'grupo';
+  if (vista === 'docente') return (typeof valorSel_ === 'function' ? valorSel_('selDocenteClase') : '');
+  if (vista === 'aula') return (typeof valorSel_ === 'function' ? valorSel_('selAulaClase') : '');
+  return '';
+}
+
+function subtituloCeldaHorario_(h) {
+  const vista = (panelMaeUlt && panelMaeUlt.vista) || 'grupo';
+  h = h || {};
+  if (vista === 'docente') return (h.grupoEtq || '') + (h.salon ? (' · ' + h.salon) : '');
+  if (vista === 'aula') return (h.grupoEtq || '') + (h.maestro ? (' · ' + h.maestro) : '');
+  return (h.maestro || '') + (h.salon ? (' · ' + h.salon) : '');
+}
+
+function htmlCeldaCalendario_(lista, fecha, bloque, horaInicio, horaFin, selClave) {
+  if (!lista || !lista.length) {
+    return '<td><div class="cal-vacia" onclick="abrirCeldaVaciaCal(\'' + escaparHtml(fecha) + '\',\'' + escaparHtml(bloque || '') + '\',\'' + escaparHtml(horaInicio) + '\',\'' + escaparHtml(horaFin) + '\')" title="Espacio sin clase asignada" style="cursor:pointer;min-height:48px;"></div></td>';
+  }
+  let html = '<td>';
+  lista.forEach(function (h) {
+    const hay = h.contenido && String(h.contenido.texto || '').trim();
+    const clave = claveCeldaCal_(fecha, h.idHorario);
+    const cls = (h.enCurso ? ' en-curso' : '') + (hay ? ' con-texto publicado' : '') +
+      (!h.propia ? ' ajena' : '') + (clave === selClave ? ' sel' : '');
+    const extra = !h.propia ? 'Otro maestro' : (hay ? ((h.contenido && h.contenido.titulo) ? h.contenido.titulo : 'Con texto') : '');
+    html += '<button type="button" class="cal-celda' + cls + '" onclick="abrirCeldaCal(\'' +
+      escaparHtml(fecha) + '\',\'' + String(h.idHorario || '').replace(/'/g, '') + '\')">' +
+      '<strong>' + escaparHtml(h.asignatura || 'Clase') + '</strong>' +
+      '<span>' + escaparHtml(subtituloCeldaHorario_(h)) + '</span>' +
+      (extra ? ('<span>' + escaparHtml(extra) + '</span>') : '') + '</button>';
+  });
+  html += '</td>';
+  return html;
+}
+
+function aplicarControlesVistaHorario_(r) {
+  r = r || {};
+  const vista = r.vista || 'grupo';
+  const turno = r.turno || 'matutino';
+  const selT = document.getElementById('selTurnoClase');
+  if (selT) selT.value = turno;
+  const selTP = document.getElementById('selTurnoPlan');
+  if (selTP && document.activeElement !== selTP) selTP.value = turno;
+  const selV = document.getElementById('selVistaHorario');
+  if (selV) selV.value = vista;
+  const selVP = document.getElementById('selVistaPlan');
+  if (selVP && document.activeElement !== selVP) selVP.value = vista;
+  ['btnClaseGrupo', 'btnClaseAlumno'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('oculto', vista !== 'grupo');
+  });
+  const asig = document.getElementById('btnClaseAsig');
+  if (asig) asig.classList.toggle('oculto', vista === 'concentrado');
+  const doc = document.getElementById('btnClaseDocente');
+  if (doc) doc.classList.toggle('oculto', vista !== 'docente');
+  const aula = document.getElementById('btnClaseAula');
+  if (aula) aula.classList.toggle('oculto', vista !== 'aula');
+  if (typeof llenarOpciones_ === 'function') {
+    llenarOpciones_(document.getElementById('selDocenteClase'), (r.docentes || []).map(function (n) {
+      return { valor: n, etq: n };
+    }), r.sujeto || '', '<option value="">Elige docente…</option>');
+    llenarOpciones_(document.getElementById('selAulaClase'), (r.aulas || []).map(function (n) {
+      return { valor: n, etq: n };
+    }), r.sujeto || '', '<option value="">Elige aula…</option>');
+  }
+}
+
+function alCambiarTurnoHorario() {
+  const t = valorSel_('selTurnoClase');
+  const p = document.getElementById('selTurnoPlan');
+  if (p && t) p.value = t;
+  cargarHorarioMae();
+}
+
+function alCambiarVistaHorario() {
+  const v = valorSel_('selVistaHorario');
+  const p = document.getElementById('selVistaPlan');
+  if (p && v) p.value = v;
+  cargarHorarioMae();
+}
+
+function alCambiarTurnoPlan() {
+  const t = valorSel_('selTurnoPlan');
+  const s = document.getElementById('selTurnoClase');
+  if (s && t) s.value = t;
+  cargarHorarioMae();
+}
+
+function alCambiarVistaPlan() {
+  const v = valorSel_('selVistaPlan');
+  const s = document.getElementById('selVistaHorario');
+  if (s && v) s.value = v;
+  const tabC = document.getElementById('tabClases');
+  if (tabC && !tabC.classList.contains('oculto')) cargarHorarioMae();
+}
+
+function verHorarioDesdePlan() {
+  const t = valorSel_('selTurnoPlan');
+  const v = valorSel_('selVistaPlan');
+  const st = document.getElementById('selTurnoClase');
+  const sv = document.getElementById('selVistaHorario');
+  if (st && t) st.value = t;
+  if (sv && v) sv.value = v;
+  if (typeof conmutarVistaPlaneacion_ === 'function') {
+    conmutarVistaPlaneacion_('horario', document.getElementById('btnSubPlanHorario'));
+    return;
+  }
+  if (typeof tabN1Clase === 'function') tabN1Clase('clases');
+}
+
+function pintarConcentradoMae_(r) {
+  const caja = document.getElementById('listaSlotsMae');
+  if (!caja) return;
+  const c = (r && r.concentrado) || {};
+  const grupos = c.grupos || [];
+  const dias = c.dias || [];
+  const bloques = c.bloques || [];
+  const mapa = {};
+  if (!grupos.length || !dias.length || !bloques.length) {
+    caja.innerHTML = '<p class="hint">No hay clases del turno ' + escaparHtml((r && r.turno) || '') + ' para el concentrado. Importa el XML de ese turno.</p>';
+    caja._mapa = mapa;
+    return;
+  }
+  const selClave = (typeof slotMaeSel !== 'undefined' && slotMaeSel) ? claveCeldaCal_(slotMaeSel.fecha, slotMaeSel.idHorario) : '';
+  let html = '<p class="hint" style="margin:8px 0;">Concentrado del turno ' + escaparHtml(r.turno || '') + '. Cada columna es un grupo.</p>';
+  dias.forEach(function (d) {
+    html += '<h3 style="margin:14px 0 6px;font-size:14px;color:#0f172a;">' + escaparHtml((d.etqCorta || '') + ' ' + (d.etqNum || '')) + '</h3>';
+    html += '<div style="overflow-x:auto;"><table class="cal-tabla cal-concentrado"><thead><tr><th class="th-hora">Hora</th>';
+    grupos.forEach(function (g) { html += '<th>' + escaparHtml(g.etq) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    bloques.forEach(function (b) {
+      html += '<tr><td class="hora">' + escaparHtml(b.horaInicio) + '</td>';
+      grupos.forEach(function (g) {
+        const lista = (d.celdas && d.celdas[g.clave] && d.celdas[g.clave][b.clave]) || [];
+        lista.forEach(function (h) { mapa[claveCeldaCal_(d.fecha, h.idHorario)] = h; });
+        html += htmlCeldaCalendario_(lista, d.fecha, b.bloque, b.horaInicio, b.horaFin, selClave);
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  });
+  caja._mapa = mapa;
+  caja.innerHTML = html;
+}
+
+function refrescarSelectorHorarioPlan_() {
+  if (typeof poblarSelectorHorarioPlan_ !== 'function') return;
+  const idActual = (document.getElementById('planIdHorario') || {}).value || '';
+  poblarSelectorHorarioPlan_(idActual);
+}
+</script>

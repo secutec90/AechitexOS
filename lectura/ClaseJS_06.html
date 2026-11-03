@@ -1,0 +1,664 @@
+<script>
+/* ClaseJS_06 — alSeleccionarContenidoSinteticoNEM, obtenerPDAsDeContenidoYGrado_, poblarSelectorPDASegunContenido_, alCambiarCheckboxPDANEM_, marcarTodosPDAsGrado_, filtrarListaPDAsDOM_, alternarArticulacionOtrosGrados_, actualizarCajaArticulacionOtrosGrados_, alSeleccionarPDANEM, solicitarSugerenciaProyectoIA, ... */
+
+
+  function alSeleccionarContenidoSinteticoNEM() {
+    const selCont = document.getElementById('selContenidoSinteticoNEM');
+    const val = (selCont && selCont.value) || '';
+    const inpCont = document.getElementById('planContenidoSintetico');
+    if (inpCont && val) {
+      inpCont.value = val;
+    }
+    poblarSelectorPDASegunContenido_(val);
+  }
+
+  function obtenerPDAsDeContenidoYGrado_(cObj, grado) {
+    if (!cObj || !cObj.pda) return [];
+    const val = cObj.pda[grado];
+    if (Array.isArray(val)) return val.filter(x => !!String(x).trim());
+    if (typeof val === 'string' && val.trim()) return [val.trim()];
+    return [];
+  }
+
+  var pdasSeleccionadosNEM_ = [];
+
+  function _gradoPlanNEM_() {
+    return String((document.getElementById('planGrado') || {}).value || '1').trim();
+  }
+
+  function _leerSeleccionPDANEM_() {
+    const inp = document.getElementById('planPDA');
+    const txt = (inp && inp.value) || '';
+    if (!txt.trim()) return [];
+    return txt.split('\n').map(function (l) {
+      return l.replace(/^•\s*\[[^\]]*\]\s*/, '').trim();
+    }).filter(Boolean);
+  }
+
+  function _pdasDisponiblesNEM_() {
+    const salida = [];
+    const gr = _gradoPlanNEM_();
+    const vistos = {};
+    if (!matrizCurricularActivaNEM_ || !Array.isArray(matrizCurricularActivaNEM_.contenidos)) return salida;
+    matrizCurricularActivaNEM_.contenidos.forEach(function (c) {
+      obtenerPDAsDeContenidoYGrado_(c, gr).forEach(function (t) {
+        const k = String(t).trim();
+        if (!k || vistos[k]) return;
+        vistos[k] = true;
+        salida.push({ texto: k, contenido: String(c.contenido || '') });
+      });
+    });
+    return salida;
+  }
+
+  function _escribirPlanPDA_() {
+    const gr = _gradoPlanNEM_();
+    const inp = document.getElementById('planPDA');
+    if (inp) {
+      inp.value = pdasSeleccionadosNEM_.length
+        ? pdasSeleccionadosNEM_.map(function (t) { return '• [' + gr + '° Grado] ' + t; }).join('\n\n')
+        : '';
+    }
+    const badge = document.getElementById('badgeConteoPDAs');
+    if (badge) {
+      badge.textContent = pdasSeleccionadosNEM_.length + ' seleccionado' + (pdasSeleccionadosNEM_.length === 1 ? '' : 's');
+    }
+  }
+
+  function _pintarSelectorPDANEM_(filtro) {
+    const cont = document.getElementById('listaPDAsCheckboxNEM');
+    if (!cont) return;
+    const q = String(filtro || '').toLowerCase().trim();
+    const disp = _pdasDisponiblesNEM_().filter(function (x) {
+      return !q || x.texto.toLowerCase().indexOf(q) >= 0 || x.contenido.toLowerCase().indexOf(q) >= 0;
+    });
+
+    const opciones = disp.map(function (x) {
+      const ya = pdasSeleccionadosNEM_.indexOf(x.texto) >= 0;
+      const etiqueta = (ya ? '✓ ' : '') + x.texto + (x.contenido ? '  —  ' + x.contenido : '');
+      return '<option value="' + escaparHtml(x.texto) + '">' + escaparHtml(etiqueta.slice(0, 170)) + '</option>';
+    }).join('');
+
+    const chips = pdasSeleccionadosNEM_.map(function (t, i) {
+      const corto = t.length > 64 ? t.slice(0, 64) + '…' : t;
+      return '<span title="' + escaparHtml(t) + '" style="display:inline-flex;align-items:center;gap:5px;background:#e0f2fe;border:1px solid #bae6fd;color:#0c4a6e;border-radius:999px;padding:3px 8px;font-size:11px;">' +
+        escaparHtml(corto) +
+        '<button type="button" title="Quitar" onclick="quitarPDANEM_(' + i + ')" style="border:0;background:none;cursor:pointer;color:#b91c1c;font-weight:700;padding:0;">✕</button>' +
+      '</span>';
+    }).join('');
+
+    cont.innerHTML =
+      '<select id="selPDANEM" class="nem-select-sintetico" onchange="elegirPDANEM_(this)" style="width:100%;">' +
+        '<option value="">' + (disp.length ? 'Selecciona un PDA para agregarlo…' : 'Sin PDA que coincidan con el filtro') + '</option>' +
+        opciones +
+      '</select>' +
+      (chips ? '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">' + chips + '</div>' : '');
+    _escribirPlanPDA_();
+  }
+
+  function elegirPDANEM_(sel) {
+    const v = String((sel && sel.value) || '').trim();
+    if (!v) return;
+    if (pdasSeleccionadosNEM_.indexOf(v) < 0) pdasSeleccionadosNEM_.push(v);
+    _pintarSelectorPDANEM_((document.getElementById('buscarPDANEM') || {}).value || '');
+  }
+
+  function quitarPDANEM_(i) {
+    if (i < 0 || i >= pdasSeleccionadosNEM_.length) return;
+    pdasSeleccionadosNEM_.splice(i, 1);
+    _pintarSelectorPDANEM_((document.getElementById('buscarPDANEM') || {}).value || '');
+  }
+
+  function poblarSelectorPDASegunContenido_(contenidoTexto) {
+    const cont = document.getElementById('listaPDAsCheckboxNEM');
+    if (!cont) return;
+
+    if (!matrizCurricularActivaNEM_ || !Array.isArray(matrizCurricularActivaNEM_.contenidos)) {
+      cont.innerHTML = '<select id="selPDANEM" class="nem-select-sintetico" onchange="elegirPDANEM_(this)" style="width:100%;"><option value="">Selecciona un PDA para agregarlo…</option></select>';
+      return;
+    }
+
+    pdasSeleccionadosNEM_ = _leerSeleccionPDANEM_();
+
+    const cObj = matrizCurricularActivaNEM_.contenidos.find(function (c) { return c.contenido === contenidoTexto; })
+      || matrizCurricularActivaNEM_.contenidos[0];
+    const gr = _gradoPlanNEM_();
+
+    if (!_pdasDisponiblesNEM_().length) {
+      cont.innerHTML =
+        '<div style="padding:10px;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;font-size:12px;color:#991b1b;">' +
+          '<strong>Nota curricular SEP:</strong> Esta disciplina no cuenta con asignación de PDA para ' + escaparHtml(gr) +
+          '° de secundaria (algunas disciplinas son exclusivas de un grado en la Fase 6).' +
+        '</div>';
+      _escribirPlanPDA_();
+      if (cObj) actualizarCajaArticulacionOtrosGrados_(cObj, gr);
+      return;
+    }
+
+    _pintarSelectorPDANEM_('');
+    if (cObj) actualizarCajaArticulacionOtrosGrados_(cObj, gr);
+  }
+
+  function alCambiarCheckboxPDANEM_() { _escribirPlanPDA_(); }
+
+  function marcarTodosPDAsGrado_(marcar) {
+    if (marcar) {
+      _pdasDisponiblesNEM_().forEach(function (x) {
+        if (pdasSeleccionadosNEM_.indexOf(x.texto) < 0) pdasSeleccionadosNEM_.push(x.texto);
+      });
+    } else {
+      pdasSeleccionadosNEM_ = [];
+    }
+    _pintarSelectorPDANEM_((document.getElementById('buscarPDANEM') || {}).value || '');
+  }
+
+  function filtrarListaPDAsDOM_() {
+    _pintarSelectorPDANEM_((document.getElementById('buscarPDANEM') || {}).value || '');
+  }
+
+  function alternarBuscadorPDA_() {
+    const inp = document.getElementById('buscarPDANEM');
+    if (!inp) return;
+    const estabaOculto = inp.classList.contains('oculto');
+    inp.classList.toggle('oculto');
+    if (estabaOculto) setTimeout(function () { inp.focus(); }, 30);
+  }
+
+  function alternarArticulacionOtrosGrados_() {
+    const c = document.getElementById('cajaArticulacionOtrosGrados');
+    if (c) c.classList.toggle('oculto');
+  }
+
+  function actualizarCajaArticulacionOtrosGrados_(cObj, gradoActual) {
+    const caja = document.getElementById('cajaArticulacionOtrosGrados');
+    if (!caja) return;
+
+    if (!cObj || !cObj.pda) {
+      caja.innerHTML = '<span style="color:#64748b;">Sin datos de articulación disponibles.</span>';
+      return;
+    }
+
+    const otros = ['1', '2', '3'].filter(g => g !== gradoActual);
+    const bloques = [];
+
+    otros.forEach(g => {
+      const pdas = obtenerPDAsDeContenidoYGrado_(cObj, g);
+      if (pdas.length) {
+        bloques.push(`
+          <div style="margin-bottom:6px;">
+            <strong style="color:#1e40af;">Progresión ${g}° Grado:</strong>
+            ${pdas.map(p => escaparHtml(p)).join(' | ')}
+          </div>
+        `);
+      }
+    });
+
+    if (bloques.length) {
+      caja.innerHTML = `
+        <div style="margin-bottom:4px;font-weight:700;color:#0f766e;">Articulación Curricular Vertical (Solo Consulta — No se añade a ${gradoActual}°):</div>
+        ${bloques.join('')}
+      `;
+    } else {
+      caja.innerHTML = '<span style="color:#64748b;">Esta disciplina o contenido no presenta progresiones en otros grados de secundaria (Fase 6).</span>';
+    }
+  }
+
+  function alSeleccionarPDANEM() {
+    // Mantener compatibilidad si se invoca desde selectores antiguos
+    alCambiarCheckboxPDANEM_();
+  }
+
+  /* ASISTENTE PEDAGÓGICO IA */
+  function solicitarSugerenciaProyectoIA() {
+    const gr = String((document.getElementById('planGrado') || {}).value || '1').trim();
+    const asig = (document.getElementById('planAsignatura') || {}).value || '';
+    const campo = (document.getElementById('planCampoFormativo') || {}).value || '';
+    const met = (document.getElementById('planMetodologia') || {}).value || '';
+    const cont = (document.getElementById('planContenidoSintetico') || {}).value || '';
+    const pda = (document.getElementById('planPDA') || {}).value || '';
+
+    if (!cont || !pda) {
+      toast('Selecciona primero un Contenido Central y al menos un PDA oficial antes de consultar a la IA.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btnSugerirProyectoIA');
+    const txtOriginal = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Analizando contexto con IA...'; }
+
+    const payload = {
+      grado: gr,
+      asignatura: asig,
+      campoFormativo: campo,
+      metodologia: met,
+      contenidoSintetico: cont,
+      pda: pda
+    };
+
+    gsRun('asistirDisenoProyectoNEM', tokenClase, payload).then(function (res) {
+      if (btn) { btn.disabled = false; btn.textContent = txtOriginal; }
+      if (!res || !res.ok) {
+        toast((res && res.error) || 'No se pudo obtener sugerencia de IA.', 'error');
+        return;
+      }
+
+      const p = res.propuesta || {};
+      const htmlModal = '<div style="font-size:13px;line-height:1.5;color:#334155;max-width:100%;box-sizing:border-box;">' +
+        '<div style="background:#eff6ff;padding:8px 12px;border-radius:6px;border:1px solid #bfdbfe;margin-bottom:12px;">' +
+          '<strong style="color:#1e40af;">Justificación Pedagógica:</strong> ' + escaparHtml(p.justificacion || 'Articulación situada según los PDA seleccionados.') +
+        '</div>' +
+        '<div style="margin-bottom:10px;">' +
+          '<label style="font-weight:700;display:block;margin-bottom:4px;color:#1e293b;">Problema o Situación de la Comunidad sugerido:</label>' +
+          '<textarea id="modIAProblema" style="width:100%;max-width:100%;box-sizing:border-box;min-height:75px;padding:8px;border:1px solid #cbd5e1;border-radius:6px;font-size:12.5px;line-height:1.45;resize:vertical;overflow-y:auto;">' + escaparHtml(p.problemaComunidad || '') + '</textarea>' +
+        '</div>' +
+        '<div style="margin-bottom:10px;">' +
+          '<label style="font-weight:700;display:block;margin-bottom:4px;color:#1e293b;">Propósito del Proyecto y Producto Central sugeridos:</label>' +
+          '<textarea id="modIAProposito" style="width:100%;max-width:100%;box-sizing:border-box;min-height:90px;padding:8px;border:1px solid #cbd5e1;border-radius:6px;font-size:12.5px;line-height:1.45;resize:vertical;overflow-y:auto;">' +
+            escaparHtml((p.proposito || '') + (p.productoFinal ? ('\n\nProducto Final Central: ' + p.productoFinal) : '')) +
+          '</textarea>' +
+        '</div>' +
+        (p.ejesArticuladores && p.ejesArticuladores.length ? (
+          '<div style="font-size:12px;color:#059669;font-weight:600;margin-top:6px;">' +
+            'Ejes articuladores recomendados: ' + escaparHtml(p.ejesArticuladores.join(', ')) +
+          '</div>'
+        ) : '') +
+      '</div>';
+
+      modal({
+        titulo: '✨ Propuesta Pedagógica Situada (NEM Fase 6)',
+        clase: 'ia-modal',
+        html: htmlModal,
+        botones: [
+          { texto: 'Cancelar', clase: 'btn-secundario', valor: false },
+          { texto: '✓ Aplicar a la Planeación', clase: 'btn-primario', valor: true }
+        ],
+        capturar: function (fondo, val) {
+          if (!val) return null;
+          const probEl = fondo.querySelector('#modIAProblema');
+          const propEl = fondo.querySelector('#modIAProposito');
+          return {
+            ok: true,
+            problema: probEl ? probEl.value : '',
+            proposito: propEl ? propEl.value : ''
+          };
+        }
+      }).then(function (resCaptura) {
+        if (!resCaptura || !resCaptura.ok) return;
+        const nuevoProb = resCaptura.problema || '';
+        const nuevoProp = resCaptura.proposito || '';
+        if (nuevoProb) {
+          const txtP = document.getElementById('planProblema');
+          if (txtP) { txtP.value = nuevoProb; txtP.dispatchEvent(new Event('input', { bubbles: true })); }
+        }
+        if (nuevoProp) {
+          const txtPr = document.getElementById('planProposito');
+          if (txtPr) { txtPr.value = nuevoProp; txtPr.dispatchEvent(new Event('input', { bubbles: true })); }
+        }
+
+        if (Array.isArray(p.ejesArticuladores) && p.ejesArticuladores.length) {
+          document.querySelectorAll('#wrapEjesPlan input[type="checkbox"]').forEach(function (cb) {
+            const debeMarcar = p.ejesArticuladores.some(function (ej) {
+              return cb.value.toLowerCase().indexOf(ej.toLowerCase()) >= 0 || ej.toLowerCase().indexOf(cb.value.toLowerCase()) >= 0;
+            });
+            if (debeMarcar) {
+              cb.checked = true;
+              cb.closest('.nem-eje-chip').classList.add('seleccionado');
+            }
+          });
+        }
+        toast('Propuesta de IA aplicada a los campos de la planeación.', 'ok');
+      });
+    }).catch(function (err) {
+      if (btn) { btn.disabled = false; btn.textContent = txtOriginal; }
+      toast('Error al consultar IA: ' + (err.message || String(err)), 'error');
+    });
+  }
+
+  function solicitarDesgloseSesionesIA() {
+    if (!planActualNEM || !planActualNEM.id) {
+      toast('Guarda primero la planeación antes de desglosar sus sesiones con IA.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('btnDesglosarSesionesIA');
+    const txtOriginal = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Desglosando momentos DUA...'; }
+
+    const payload = {
+      idPlaneacion: planActualNEM.id,
+      numSesiones: sesionesActualesNEM.length || planActualNEM.numSesiones || 3,
+      titulo: planActualNEM.titulo || 'Proyecto Didáctico',
+      grado: planActualNEM.grado || '1',
+      asignatura: planActualNEM.asignatura || 'Español',
+      contenidoSintetico: planActualNEM.contenidoSintetico || '',
+      pda: planActualNEM.pda || ''
+    };
+
+    gsRun('asistirDesgloseSesionesNEM', tokenClase, payload).then(function (res) {
+      if (btn) { btn.disabled = false; btn.textContent = txtOriginal; }
+      if (!res || !res.ok) {
+        toast((res && res.error) || 'No se pudo generar el desglose con IA.', 'error');
+        return;
+      }
+
+      const lista = res.sesiones || [];
+      if (!lista.length) {
+        toast('El servicio no devolvió momentos para las sesiones.', 'warning');
+        return;
+      }
+
+      // Aplicar momentos a cada sesión en memoria
+      lista.forEach(function (item, idx) {
+        if (sesionesActualesNEM[idx]) {
+          const s = sesionesActualesNEM[idx];
+          if (item.titulo) s.titulo = item.titulo;
+          if (item.apertura) s.aperturaTexto = item.apertura;
+          if (item.desarrollo) s.desarrolloTexto = item.desarrollo;
+          if (item.actividad) s.actividadTexto = item.actividad;
+          if (item.cierre) s.cierreTexto = item.cierre;
+          if (item.recursoVisualTitulo || item.recursoVisualDescripcion) {
+            s.recursosVisuales = [{
+              titulo: item.recursoVisualTitulo || 'Recurso visual de la sesión',
+              descripcionAuditiva: item.recursoVisualDescripcion || '',
+              url: ''
+            }];
+          }
+        }
+      });
+
+      renderizarTabsSesiones();
+      cargarSesionActivaEnEditor(sesionActivaIdx || 0);
+      toast('Sesiones de 40 minutos desglosadas con enfoque DUA. Revisa y pulsa Guardar Sesión.', 'ok');
+    }).catch(function (err) {
+      if (btn) { btn.disabled = false; btn.textContent = txtOriginal; }
+      toast('Error al desglosar sesiones: ' + (err.message || String(err)), 'error');
+    });
+  }
+
+  function actualizarEncabezadoClaseNEM_(info) {
+    info = info || {};
+    const asig = info.asignatura || (document.getElementById('planAsignatura') || {}).value || 'Asignatura';
+    const gr = info.grado || (document.getElementById('planGrado') || {}).value || '1';
+    const gp = info.grupo || (document.getElementById('planGrupo') || {}).value || 'A';
+    const titEl = document.getElementById('txtEncabezadoMateriaGrupo');
+    if (titEl) titEl.textContent = asig.toUpperCase() + ' · ' + gr + '°' + gp;
+
+    // 1. Rastreo estricto de la fecha seleccionada
+    const fechaResolvida = info.fecha || (document.getElementById('planFechaInicio') || {}).value || fechaLocalClase();
+    const feEl = document.getElementById('txtEncabezadoFecha');
+    if (feEl) feEl.textContent = fechaResolvida;
+
+    // 2. Cálculo algorítmico y dinámico del periodo SEP a partir de la fecha
+    const periodoCalculado = determinarTrimestreSEP(fechaResolvida);
+    evaluarInclusionGrupo_(gr, gp);
+
+    // 3. Inyección estricta en el DOM (visual e input técnico de persistencia)
+    const perEl = document.getElementById('txtEncabezadoPeriodo');
+    if (perEl) perEl.textContent = periodoCalculado;
+
+    const inpPeriodo = document.getElementById('planPeriodo');
+    if (inpPeriodo) inpPeriodo.value = periodoCalculado;
+
+    const horEl = document.getElementById('txtEncabezadoHorario');
+    if (horEl) {
+      if (info.bloque) {
+        horEl.textContent = 'Hora ' + info.bloque + (info.horaInicio ? (' (' + info.horaInicio + '–' + info.horaFin + ')') : '');
+      } else if (info.horaInicio) {
+        horEl.textContent = info.horaInicio + '–' + info.horaFin;
+      } else if (slotMaeSel && slotMaeSel.bloque) {
+        horEl.textContent = 'Hora ' + slotMaeSel.bloque + (slotMaeSel.horaInicio ? (' (' + slotMaeSel.horaInicio + '–' + slotMaeSel.horaFin + ')') : '');
+      } else {
+        horEl.textContent = 'Horario asignado';
+      }
+    }
+
+    const maeEl = document.getElementById('txtEncabezadoDocente');
+    if (maeEl) {
+      maeEl.textContent = info.maestro || (slotMaeSel && slotMaeSel.maestro) || (panelMaeUlt && panelMaeUlt.maestro) || 'Docente titular';
+    }
+  }
+
+  function abrirPlaneacionDesdeSlotActual() {
+    if (!slotMaeSel) {
+      toast('Selecciona primero una clase en el horario.', 'error');
+      return;
+    }
+    const asig = slotMaeSel.asignatura || '';
+    let gr = String(slotMaeSel.grado || '').trim();
+    let gp = String(slotMaeSel.grupo || '').trim().replace(/^\d+/, '').toUpperCase();
+    if (!gr || !gp) {
+      const selG = document.getElementById('selGrupoClase');
+      const valG = (selG && selG.value) || '';
+      if (valG) {
+        const partes = valG.split('|');
+        if (!gr) gr = partes[0] || '1';
+        if (!gp) gp = (partes[1] || 'A').replace(/^\d+/, '').toUpperCase();
+      }
+    }
+    if (!gr) gr = '1';
+    if (!gp) gp = 'A';
+
+    const fe = slotMaeSel.fecha || (document.getElementById('fechaMaeClase') || {}).value || fechaLocalClase();
+    const idH = slotMaeSel.idHorario || '';
+    const periodoInfo = calcularPeriodoSegunFecha_(fe);
+    const campoInfo = inferirCampoYMetodologia_(asig);
+
+    // Cambiar de pestaña al módulo de Planeación
+    tabN1Clase('planeacion');
+
+    // Abrir el formulario con los datos preconfigurados dinámicamente
+    abrirFormNuevaPlaneacion({
+      asignatura: asig,
+      grado: gr,
+      grupo: gp,
+      fechaInicio: fe,
+      periodo: periodoInfo.etiqueta,
+      idHorario: idH,
+      bloque: slotMaeSel.bloque || '',
+      horaInicio: slotMaeSel.horaInicio || '',
+      horaFin: slotMaeSel.horaFin || '',
+      maestro: slotMaeSel.maestro || '',
+      campoFormativo: campoInfo.campo,
+      metodologia: campoInfo.metodologia,
+      tituloSugerido: (asig ? asig + ' · ' : '') + gr + '°' + gp + ' (' + periodoInfo.etiqueta + ')'
+    });
+
+    toast('Planeación NEM precargada para ' + asig + ' (' + gr + '°' + gp + ')', 'info');
+  }
+
+    function abrirPlaneacionDesdeGrupoActual() {
+      const selG = document.getElementById('selGrupoClase');
+      const valG = (selG && selG.value) || '';
+      const p = valG.split('|');
+      const gr = p[0] || '1';
+      const gp = (p[1] || 'A').replace(/^\d+/, '').toUpperCase();
+      const fe = (document.getElementById('fechaMaeClase') || {}).value || fechaLocalClase();
+      const perInfo = calcularPeriodoSegunFecha_(fe);
+      tabN1Clase('planeacion');
+      abrirFormNuevaPlaneacion({
+        grado: gr,
+        grupo: gp,
+        fechaInicio: fe,
+        periodo: perInfo.etiqueta,
+        tituloSugerido: gr + '°' + gp + ' (' + perInfo.etiqueta + ')'
+      });
+    }
+
+    function poblarSelectorHorarioPlan_(idHorarioSel) {
+      const sel = document.getElementById('selPlanClaseHorario');
+      if (!sel) return;
+      let slots = (panelMaeUlt && panelMaeUlt.clasesTurno) || [];
+      if (!slots.length) slots = (ctxPlanNEM && ctxPlanNEM.horariosDisponibles) || [];
+      const turnoSel = (typeof valorSel_ === 'function' && (valorSel_('selTurnoPlan') || valorSel_('selTurnoClase'))) || (panelMaeUlt && panelMaeUlt.turno) || '';
+      if (turnoSel) slots = slots.filter(function (s) { return !s.turno || s.turno === turnoSel; });
+      if (!slots.length && panelMaeUlt && panelMaeUlt.calendario) {
+        const mapa = {};
+        panelMaeUlt.calendario.forEach(function (d) {
+          (d.horario || []).forEach(function (h) {
+            const k = (h.idHorario || '') + '_' + (h.dia || '') + '_' + (h.bloque || '');
+            if (!mapa[k] && h.asignatura) {
+              const grH = String(h.grado || '').trim();
+              const gpH = String(h.grupo || '').trim().replace(/^\d+/, '').toUpperCase();
+              mapa[k] = {
+                idHorario: h.idHorario,
+                dia: h.dia || d.dia,
+                bloque: h.bloque,
+                horaInicio: h.horaInicio,
+                horaFin: h.horaFin,
+                grado: grH,
+                grupo: gpH,
+                asignatura: h.asignatura,
+                maestro: h.maestro,
+                etiqueta: (grH ? grH + '°' : '') + gpH + ' · ' + h.asignatura +
+                  (h.dia ? (' (' + h.dia + (h.bloque ? (' · Hora ' + h.bloque) : '') + ')') : '')
+              };
+            }
+          });
+        });
+        slots = Object.keys(mapa).map(function (k) { return mapa[k]; });
+      }
+
+      sel.innerHTML = '<option value="">-- Diseñar planeación libre (o elige una clase del horario para autocompletar) --</option>' +
+        slots.map(function (s) {
+          const val = JSON.stringify(s);
+          const selStr = (idHorarioSel && String(s.idHorario) === String(idHorarioSel)) ? ' selected' : '';
+          return '<option value="' + escaparHtml(val) + '"' + selStr + '>' + escaparHtml(s.etiqueta || (s.asignatura + ' · ' + s.grado + '°' + s.grupo)) + '</option>';
+        }).join('');
+    }
+
+    function abrirFormNuevaPlaneacion(prefill) {
+      document.getElementById('cajaListaPlanNEM').classList.add('oculto');
+      document.getElementById('cajaSesionesPlanNEM').classList.add('oculto');
+      document.getElementById('cajaFormPlanNEM').classList.remove('oculto');
+
+      prefill = prefill || {};
+      let grUso = String(prefill.grado || '').trim();
+      let gpUso = String(prefill.grupo || '').trim().replace(/^\d+/, '').toUpperCase();
+
+      // Si no vienen especificados, heredar del horario o slot seleccionado
+      if (!grUso || !gpUso) {
+        if (slotMaeSel) {
+          if (!grUso) grUso = String(slotMaeSel.grado || '').trim();
+          if (!gpUso) gpUso = String(slotMaeSel.grupo || '').trim().replace(/^\d+/, '').toUpperCase();
+        }
+        if (!grUso || !gpUso) {
+          const selG = document.getElementById('selGrupoClase');
+          const valG = (selG && selG.value) || '';
+          if (valG) {
+            const partes = valG.split('|');
+            if (!grUso) grUso = partes[0] || '1';
+            if (!gpUso) gpUso = (partes[1] || 'A').replace(/^\d+/, '').toUpperCase();
+          }
+        }
+      }
+      if (!grUso) grUso = '1';
+      if (!gpUso) gpUso = 'A';
+
+      const feUso = prefill.fechaInicio || (slotMaeSel && slotMaeSel.fecha) || (document.getElementById('fechaMaeClase') || {}).value || fechaLocalClase();
+      const perInfo = calcularPeriodoSegunFecha_(feUso);
+
+      let asigUso = prefill.asignatura || (slotMaeSel && slotMaeSel.asignatura) || '';
+      if (!asigUso) {
+        asigUso = (ctxPlanNEM && ctxPlanNEM.asignaturas && ctxPlanNEM.asignaturas[0]) || 'Español';
+      }
+
+      const tit = document.getElementById('titFormPlan');
+      if (tit) tit.textContent = 'Nueva Planeación Didáctica NEM';
+      document.getElementById('planId').value = '';
+      document.getElementById('planIdHorario').value = prefill.idHorario || (slotMaeSel && slotMaeSel.idHorario) || '';
+      document.getElementById('planTitulo').value = prefill.tituloSugerido || '';
+      document.getElementById('planGrado').value = grUso;
+      actualizarGruposFormPlan(gpUso);
+      document.getElementById('planGrupo').value = gpUso;
+      document.getElementById('planAsignatura').value = asigUso;
+      document.getElementById('planFechaInicio').value = feUso;
+      document.getElementById('planPeriodo').value = prefill.periodo || perInfo.etiqueta;
+
+      const badgePer = document.getElementById('badgePeriodoPlan');
+      if (badgePer) badgePer.textContent = perInfo.badge;
+
+      const inferido = inferirCampoYMetodologia_(asigUso);
+      document.getElementById('planCampoFormativo').value = prefill.campoFormativo || inferido.campo;
+      document.getElementById('planMetodologia').value = prefill.metodologia || inferido.metodologia;
+      document.getElementById('planNumSesiones').value = '3';
+      document.getElementById('planContenidoSintetico').value = '';
+      document.getElementById('planPDA').value = '';
+      document.getElementById('planProblema').value = '';
+      document.getElementById('planProposito').value = '';
+      if (typeof reiniciarCriteriosCotejoNEM_ === 'function') reiniciarCriteriosCotejoNEM_();
+
+      document.querySelectorAll('#wrapEjesPlan input[type="checkbox"]').forEach(function (cb) {
+        cb.checked = (cb.value === 'Inclusión' || cb.value === 'Apropiación de las culturas a través de la lectura y la escritura');
+        cb.closest('.nem-eje-chip').classList.toggle('seleccionado', cb.checked);
+      });
+
+      poblarSelectorHorarioPlan_(prefill.idHorario || (slotMaeSel && slotMaeSel.idHorario));
+      poblarSelectorProblemasCTE_();
+      evaluarInclusionGrupo_(grUso, gpUso);
+      const inpAjustes = document.getElementById('planAjustesRazonables'); if (inpAjustes) inpAjustes.value = prefill.ajustesRazonables || prefill.AjustesRazonables || '';
+
+      actualizarEncabezadoClaseNEM_({
+        asignatura: asigUso,
+        grado: grUso,
+        grupo: gpUso,
+        fecha: feUso,
+        periodo: prefill.periodo || perInfo.etiqueta,
+        bloque: prefill.bloque || (slotMaeSel && slotMaeSel.bloque),
+        horaInicio: prefill.horaInicio || (slotMaeSel && slotMaeSel.horaInicio),
+        horaFin: prefill.horaFin || (slotMaeSel && slotMaeSel.horaFin),
+        maestro: prefill.maestro || (slotMaeSel && slotMaeSel.maestro)
+      });
+      actualizarCatalogoPDAParaClase_(asigUso, grUso);
+    }
+
+    function actualizarGruposFormPlan(grupoSeleccionado) {
+      const g = String((document.getElementById('planGrado') || {}).value || '1').trim();
+      const sel = document.getElementById('planGrupo');
+      if (!sel) return;
+
+      const letrasSet = {};
+      // 1. Extraer grupos del panel maestro actual
+      if (panelMaeUlt && Array.isArray(panelMaeUlt.grupos)) {
+        panelMaeUlt.grupos.forEach(function (grp) {
+          const gr = String(grp.grado || (grp.clave && grp.clave.split('|')[0]) || '').trim();
+          const gp = String(grp.grupo || (grp.clave && grp.clave.split('|')[1]) || '').trim().replace(/^\d+/, '').toUpperCase();
+          if (!g || gr === g) {
+            if (gp) letrasSet[gp] = true;
+          }
+        });
+      }
+      // 2. Extraer grupos de ctxPlanNEM
+      if (ctxPlanNEM && Array.isArray(ctxPlanNEM.gruposDisponibles)) {
+        ctxPlanNEM.gruposDisponibles.forEach(function (grp) {
+          const gr = String(grp.grado || '').trim();
+          const gp = String(grp.grupo || '').trim().replace(/^\d+/, '').toUpperCase();
+          if (!g || gr === g) {
+            if (gp) letrasSet[gp] = true;
+          }
+        });
+      }
+      // 3. Garantizar siempre grupos secundarios completos A, B, C, D, E, F
+      ['A', 'B', 'C', 'D', 'E', 'F'].forEach(function (l) {
+        letrasSet[l] = true;
+      });
+
+      const letras = Object.keys(letrasSet).sort();
+      sel.innerHTML = letras.map(function (l) {
+        return '<option value="' + escaparHtml(l) + '">' + escaparHtml(l) + '</option>';
+      }).join('');
+
+      let target = String(grupoSeleccionado || sel.value || 'A').trim().replace(/^\d+/, '').toUpperCase();
+      if (!letrasSet[target]) target = letras[0] || 'A';
+      sel.value = target;
+    }
+
+    function editarPlaneacionGeneral(id) {
+      const p = (listaPlanNEM || []).find(function (item) { return (item.Id || item.id) === id; });
+      if (!p) {
+        gsRun('obtenerPlaneacionCompletaNEM', tokenClase, id).then(function (res) {
+          if (res && res.planeacion) cargarDatosEnFormPlan_(res.planeacion);
+        }).catch(function (e) { toast(e.message || String(e), 'error'); });
+        return;
+      }
+      cargarDatosEnFormPlan_(p);
+    }</script>
