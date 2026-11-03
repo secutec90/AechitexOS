@@ -1462,7 +1462,11 @@ function horarioMaestroClase(token, fecha, grupoClave, asignatura, modo, turno, 
     if (esMaestro && (ses.maestroNombre || ses.nombre)) sujetoUso = ses.maestroNombre || ses.nombre;
     if (!sujetoUso && catalogo.docentes.length) sujetoUso = catalogo.docentes[0];
   }
-  if (vistaUso === "aula" && !sujetoUso && catalogo.aulas.length) sujetoUso = catalogo.aulas[0];
+  // Sin aula elegida, o el valor "todas", la hoja muestra cada salón del turno lado a lado.
+  if (vistaUso === "aula") {
+    const pedidoAula = sujetoUso.toLowerCase();
+    if (!pedidoAula || pedidoAula === "todas") sujetoUso = "todas";
+  }
   const alumnos = (vistaUso === "grupo") ? alumnosConAccesoClase_(ses, grado, grupo) : [];
   let porDia = { lunes: [], martes: [], miercoles: [], jueves: [], viernes: [], sabado: [], domingo: [], todos: [] };
   if (vistaUso === "grupo" && grado && grupo) {
@@ -1471,16 +1475,23 @@ function horarioMaestroClase(token, fecha, grupoClave, asignatura, modo, turno, 
     porDia = porDiaFiltradoHorario_(filasTodas, turnoUso, function (h) {
       return normalizarNombrePref_(h.maestro) === normalizarNombrePref_(sujetoUso);
     });
-  } else if (vistaUso === "aula" && sujetoUso) {
+  } else if (vistaUso === "aula" && sujetoUso !== "todas") {
     porDia = porDiaFiltradoHorario_(filasTodas, turnoUso, function (h) {
       return normalizarNombrePref_(h.salon) === normalizarNombrePref_(sujetoUso);
     });
-  } else if (vistaUso === "concentrado") {
+  } else if (vistaUso === "aula" && esMaestro) {
+    const aulasPropias = {};
+    (catalogo.aulas || []).forEach(function (a) { aulasPropias[normalizarNombrePref_(a)] = true; });
+    porDia = porDiaFiltradoHorario_(filasTodas, turnoUso, function (h) {
+      return !!aulasPropias[normalizarNombrePref_(h.salon)];
+    });
+  } else if (vistaUso === "aula" || vistaUso === "concentrado") {
     porDia = porDiaFiltradoHorario_(filasTodas, turnoUso, null);
   }
   const haySab = ((porDia.sabado || []).length > 0);
   const puedeDias = vistaUso !== "grupo" || (grado && grupo);
-  const diasSem = puedeDias ? diasPeriodoClase_(fe, modo, haySab) : [];
+  // La hoja impresa es la semana del día elegido, aunque el control siga en día o mes.
+  const diasSem = puedeDias ? diasPeriodoClase_(fe, "semana", haySab) : [];
 
   const mapaAsig = {};
   Object.keys(porDia).forEach(function (dia) {
@@ -1532,9 +1543,11 @@ function horarioMaestroClase(token, fecha, grupoClave, asignatura, modo, turno, 
   });
 
   const bloquesMap = {};
-  // 1. Extraer bloques de toda la semana del grupo para que la cuadrícula nunca esté vacía
-  Object.keys(porDia).forEach(function (dia) {
-    (porDia[dia] || []).forEach(function (h) {
+  // El docente solo ve los periodos donde él tiene clase. Grupo, aula y concentrado
+  // usan todos los periodos del turno, para que la columna vacía del impreso siga ahí.
+  const fuenteBloques = (vistaUso === "docente") ? porDia : porDiaFiltradoHorario_(filasTodas, turnoUso, null);
+  Object.keys(fuenteBloques).forEach(function (dia) {
+    (fuenteBloques[dia] || []).forEach(function (h) {
       const k = String(h.horaInicio || "") + "|" + String(h.horaFin || "");
       if (!bloquesMap[k]) {
         bloquesMap[k] = {

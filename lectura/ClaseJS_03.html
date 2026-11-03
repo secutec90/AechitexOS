@@ -197,8 +197,8 @@
     function pintarCalendarioMae_(r) {
       const caja = document.getElementById('listaSlotsMae');
       if (!caja) return;
-      if (r && r.vista === 'concentrado') {
-        pintarConcentradoMae_(r);
+      if (r && (r.vista === 'grupo' || r.vista === 'docente' || r.vista === 'aula' || r.vista === 'concentrado')) {
+        pintarHojaAsc_(r);
         return;
       }
       const esMesH = (modoCalMae === 'mes' && orientacionCalMae === 'h');
@@ -291,8 +291,8 @@
       if (inp && fecha) inp.value = fecha;
 
       // Resaltar celda seleccionada en el horario
-      caja.querySelectorAll('.cal-celda.sel').forEach(function (el) { el.classList.remove('sel'); });
-      caja.querySelectorAll('.cal-celda').forEach(function (el) {
+      caja.querySelectorAll('.cal-celda.sel, .asc-celda.sel').forEach(function (el) { el.classList.remove('sel'); });
+      caja.querySelectorAll('.cal-celda, .asc-celda').forEach(function (el) {
         if (el.getAttribute('onclick') && el.getAttribute('onclick').indexOf(idHorario) >= 0 &&
           el.getAttribute('onclick').indexOf(fecha) >= 0) {
           el.classList.add('sel');
