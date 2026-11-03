@@ -15,7 +15,7 @@ Esta rama de AechitexOS guarda la copia aplicable en `lectura/`, con las mismas 
 - [ ] Recorrer la app publicada en el navegador. No hay despliegue de Apps Script en este entorno, así que el clic real quedó sin observar.
 
 ## Evidence
-`node .rsc/test_horario_turno.js` → `test_horario_turno: ok`.
+`node lectura/test_horario_turno.js` → `test_horario_turno: ok`.
 
 ## Next
 Copiar `lectura/` sobre el repositorio Lectura, publicar el Apps Script e importar `Horario.xml` y después `vespertino.xml` para ver los dos turnos en Planeación.
